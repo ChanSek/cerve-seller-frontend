@@ -129,7 +129,7 @@ const StoreTimings = ({ storeTiming, setStoreTiming, handleRemoveDaysAndTimings 
   };
 
   const handleAddMoreTimings = () => {
-    storeTiming["timings"].push({ from: "", to: "" });
+    storeTiming["timings"].push({ start: "00:00", end: "00:00" });
     setStoreTiming({ ...storeTiming });
   };
 
@@ -150,8 +150,8 @@ const StoreTimings = ({ storeTiming, setStoreTiming, handleRemoveDaysAndTimings 
           return (
             <div style={{ marginBottom: "7px", display: "flex" }}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                {renderTimePicker(index, "from")}
-                {renderTimePicker(index, "to")}
+                {renderTimePicker(index, "start")}
+                {renderTimePicker(index, "end")}
                 <div style={{ margin: "10px" }}>
                   <button
                     type="button"

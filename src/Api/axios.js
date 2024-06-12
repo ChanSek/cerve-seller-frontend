@@ -14,7 +14,7 @@ export function getCall(url) {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.get(url, {
-        headers: { ...(token && { "access-token": `Bearer ${token}` }) },
+        headers: { ...(token && { "Authorization": `Bearer ${token}` }) },
       });
       return resolve(response.data);
     } catch (err) {
@@ -30,7 +30,7 @@ export function postCall(url, params) {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.post(url, params, {
-        headers: { ...(token && { "access-token": `Bearer ${token}` }) },
+        headers: { ...(token && { "Authorization": `Bearer ${token}` }) },
       });
       return resolve(response.data);
     } catch (err) {
@@ -43,12 +43,32 @@ export function postCall(url, params) {
     }
   });
 }
+
+export function postMediaCall(url, params) {
+  const token = Cookies.get("token");
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios.post(url, params, {
+        headers: { ...(token && { "Authorization": `Bearer ${token}`, "Content-Type": "multipart/form-data" }) },
+      });
+      return resolve(response.data);
+    } catch (err) {
+      const { status } = err.response;
+      if (url === "/api/v1/auth/login") {
+        return reject(err);
+      }
+      if (status === 401) return unAuthorizedResponse();
+      return reject(err);
+    }
+  });
+}
+
 export function putCall(url, params) {
   const token = Cookies.get("token");
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.put(url, params, {
-        headers: { ...(token && { "access-token": `Bearer ${token}` }) },
+        headers: { ...(token && { "Authorization": `Bearer ${token}` }) },
       });
       return resolve(response.data);
     } catch (err) {
@@ -84,7 +104,7 @@ export function deleteCall(url) {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.delete(url, {
-        headers: { ...(token && { "access-token": `Bearer ${token}` }) },
+        headers: { ...(token && { "Authorization": `Bearer ${token}` }) },
       });
       return resolve(response.data);
     } catch (err) {

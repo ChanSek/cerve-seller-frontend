@@ -1,7 +1,6 @@
-import { createContext, useContext, useMemo, useEffect, useState } from "react";
+import { createContext, useContext, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCall } from "./../Api/axios.js";
-import { isObjEmpty } from "./../utils/validations";
 import { useLocalStorage } from "./useLocalStorage";
 
 const AuthContext = createContext();
@@ -11,15 +10,15 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const getUser = async (id) => {
-    const url = `/api/v1/users/${id}`;
+    const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
     const res = await getCall(url);
     return res[0];
   };
 
   const getOrgDetails = async (org_id) => {
-    const url = `/api/v1/organizations/${org_id}/storeDetails`;
+    const url = `/api/v1/seller/merchantId/${org_id}/merchant`;
     const res = await getCall(url);
-    return res;
+    return res.data;
   };
 
   useEffect(() => {
@@ -29,11 +28,13 @@ export const AuthProvider = ({ children }) => {
       setUser(u);
       if (u.isSystemGeneratedPassword) navigate("/initial-steps");
       else {
-        if (u?.role?.name == "Organization Admin") {
-          getOrgDetails(u?.organization).then((org) => {
-            let category = org?.storeDetails?.category;
-            if (!category) navigate(`/application/store-details/${u.organization}`);
-          });
+        if (u?.role?.name === "Organization Admin") {
+          if (u?.organization) {
+            getOrgDetails(u?.organization._id).then((org) => {
+              let category = org?.providerDetail.storeDetails?.category;
+              if (!category) navigate(`/application/store-details/${u.organization._id}`);
+            });
+          }
         }
       }
     });

@@ -214,7 +214,6 @@ let storeFields = [
     options: [
       { key: "PAN India", value: "pan_india" },
       { key: "City", value: "city" },
-      { key: "Custom area", value: "custom_area" },
       { key: "Radius", value: "radius" },
     ],
     type: "radio",
@@ -288,7 +287,7 @@ let storeFields = [
     file_type: "logo",
     title: "Logo",
     type: "upload",
-    required: true,
+    required: false,
     fontColor: "#ffffff",
   }
 ];
@@ -296,7 +295,7 @@ let storeFields = [
 const defaultStoreTimings = [
   {
     daysRange: { from: 1, to: 5 },
-    timings: [{ from: "00:00", to: "00:00" }],
+    timings: [{ start: "00:00", end: "00:00" }],
   },
 ];
 
@@ -338,6 +337,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
   const [providerDetails, setProviderDetails] = useState({});
   const [kycDetails, setKycDetails] = useState({});
   const [bankDetails, setBankDetails] = useState({});
+  const [cityInfo, setCityInfo] = useState([]);
   const [storeDetails, setStoreDetails] = useState({
     location: {},
     category: "",
@@ -470,10 +470,21 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
     };
   };
 
+  const getCityInfo = async () => {
+    try {
+      const url = `/api/v1/seller/reference/city`;
+      const result = await getCall(url);
+      setCityInfo(result.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const getOrgDetails = async (id) => {
     try {
-      const url = `/api/v1/organizations/${id}`;
-      const res = await getCall(url);
+      const url = `/api/v1/seller/merchantId/${id}/merchant`;
+      const result = await getCall(url);
+      const res = result.data;
       if (res?.providerDetail?.storeDetails?.deliveryTime) {
         // Get the number of hours from the duration object
         const duration = moment.duration(res.providerDetail.storeDetails.deliveryTime);
@@ -490,31 +501,31 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
       setKycDetails({
         contactEmail: res?.providerDetail?.contactEmail,
         contactMobile: res?.providerDetail?.contactMobile,
-        fssai: res?.providerDetail?.FSSAI,
+        fssai: res?.providerDetail?.fssaiNo,
         address: res?.providerDetail?.address,
-        address_proof: res?.providerDetail?.addressProof.url,
-        gst_no: res?.providerDetail?.GSTN.GSTN,
-        gst_proof: res?.providerDetail?.GSTN.proof.url,
-        pan_no: res?.providerDetail?.PAN.PAN,
-        pan_proof: res?.providerDetail?.PAN.proof.url,
-        id_proof: res?.providerDetail?.idProof.url,
+        address_proof: res?.providerDetail?.addressProofUrl,
+        gst_no: res?.providerDetail?.gstin,
+        gst_proof: res?.providerDetail?.fssaiProofUrl,
+        pan_no: res?.providerDetail?.pan,
+        pan_proof: res?.providerDetail?.panProofUrl,
+        id_proof: res?.providerDetail?.idProofUrl,
       });
 
       setBankDetails({
-        bankName: res?.providerDetail?.bankDetails?.bankName,
-        branchName: res?.providerDetail?.bankDetails?.branchName,
-        IFSC: res?.providerDetail?.bankDetails?.IFSC,
-        accHolderName: res?.providerDetail?.bankDetails?.accHolderName,
-        accNumber: res?.providerDetail?.bankDetails?.accNumber,
-        cancelledCheque: res?.providerDetail?.bankDetails?.cancelledCheque?.url,
+        bankName: res?.providerDetail?.account?.bankName,
+        branchName: res?.providerDetail?.account?.branchName,
+        IFSC: res?.providerDetail?.account?.ifscCode,
+        accHolderName: res?.providerDetail?.account?.accountHolderName,
+        accNumber: res?.providerDetail?.account?.accountNumber,
+        cancelledCheque: res?.providerDetail?.account?.cancelledChequeUrl,
       });
 
       let storeData = {
-        email: res.providerDetail.storeDetails?.supportDetails.email || "",
-        mobile: res.providerDetail.storeDetails?.supportDetails.mobile || "",
+        email: res.providerDetail.storeDetails?.supportEmail || "",
+        mobile: res.providerDetail.storeDetails?.supportMobile || "",
         category: res?.providerDetail?.storeDetails?.category || "",
-        location: res?.providerDetail?.storeDetails?.location || "",
-        location_availability: res.providerDetail.storeDetails.location_availability,
+        location: res?.providerDetail?.storeDetails?.storeGPSLocation || "",
+        location_availability: res?.providerDetail?.storeDetails?.storeAvailability,
         cities: res?.providerDetail?.storeDetails?.city || [],
         default_cancellable: "false",
         default_returnable: "false",
@@ -525,15 +536,15 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
         building: res.providerDetail?.storeDetails?.address?.building || "",
         area_code: res.providerDetail?.storeDetails?.address?.area_code || "",
         locality: res.providerDetail?.storeDetails?.address?.locality || "",
-        logo: res?.providerDetail?.storeDetails?.logo?.url || "",
-        logo_path: res?.providerDetail?.storeDetails?.logo?.path || "",
+        logo: res?.providerDetail?.storeDetails?.logoUrl || "",
+        //logo_path: res?.providerDetail?.storeDetails?.logo?.path || "",
 
-        holidays: res?.providerDetail?.storeDetails?.storeTiming?.holidays || [],
+        holidays: res?.providerDetail?.storeDetails?.storeTimes?.holidays || [],
         radius: res?.providerDetail?.storeDetails?.radius?.value || "",
         logisticsBppId: res?.providerDetail?.storeDetails?.logisticsBppId || "",
         logisticsDeliveryType: res?.providerDetail?.storeDetails?.logisticsDeliveryType || "",
         deliveryTime: res?.providerDetail?.storeDetails?.deliveryTime || "",
-        onNetworkLogistics: JSON.stringify(res?.providerDetail?.storeDetails?.onNetworkLogistics) || "true",
+        onNetworkLogistics: JSON.stringify(res?.providerDetail?.storeDetails?.useNetworkLogistics) || "true",
       };
 
       const polygonPoints = res?.providerDetail?.storeDetails?.custom_area
@@ -550,7 +561,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
         ...fulfillmentDetails,
       }));
 
-      const storeTimingDetails = res?.providerDetail?.storeDetails?.storeTiming;
+      const storeTimingDetails = res?.providerDetail?.storeDetails?.storeTimes;
 
       setStoreStatus(storeTimingDetails.status);
       setTemporaryClosedTimings(storeTimingDetails?.closed);
@@ -568,6 +579,10 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
   //   console.log("storeDetails=====>", storeDetails);
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    getCityInfo();
   }, []);
 
   useEffect(() => {
@@ -642,7 +657,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
           : "";
 
     formErrors.category = storeDetails.category?.trim() === "" ? "Supported Product Category is required" : "";
-    // formErrors.location = storeDetails.location.trim() === '' ? 'Location is required' : ''
+    formErrors.location = storeDetails.location === '' ? 'Location is required' : ''
     if (storeDetails.location_availability === "city") {
       formErrors.cities = storeDetails.cities.length === 0 ? "City is required" : "";
     } else {
@@ -819,7 +834,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
     if (supportedFulfillments.delivery) {
       let deliveryDetails = {
         id: "f1",
-        type: "delivery",
+        type: "Delivery",
         contact: {
           email: fulfillmentDetails.deliveryDetails.deliveryEmail,
           phone: fulfillmentDetails.deliveryDetails.deliveryMobile,
@@ -832,7 +847,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
     if (supportedFulfillments.selfPickup) {
       let selfPickupDetails = {
         id: "f2",
-        type: "pickup",
+        type: "Self-Pickup",
         contact: {
           email: fulfillmentDetails.selfPickupDetails.selfPickupEmail,
           phone: fulfillmentDetails.selfPickupDetails.selfPickupMobile,
@@ -845,7 +860,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
     if (supportedFulfillments.deliveryAndSelfPickup) {
       let deliveryAndSelfPickupDetails = {
         id: "f3",
-        type: "delivery&pickup",
+        type: "Delivery and Pickup",
         contact: {
           delivery: {
             email: fulfillmentDetails.deliveryAndSelfPickupDetails.deliveryEmail,
@@ -880,7 +895,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
   const onUpdate = () => {
     if (anyChangeInData() && validate()) {
       const provider_id = params?.id;
-      const url = `/api/v1/organizations/${provider_id}/storeDetails`;
+      const url = `/api/v1/seller/merchantId/${provider_id}/store`;
       const {
         category,
         logo,
@@ -928,26 +943,24 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
       }
 
       let fulfillments = getFulfillmentsPayloadFormat();
-      let storeTiming = getStoreTimingsPayloadFormat();
+      let storeTimes = getStoreTimingsPayloadFormat();
 
       let payload = {
         category: category,
         locationAvailabilityPANIndia: locationAvailability,
-        location_availability: storeDetails.location_availability,
+        storeAvailability: storeDetails.location_availability,
         defaultCancellable: eval(default_cancellable),
         defaultReturnable: eval(default_returnable),
         address: addressDetails,
-        supportDetails: {
-          email,
-          mobile,
-        },
+        supportEmail: email,
+        supportMobile: mobile,
         fulfillments,
-        storeTiming,
-        radius: {
+        storeTimes,
+        circles: [{
           unit: "km",
           value: storeDetails.radius || "",
-        },
-        onNetworkLogistics: storeDetails.onNetworkLogistics,
+        }],
+        useNetworkLogistics: storeDetails.onNetworkLogistics,
         logisticsBppId: storeDetails.onNetworkLogistics === 'true' ? storeDetails.logisticsBppId : '',
         logisticsDeliveryType: storeDetails.logisticsDeliveryType,
         deliveryTime: storeDetails.onNetworkLogistics === 'false' ? storeDetails.deliveryTime : '',
@@ -962,18 +975,23 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
       } else {
       }
       payload["custom_area"] = polygonPoints;
-
-      if (!startWithHttpRegex.test(storeDetails.logo)) {
-        payload.logo = logo;
-      } else {
-        payload.logo = logo_path;
-      }
+      payload["logoUrl"] = storeDetails.logo;
+      // if (!startWithHttpRegex.test(storeDetails.logo)) {
+      //   payload["logoUrl"] = storeDetails.logo;
+      // } else {
+      //   payload["logoUrl"] = logo_path;
+      // }
 
       postCall(url, payload)
         .then((resp) => {
-          cogoToast.success("Store details updated successfully");
-          getOrgDetails(provider_id);
-          navigate("/application/inventory");
+          if (resp.status && resp.status !== 200) {
+            cogoToast.error(resp.message, { hideAfter: 5 });
+          }
+          if (resp.status && resp.status === 200) {
+            cogoToast.success("Store details updated successfully", { hideAfter: 5 });
+            getOrgDetails(provider_id);
+            navigate("/application/inventory");
+          }
         })
         .catch((error) => {
           console.log(error);
@@ -1016,18 +1034,17 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
         const citiesFieldExists = updatedFields.some((field) => field.id === "cities");
 
         if (!citiesFieldExists) {
+          const cityOptions = [];
+          cityInfo?.forEach((ci) => {
+            let city = { "key": ci.city, "value": ci.cityCode };
+            cityOptions.push(city);
+          });
           let fieldsWithoutCustomMap = updatedFields.filter((field) => field.type !== "custom-component");
           let fieldsWithCityInput = addAfter(fieldsWithoutCustomMap, 5, {
             id: "cities",
             title: "Select Cities",
             placeholder: "Please Select Cities",
-            options: [
-              { key: "Delhi", value: "delhi" },
-              { key: "Pune", value: "pune" },
-              { key: "Bengaluru", value: "bengaluru" },
-              { key: "Kolkata", value: "kolkata" },
-              { key: "Noida", value: "noida" },
-            ],
+            options: cityOptions,
             type: "multi-select",
             required: true,
           });
@@ -1096,7 +1113,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
     }
   }, [storeDetails.location_availability]);
 
-  let userRole = JSON.parse(localStorage.getItem("user"))?.role?.name;
+  let userRole = 'Organization Admin';//JSON.parse(localStorage.getItem("user"))?.role?.name;
 
   return (
     <div>

@@ -6,8 +6,8 @@ import Inventory from "../Components/Application/Inventory/Inventory";
 import AddProduct from "../Components/Application/Product/AddProduct";
 import PageNotFound from "../Components/PageNotFound/PageNotFound";
 import Login from "../Components/Auth/Login/Login";
-import SignUp from "../Components/Auth/SignUp/SignUp";
 import PrivateRoute from "./PrivateRoutes";
+import PrivateInitRoute from "./PrivateInitRoutes";
 import OrderDetails from "../Components/Application/Order/OrderDetails";
 import UserListings from "../Components/Application/UserListings/UserListings";
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
@@ -17,8 +17,6 @@ import InviteProvider from "../Components/OnBoarding/inviteProvider";
 import AddProvider from "../Components/OnBoarding/addProvider";
 import ForgotPassword from "../Components/Auth/ForgotPassword/ForgotPassword";
 import BulkUpload from "../Components/Application/Product/BulkUpload";
-import StoreDetails from "../Components/Application/Store/StoreDetails.jsx";
-import { getUser } from "../utils/validateToken.js";
 import Complaints from "../Components/Application/Complaints/Complaints";
 import ComplaintDetails from "../Components/Application/Complaints/ComplaintDetails";
 import CustomMenu from "../Components/Application/CustomMenu/CustomMenu";
@@ -26,8 +24,10 @@ import MenuCategory from "../Components/Application/CustomMenu/MenuCategory";
 import MenuDetails from "../Components/Application/CustomMenu/MenuDetails";
 import CustomizationsIndex from "../Components/Application/Customizations/CustomizationsIndex.js";
 import CustomizationGroups from "../Components/Application/Customizations/CustomizationGroups.js";
-import CustomizationItems from "../Components/Application/Customizations/CustomizationItems.js";
 import CustomizationGroupDetails from "../Components/Application/Customizations/CustomizationGroupDetails.js";
+import Offer from "../Components/Application/Offer/Offer";
+import AddOffer from "../Components/Application/Offer/AddOffer";
+import AddSeller from "../Components/OnBoarding/addSeller";
 
 export default function OndcRoutes() {
   return (
@@ -193,9 +193,16 @@ export default function OndcRoutes() {
         <Route
           path="/sign-up"
           element={
-            // <PrivateRoute>
-            <AddProvider />
-            // </PrivateRoute>
+            <AddSeller />
+          }
+        />
+        <Route
+          path="/add-provider-info"
+          element={
+            <PrivateInitRoute>
+              <AddProvider />
+            </PrivateInitRoute>
+
           }
         />
         <Route
@@ -220,6 +227,31 @@ export default function OndcRoutes() {
           element={
             <PrivateRoute>
               <ComplaintDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          exact
+          path="/application/offers"
+          element={
+            <PrivateRoute>
+              <Offer />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/add/offer"
+          element={
+            <PrivateRoute>
+              <AddOffer />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/edit/offer/:id"
+          element={
+            <PrivateRoute>
+              <AddOffer />
             </PrivateRoute>
           }
         />

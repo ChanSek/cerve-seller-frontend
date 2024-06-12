@@ -89,7 +89,7 @@ const StoreTimingsRenderer = (props) => {
   const handleAddMoreTimings = () => {
     storeTimings.push({
       daysRange: { from: 1, to: 5 },
-      timings: [{ from: "10:00", to: "12:00" }],
+      timings: [{ start: "10:00", end: "12:00" }],
     });
     setStoreTimings([...storeTimings]);
   };

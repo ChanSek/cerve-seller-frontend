@@ -29,7 +29,7 @@ const PolygonMap = (props) => {
   const [toggle, setToggle] = useState(false);
 
   useEffect(() => {
-    axios.post("/api/v1/auth/mmi/token").then((res) => {
+    axios.post("/api/v1/seller/mmi/token").then((res) => {
       setApiKey(res.data.access_token);
     });
   }, []);

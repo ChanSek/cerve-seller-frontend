@@ -14,14 +14,7 @@ export const FILTER_OPTIONS = {
 };
 
 export const PRODUCT_CATEGORY = {
-    "Grocery": "Grocery",
-    "F&B": "F&B",
-    "Home & Kitchen": "Home & Kitchen",
-    "Health & Wellness": "Health & Wellness",
-    "Electronics": "Electronics",
-    "Beauty & Personal Care": "Beauty & Personal Care",
-    "Fashion": "Fashion",
-    "Appliances":"Appliances",
+    "RET10": "Grocery"
 }
 
 export const DELIVERY_TYPE_LIST = {

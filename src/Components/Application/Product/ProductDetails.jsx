@@ -75,18 +75,19 @@ const AddGenericProduct = ({
   const [customizations, setCustomizations] = useState([]);
 
   const [tabValue, setTabValue] = useState("1");
+  const [storeId, setStoreId] = useState("");
 
   const initialValues = {
     productCode: "",
     productName: "",
-    MRP: "",
+    price: "",
     purchasePrice: "",
-    HSNCode: "",
-    GST_Percentage: "",
-    quantity: "",
+    hSNCode: "",
+    gstPercentage: "",
+    availableQty: "",
     barcode: "",
     maxAllowedQty: "",
-    UOM: "",
+    uom: "",
     length: "",
     breadth: "",
     height: "",
@@ -100,16 +101,16 @@ const AddGenericProduct = ({
     longDescription: "",
     description: "",
     vegNonVeg: "",
-    isReturnable: "false",
-    isCancellable: "false",
+    returnable: "false",
+    cancellable: "false",
     availableOnCod: "false",
-    images: [],
-    manufacturerOrPackerName: "",
-    manufacturerOrPackerAddress: "",
-    commonOrGenericNameOfCommodity: "",
-    monthYearOfManufacturePackingImport: "",
-    importerFSSAILicenseNo: "",
-    brandOwnerFSSAILicenseNo: "",
+    imageUrls: [],
+    packerName: "",
+    packerAddress: "",
+    genericNameOfCommodity: "",
+    manufacturePackingImport: "",
+    importerFssaiLicenseNo: "",
+    brandOwnerFssaiLicenseNo: "",
     fulfillmentOption: "",
     countryOfOrigin: "",
     backImage: "",
@@ -130,7 +131,7 @@ const AddGenericProduct = ({
   const formatAttributesToFieldsDataFormat = (variants, required = false) => {
     return variants.map((variant) => {
       return {
-        id: variant.name,
+        id: variant.name.replace(/ /g,"_").toLowerCase(),
         title: variant.name,
         placeholder: variant.example,
         type: variant.type || "input",
@@ -164,30 +165,31 @@ const AddGenericProduct = ({
 
   const addProduct = async () => {
     try {
-      let product_data = Object.assign({}, formValues, categoryForm.formValues);
+      let product_data = Object.assign({}, formValues);
+      product_data.subCategory = categoryForm.formValues.productSubcategory1;
       let vital_data = Object.assign({}, vitalForm);
       let variant_data = formattedVariantDataForAddProduct();
       let api_url =
         variationOn === "none"
-          ? "/api/v1/products"
+          ? `/api/v1/seller/storeId/${storeId}/product`
           : "/api/v1/productWithVariant";
 
-      const subCatList =
-        PRODUCT_SUBCATEGORY[categoryForm.formValues?.productCategory];
-      const selectedSubCatObject = subCatList.find(
-        (subitem) =>
-          subitem.value === categoryForm.formValues?.productSubcategory1
-      );
-      if (selectedSubCatObject && selectedSubCatObject.protocolKey) {
-        const hiddenFields =
-          FIELD_NOT_ALLOWED_BASED_ON_PROTOCOL_KEY[
-            selectedSubCatObject.protocolKey
-          ];
-        hiddenFields.forEach((field) => {
-          delete product_data[field];
-        });
-      } else {
-      }
+      // const subCatList =
+      //   PRODUCT_SUBCATEGORY[categoryForm.formValues?.productCategory];
+      // const selectedSubCatObject = subCatList.find(
+      //   (subitem) =>
+      //     subitem.value === categoryForm.formValues?.productSubcategory1
+      // );
+      // if (selectedSubCatObject && selectedSubCatObject.protocolKey) {
+      //   const hiddenFields =
+      //     FIELD_NOT_ALLOWED_BASED_ON_PROTOCOL_KEY[
+      //       selectedSubCatObject.protocolKey
+      //     ];
+      //   hiddenFields.forEach((field) => {
+      //     delete product_data[field];
+      //   });
+      // } else {
+      // }
 
       if (variationOn !== "none") {
         variationCommonFields.forEach((field) => {
@@ -204,10 +206,10 @@ const AddGenericProduct = ({
       // Format the duration in ISO 8601 format
       const iso8601 = duration.toISOString();
       product_data.returnWindow = iso8601;
-      product_data.isCancellable =
-        product_data.isCancellable === "true" ? true : false;
-      product_data.isReturnable =
-        product_data.isReturnable === "true" ? true : false;
+      product_data.cancellable =
+        product_data.cancellable === "true" ? true : false;
+      product_data.returnable =
+        product_data.returnable === "true" ? true : false;
       // product_data.isVegetarian = product_data.isVegetarian === "true" ? true : false;
       product_data.availableOnCod =
         product_data.availableOnCod === "true" ? true : false;
@@ -232,9 +234,15 @@ const AddGenericProduct = ({
         data["variationOn"] = variationOn?.toUpperCase();
       }
 
-      await cancellablePromise(postCall(api_url, data));
-      cogoToast.success("Product added successfully!");
-      navigate("/application/inventory");
+      //await cancellablePromise(postCall(api_url, data));
+      const res = await postCall(api_url, data)
+      if(res.status && res.status !== 200){
+        cogoToast.error(res.message, { hideAfter: 5 });
+      }
+      if(res.status && res.status === 200){
+        cogoToast.success("Product added successfully!", { hideAfter: 5 });
+        navigate("/application/inventory");
+      }
     } catch (error) {
       console.log(error);
       cogoToast.error(error.response.data.error);
@@ -255,60 +263,82 @@ const AddGenericProduct = ({
   };
 
   const catalogueUOMToOndcUOM = {
-    "L": "litre",
-  }
+    g: "gram",
+    kg: "kilogram",
+    l: "litre",
+    ml: "millilitre",
+    mtr: "meter",
+    pack: "unit",
+    pc: "unit",
+    pull: "unit",
+    roll: "unit",
+    set: "unit",
+    stick: "unit",
+    wipe: "unit",
+    page: "unit",
+    sheet: "unit",
+    tab: "unit",
+    box: "unit",
+    cup: "unit",
+  };
 
   const fetchProductFromCatalogue = async () => {
     getCall(
       `/api/v1/product/caas/search?barcode=${barCodeForm.formValues.barCodeValue}&barcode_type=${barCodeForm.formValues.barCodeType}&domain=${categoryForm.formValues?.productCategory}`
     )
       .then(async (resp) => {
-        let resp_data = resp.data.data[0];
-        let variant_data = resp.data.data[0].variants[0];
-        let images_data = await getSignedUrlsForPublicUrls(variant_data.ondc_info.Images)
+        if (resp.data.total === 0) {
+          cogoToast.error("Product details unavailable!");
+        } else {
+          // let resp_data = resp.data.data[0];
+          let variant_data = resp.data.data[0]?.variants[0];
+          let images_data = await getSignedUrlsForPublicUrls(
+            variant_data.ondc_info.Images
+          );
 
-        let data = {
-          productCode: variant_data.barcode,
-          productName: variant_data.title,
-          MRP: variant_data.ondc_info.MRP.value,
-          quantity: variant_data.ondc_info["Net Quantity"],
-          UOM: catalogueUOMToOndcUOM[variant_data.ondc_info["UOM"]],
-          UOMValue: variant_data.ondc_info["Net Quantity"],
-          longDescription: variant_data.ondc_info["Product Description"],
-          manufacturerOrPackerName: variant_data.ondc_info["Manufacturer"],
-          countryOfOrigin:
-            countryNameToID[variant_data.ondc_info["Country Of Origin"]],
-          purchasePrice: "",
-          GST_Percentage: "",
-          barcode: "",
-          maxAllowedQty: "",
-          length: "",
-          breadth: "",
-          height: "",
-          weight: "",
-          returnWindow: "",
-          manufacturerName: "",
-          manufacturedDate: "",
-          nutritionalInfo: "",
-          additiveInfo: "",
-          instructions: "",
-          description: "",
-          vegNonVeg: "",
-          isReturnable: "false",
-          isCancellable: "false",
-          availableOnCod: "false",
-          images: images_data.map((i) => i?.path),
-          uploaded_urls: images_data.map((i) => i?.url),
-          manufacturerOrPackerAddress: "",
-          commonOrGenericNameOfCommodity: "",
-          monthYearOfManufacturePackingImport: "",
-          importerFSSAILicenseNo: "",
-          brandOwnerFSSAILicenseNo: "",
-          fulfillmentOption: "",
-          backImage: "",
-        };
+          let data = {
+            productCode: variant_data.barcode,
+            productName: variant_data.title,
+            price: variant_data.ondc_info.MRP.value,
+            availableQty: variant_data.ondc_info["Net Quantity"],
+            uom: catalogueUOMToOndcUOM[variant_data.variant_info.data.unit],
+            UOMValue: variant_data.ondc_info["Net Quantity"],
+            longDescription: variant_data.ondc_info["Product Description"],
+            packerName: variant_data.ondc_info["Manufacturer"],
+            countryOfOrigin:
+              countryNameToID[variant_data.ondc_info["Country Of Origin"]],
+            purchasePrice: "",
+            gstPercentage: "",
+            barcode: "",
+            maxAllowedQty: "",
+            length: "",
+            breadth: "",
+            height: "",
+            weight: "",
+            returnWindow: "",
+            manufacturerName: "",
+            manufacturedDate: "",
+            nutritionalInfo: "",
+            additiveInfo: "",
+            instructions: "",
+            description: "",
+            vegNonVeg: "",
+            returnable: "false",
+            cancellable: "false",
+            availableOnCod: "false",
+            imageUrls: images_data.map((i) => i?.path),
+            uploaded_urls: images_data.map((i) => i?.url),
+            packerAddress: "",
+            genericNameOfCommodity: "",
+            manufacturePackingImport: "",
+            importerFssaiLicenseNo: "",
+            brandOwnerFssaiLicenseNo: "",
+            fulfillmentOption: "",
+            backImage: "",
+          };
 
-        setFormValues({ ...data });
+          setFormValues({ ...data });
+        }
       })
       .catch((error) => {
         cogoToast.error("Something went wrong!");
@@ -317,17 +347,18 @@ const AddGenericProduct = ({
   };
 
   const getProduct = () => {
-    getCall(`/api/v1/products/${state.productId}`)
+    getCall(`/api/v1/seller/productId/${state.productId}/product`)
       .then((resp) => {
+        resp = resp.data;
         resp.commonDetails["uploaded_urls"] =
-          resp?.commonDetails.images?.map((i) => i?.url) || [];
-        resp.commonDetails["images"] =
-          resp?.commonDetails.images?.map((i) => i?.path) || [];
+          resp?.commonDetails.imageUrls?.map((i) => i?.url) || [];
+        resp.commonDetails["imageUrls"] =
+          resp?.commonDetails.imageUrls?.map((i) => i?.path) || [];
 
-        resp.commonDetails.isCancellable = resp.commonDetails.isCancellable
+        resp.commonDetails.cancellable = resp.commonDetails.cancellable
           ? "true"
           : "false";
-        resp.commonDetails.isReturnable = resp.commonDetails.isReturnable
+        resp.commonDetails.returnable = resp.commonDetails.returnable
           ? "true"
           : "false";
         resp.commonDetails.isVegetarian = resp.commonDetails.isVegetarian
@@ -336,27 +367,27 @@ const AddGenericProduct = ({
         resp.commonDetails.availableOnCod = resp.commonDetails.availableOnCod
           ? "true"
           : "false";
-        setBackImagePath(resp.commonDetails.backImage.path);
-        resp.commonDetails.backImage = resp.commonDetails.backImage.url;
+        setBackImagePath(resp.commonDetails.backImage);
+        resp.commonDetails.backImage = resp.commonDetails.backImage;
 
         // console.log(resp.commonAttributesValues["size_chart"]);
         // resp.commonAttributesValues["size_chart"] = resp?.commonAttributesValues?.size_chart?.url;
 
         // Create a duration object from the ISO 8601 string
-        const duration = moment.duration(resp.returnWindow);
+        const duration = moment.duration(resp.commonDetails.returnWindow);
 
         // Get the number of hours from the duration object
         const hours = duration.asHours();
         resp.commonDetails.returnWindow = String(hours);
-        if (resp.commonAttributesValues["size_chart"]) {
-          resp.commonAttributesValues["size_chart"] =
-            resp.commonAttributesValues["size_chart"].url;
-        }
+        //if (resp.commonAttributesValues["size_chart"]) {
+        //  resp.commonAttributesValues["size_chart"] =
+        //    resp.commonAttributesValues["size_chart"].url;
+        //}
         setFormValues({ ...resp.commonDetails });
         setVitalForm({ ...resp.commonAttributesValues });
 
-        let category = resp.commonDetails["productCategory"];
-        let sub_category = resp.commonDetails["productSubcategory1"];
+        let category = resp.commonDetails["category"];
+        let sub_category = resp.commonDetails["subCategory"];
         let customization_groups =
           resp.customizationDetails?.customizationGroups?.map((group) => {
             let optional = group.minQuantity === 0 ? true : false;
@@ -365,10 +396,10 @@ const AddGenericProduct = ({
         // setCustomizationGroups(customization_groups);
         // setCustomizations(resp.customizationDetails.customizations);
 
-        let attributes =
-          allProperties[category][sub_category] ||
-          allProperties[category]["default"];
-        setVitalFields(formatAttributesToFieldsDataFormat(attributes));
+        //let attributes =
+         // allProperties[category][sub_category] ||
+         // allProperties[category]["default"];
+       // setVitalFields(formatAttributesToFieldsDataFormat(attributes));
       })
       .catch((error) => {
         cogoToast.error("Something went wrong!");
@@ -380,21 +411,24 @@ const AddGenericProduct = ({
     // id will be dynamic after schema changes
     try {
       let product_data = Object.assign({}, formValues);
+      console.log("product_data "+product_data);
+      product_data.category = state.productCategory;
+      product_data.subCategory = state.productSubCategory;
       let vital_data = Object.assign({}, vitalForm);
-      const subCatList = PRODUCT_SUBCATEGORY[formValues?.productCategory];
-      const selectedSubCatObject = subCatList.find(
-        (subitem) => subitem.value === formValues?.productSubcategory1
-      );
-      if (selectedSubCatObject && selectedSubCatObject.protocolKey) {
-        const hiddenFields =
-          FIELD_NOT_ALLOWED_BASED_ON_PROTOCOL_KEY[
-            selectedSubCatObject.protocolKey
-          ];
-        hiddenFields.forEach((field) => {
-          delete product_data[field];
-        });
-      } else {
-      }
+      // const subCatList = PRODUCT_SUBCATEGORY[formValues?.productCategory];
+      // const selectedSubCatObject = subCatList.find(
+      //   (subitem) => subitem.value === formValues?.productSubcategory1
+      // );
+      // if (selectedSubCatObject && selectedSubCatObject.protocolKey) {
+      //   const hiddenFields =
+      //     FIELD_NOT_ALLOWED_BASED_ON_PROTOCOL_KEY[
+      //       selectedSubCatObject.protocolKey
+      //     ];
+      //   hiddenFields.forEach((field) => {
+      //     delete product_data[field];
+      //   });
+      // } else {
+      // }
 
       // Create a duration object with the hours you want to convert
       const duration = moment.duration(
@@ -437,7 +471,7 @@ const AddGenericProduct = ({
         },
       };
 
-      await putCall(`/api/v1/products/${state.productId}`, data);
+      await putCall(`/api/v1/seller/productId/${state.productId}/product`, data);
       cogoToast.success("Product updated successfully!");
       navigate("/application/inventory");
     } catch (error) {
@@ -452,11 +486,9 @@ const AddGenericProduct = ({
 
   const getOrgDetails = async (id) => {
     try {
-      const url = `/api/v1/organizations/${id}`;
+      const url = `/api/v1/seller/merchantId/${id}/merchant`;
       const res = await getCall(url);
-
-      const fulfillments = res.providerDetail.storeDetails.fulfillments;
-      getFulfillmentOptions(fulfillments);
+      return res.data;
     } catch (error) {}
   };
 
@@ -464,15 +496,15 @@ const AddGenericProduct = ({
     const availableOptions = [];
     fulfillments.forEach((fulfillment) => {
       if (fulfillment.id === "f1") {
-        availableOptions.push({ key: "Delivery", value: "delivery" });
+        availableOptions.push({ key: "Delivery", value: "Delivery" });
       }
       if (fulfillment.id === "f2") {
-        availableOptions.push({ key: "Self Pickup", value: "selfPickup" });
+        availableOptions.push({ key: "Self Pickup", value: "Self-Pickup" });
       }
       if (fulfillment.id === "f3") {
         availableOptions.push({
           key: "Delivery And Self Pickup",
-          value: "deliveryAndSelfPickup",
+          value: "Delivery and Pickup",
         });
       }
     });
@@ -496,7 +528,11 @@ const AddGenericProduct = ({
       fetchProductFromCatalogue();
     }
     const user = JSON.parse(localStorage.getItem("user"));
-    getOrgDetails(user.organization);
+    getOrgDetails(user.organization._id).then((org)=>{
+      const fulfillments = org.providerDetail.storeDetails.fulfillments;
+      setStoreId(org.providerDetail.storeDetails.storeId);
+      getFulfillmentOptions(fulfillments);
+    });
   }, []);
 
   //   useEffect(() => {
@@ -562,7 +598,7 @@ const AddGenericProduct = ({
       //   formatAttributesToFieldsDataFormat(selected_variants);
       let all_variant_fields = [...variants_fields, ...default_variant_fields];
       let variant_initial_values = all_variant_fields.reduce((acc, field) => {
-        acc[field.id] = field.id === "images" ? [] : "";
+        acc[field.id] = field.id === "imageUrls" ? [] : "";
         return acc;
       }, {});
       setVariantFields(all_variant_fields);
@@ -606,7 +642,7 @@ const AddGenericProduct = ({
       );
     }
 
-    if (category !== "Grocery" && category !== "F&B") {
+    if (category !== "RET10" && category !== "F&B") {
       product_info_fields = product_info_fields.filter(
         (field) => field !== "vegNonVeg"
       );
@@ -660,8 +696,8 @@ const AddGenericProduct = ({
       formValues?.countryOfOrigin?.trim() === ""
         ? "Country of origin is not allowed to be empty"
         : "";
-    formErrors.GST_Percentage =
-      formValues?.GST_Percentage === "" ? "GST percentage is required" : "";
+    formErrors.gstPercentage =
+      formValues?.gstPercentage === "" ? "GST percentage is required" : "";
     formErrors.maxAllowedQty = !formValues?.maxAllowedQty
       ? "Please enter a valid Max. Allowed Quantity"
       : formValues?.maxAllowedQty?.length > MAX_STRING_LENGTH_10
@@ -669,7 +705,7 @@ const AddGenericProduct = ({
       : parseInt(formValues?.maxAllowedQty) > parseInt(formValues?.quantity)
       ? "Cannot be more than quantity"
       : "";
-    formErrors.UOM = formValues?.UOM === "" ? "UOM unit is required" : "";
+    formErrors.uom = formValues?.uom === "" ? "UOM unit is required" : "";
     formErrors.fulfillmentOption =
       formValues?.fulfillmentOption === undefined ||
       formValues?.fulfillmentOption === ""
@@ -757,65 +793,65 @@ const AddGenericProduct = ({
         : formValues?.description?.length > MAX_STRING_LENGTH
         ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
         : "";
-    if (productInfoFields.includes("manufacturerOrPackerName")) {
-      formErrors.manufacturerOrPackerName =
-        formValues?.manufacturerOrPackerName?.trim() === ""
+    if (productInfoFields.includes("packerName")) {
+      formErrors.packerName =
+        formValues?.packerName?.trim() === ""
           ? "Manufacturer or packer name is required"
-          : formValues?.manufacturerOrPackerName?.length > MAX_STRING_LENGTH_50
+          : formValues?.packerName?.length > MAX_STRING_LENGTH_50
           ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
           : "";
     }
-    if (productInfoFields.includes("manufacturerOrPackerAddress")) {
-      formErrors.manufacturerOrPackerAddress =
-        formValues?.manufacturerOrPackerAddress?.trim() === ""
+    if (productInfoFields.includes("packerAddress")) {
+      formErrors.packerAddress =
+        formValues?.packerAddress?.trim() === ""
           ? "Manufacturer or packer address is required"
-          : formValues?.manufacturerOrPackerAddress?.length >
+          : formValues?.packerAddress?.length >
             MAX_STRING_LENGTH_50
           ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
           : "";
     }
-    if (productInfoFields.includes("commonOrGenericNameOfCommodity")) {
-      formErrors.commonOrGenericNameOfCommodity =
-        formValues?.commonOrGenericNameOfCommodity?.trim() === ""
+    if (productInfoFields.includes("genericNameOfCommodity")) {
+      formErrors.genericNameOfCommodity =
+        formValues?.genericNameOfCommodity?.trim() === ""
           ? "Common or generic name of commodity is required"
-          : formValues?.commonOrGenericNameOfCommodity?.length >
+          : formValues?.genericNameOfCommodity?.length >
             MAX_STRING_LENGTH_50
           ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
           : "";
     }
-    if (productInfoFields.includes("monthYearOfManufacturePackingImport")) {
-      formErrors.monthYearOfManufacturePackingImport =
-        formValues?.monthYearOfManufacturePackingImport?.trim() === ""
+    if (productInfoFields.includes("manufacturePackingImport")) {
+      formErrors.manufacturePackingImport =
+        formValues?.manufacturePackingImport?.trim() === ""
           ? "Month year of manufacture packing import is required"
-          : formValues?.monthYearOfManufacturePackingImport?.length >
+          : formValues?.manufacturePackingImport?.length >
             MAX_STRING_LENGTH
           ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
           : "";
     }
-    if (productInfoFields.includes("importerFSSAILicenseNo")) {
-      formErrors.importerFSSAILicenseNo =
-        formValues?.importerFSSAILicenseNo?.trim() === ""
+    if (productInfoFields.includes("importerFssaiLicenseNo")) {
+      formErrors.importerFssaiLicenseNo =
+        formValues?.importerFssaiLicenseNo === ""
           ? "Importer FSSAI license no is required"
-          : !isNumberOnly(formValues?.importerFSSAILicenseNo)
+          : !isNumberOnly(formValues?.importerFssaiLicenseNo)
           ? "Please enter only digit"
-          : formValues?.importerFSSAILicenseNo?.length > MAX_STRING_LENGTH_14
+          : formValues?.importerFssaiLicenseNo?.length > MAX_STRING_LENGTH_14
           ? `Cannot be more than ${MAX_STRING_LENGTH_14} characters`
           : "";
     }
-    if (productInfoFields.includes("brandOwnerFSSAILicenseNo")) {
-      formErrors.brandOwnerFSSAILicenseNo =
-        formValues?.brandOwnerFSSAILicenseNo?.trim() === ""
+    if (productInfoFields.includes("brandOwnerFssaiLicenseNo")) {
+      formErrors.brandOwnerFssaiLicenseNo =
+        formValues?.brandOwnerFssaiLicenseNo === ""
           ? "Brand owner FSSAI license no is required"
-          : !isNumberOnly(formValues?.brandOwnerFSSAILicenseNo)
+          : !isNumberOnly(formValues?.brandOwnerFssaiLicenseNo)
           ? "Please enter only digit"
-          : formValues?.brandOwnerFSSAILicenseNo?.length > MAX_STRING_LENGTH_14
+          : formValues?.brandOwnerFssaiLicenseNo?.length > MAX_STRING_LENGTH_14
           ? `Cannot be more than ${MAX_STRING_LENGTH_14} characters`
           : "";
     }
     if (variationOn === "none") {
-      formErrors.MRP = !formValues?.MRP
+      formErrors.price = !formValues?.price
         ? "Please enter a valid number"
-        : !isAmountValid(formValues?.MRP)
+        : !isAmountValid(formValues?.price)
         ? "Please enter only digit"
         : "";
       formErrors.purchasePrice = !formValues?.purchasePrice
@@ -823,9 +859,9 @@ const AddGenericProduct = ({
         : !isAmountValid(formValues?.purchasePrice)
         ? "Please enter only digit"
         : "";
-      formErrors.quantity = !formValues?.quantity
+      formErrors.availableQty = !formValues?.availableQty
         ? "Please enter a valid Quantity"
-        : !isNumberOnly(formValues?.quantity)
+        : !isNumberOnly(formValues?.availableQty)
         ? "Please enter only digit"
         : "";
       formErrors.barcode = !formValues?.barcode
@@ -835,9 +871,9 @@ const AddGenericProduct = ({
         : formValues?.barcode?.length > MAX_STRING_LENGTH_12
         ? `Cannot be more than ${MAX_STRING_LENGTH_12} characters`
         : "";
-      formErrors.images =
+      formErrors.imageUrls =
         formValues?.productCategory !== "f_and_b" &&
-        formValues?.images.length < 3
+        formValues?.imageUrls.length < 3
           ? "Minimum 3 images are required"
           : "";
 
@@ -1054,33 +1090,33 @@ const AddGenericProduct = ({
       let focusFieldValue = formValues[focusedField]?.toString().trim();
       if (
         focusFieldValue !== "" &&
-        focusedField === "manufacturerOrPackerName"
+        focusedField === "packerName"
       ) {
-        formErrors.manufacturerOrPackerName =
-          formValues?.manufacturerOrPackerName?.trim() === ""
+        formErrors.packerName =
+          formValues?.packerName?.trim() === ""
             ? "Manufacturer or packer name is required"
-            : formValues?.manufacturerOrPackerName.length > MAX_STRING_LENGTH_50
+            : formValues?.packerName.length > MAX_STRING_LENGTH_50
             ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
             : "";
       } else if (
         focusFieldValue !== "" &&
-        focusedField === "manufacturerOrPackerAddress"
+        focusedField === "packerAddress"
       ) {
-        formErrors.manufacturerOrPackerAddress =
-          formValues?.manufacturerOrPackerAddress?.trim() === ""
+        formErrors.packerAddress =
+          formValues?.packerAddress?.trim() === ""
             ? "Manufacturer or packer address is required"
-            : formValues?.manufacturerOrPackerAddress.length >
+            : formValues?.packerAddress.length >
               MAX_STRING_LENGTH_50
             ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
             : "";
       } else if (
         focusFieldValue !== "" &&
-        focusedField === "commonOrGenericNameOfCommodity"
+        focusedField === "genericNameOfCommodity"
       ) {
         formErrors.description =
           formValues?.description?.trim() === ""
             ? "Short description cannot be empty"
-            : formValues?.commonOrGenericNameOfCommodity.length >
+            : formValues?.genericNameOfCommodity.length >
               MAX_STRING_LENGTH_50
             ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
             : "";

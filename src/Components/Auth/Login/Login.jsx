@@ -9,6 +9,7 @@ import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-s
 import { AddCookie, getValueFromCookie } from "../../../utils/cookies";
 import { postCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
+import { isObjEmpty } from "../../../utils/validations";
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
@@ -27,12 +28,12 @@ const CssTextField = styled(TextField)({
 export default function Login() {
   const navigate = useNavigate();
   const [login, setLogin] = useState({
-    email: "",
+    username: "",
     password: "",
   });
   const [signInUsingEmailAndPasswordloading] = useState(false);
   const [inlineError, setInlineError] = useState({
-    email_error: "",
+    username_error: "",
     password_error: "",
     captcha_error: "",
   });
@@ -41,10 +42,10 @@ export default function Login() {
 
   // use this function to check the email
   function checkEmail() {
-    if (!login.email) {
+    if (!login.username) {
       setInlineError((inlineError) => ({
         ...inlineError,
-        email_error: "Email cannot be empty",
+        username_error: "Email cannot be empty",
       }));
       return false;
     }
@@ -86,13 +87,16 @@ export default function Login() {
   function handleRedirect(token, user) {
     const { _id } = user;
     AddCookie("token", token);
+    AddCookie("organization", user.organization);
     localStorage.setItem("user_id", _id);
-    navigate("/application/inventory");
+    if (!isObjEmpty(user.organization)) { navigate("/application/inventory") }
+    else { navigate("/add-provider-info") };
   }
 
   useEffect(() => {
     if (getValueFromCookie("token")) {
-      navigate("/application/inventory");
+      if (!isObjEmpty(getValueFromCookie("organization"))) { navigate("/application/inventory") }
+      else { navigate("/add-provider-info") };
     }
   }, []);
 
@@ -104,7 +108,7 @@ export default function Login() {
     <div className="m-auto w-10/12 md:w-3/4">
       <div className="py-1">
         <label
-          htmlFor="email"
+          htmlFor="username"
           className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
         >
           Email
@@ -112,31 +116,31 @@ export default function Login() {
         </label>
         <CssTextField
           id={
-            inlineError.email_error
+            inlineError.username_error
               ? "outlined-error"
               : "demo-helper-text-aligned"
           }
-          name="email"
+          name="username"
           type="email"
           placeholder="Enter Email"
           autoComplete="off"
           className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
           onChange={(event) => {
-            setLogin({ ...login, email: event.target.value });
+            setLogin({ ...login, username: event.target.value });
             setInlineError((inlineError) => ({
               ...inlineError,
-              email_error: "",
+              username_error: "",
             }));
           }}
           size="small"
           onBlur={checkEmail}
-          error={inlineError.email_error ? true : false}
+          error={inlineError.username_error ? true : false}
           // helperText={inlineError.email_error && inlineError.email_error}
           required
         />
       </div>
-      {inlineError.email_error && (
-        <ErrorMessage>{inlineError.email_error}</ErrorMessage>
+      {inlineError.username_error && (
+        <ErrorMessage>{inlineError.username_error}</ErrorMessage>
       )}
       <div className="py-1">
         <label
@@ -205,7 +209,7 @@ export default function Login() {
           isloading={signInUsingEmailAndPasswordloading ? 1 : 0}
           disabled={
             signInUsingEmailAndPasswordloading ||
-            login.email == "" ||
+            login.username == "" ||
             login.password == ""
           }
           variant="contained"

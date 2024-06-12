@@ -1,19 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { styled } from "@mui/material/styles";
-import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Autocomplete,
-  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
   FormGroup,
   FormHelperText,
   IconButton,
-  MenuItem,
   Radio,
   RadioGroup,
-  Select,
   TextField,
   Stack,
   Chip,
@@ -28,9 +24,6 @@ import dayjs from "dayjs";
 import axios from "axios";
 import cogoToast from "cogo-toast";
 import Cookies from "js-cookie";
-import { isEmailValid, isPhoneNoValid } from "./validations";
-import { getCall, postCall } from "../Api/axios";
-import MyButton from "../Components/Shared/Button";
 import PlacePickerMap from "../Components/PlacePickerMap/PlacePickerMap";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
@@ -101,9 +94,9 @@ const RenderInput = (props) => {
     }
   }, [isImageChanged, state[item.id]]);
 
-  if (item.type == "input") {
+  if (item.type === "input") {
     return (
-      <div className={props.containerClasses != undefined ? `${props.containerClasses}` : "py-1 flex flex-col"}>
+      <div className={props.containerClasses !== undefined ? `${props.containerClasses}` : "py-1 flex flex-col"}>
         <label
           className={
             props.labelClasses
@@ -152,7 +145,7 @@ const RenderInput = (props) => {
         />
       </div>
     );
-  } else if (item.type == "number") {
+  } else if (item.type === "number") {
     return (
       <div className={props.containerClasses ? props.containerClasses : "py-1 flex flex-col"}>
         <label
@@ -206,7 +199,7 @@ const RenderInput = (props) => {
         />
       </div>
     );
-  } else if (item.type == "radio") {
+  } else if (item.type === "radio") {
     let isDisabled = false;
     if (item.id === "isVegetarian" && state["productCategory"] && state["productCategory"] !== "f_and_b") {
       isDisabled = true;
@@ -259,13 +252,13 @@ const RenderInput = (props) => {
         </FormControl>
       </div>
     );
-  } else if (item.type == "checkbox") {
+  } else if (item.type === "checkbox") {
     //  console.log("state[item.id]=====>", state[item.id]);
     //  console.log("item.options=====>", item.options);
     const onChange = (e) => {
       const val = e.target.name;
       const itemIndex = state[item.id].indexOf(val);
-      if (itemIndex == -1) {
+      if (itemIndex === -1) {
         stateHandler((prevState) => {
           const newState = {
             ...prevState,
@@ -277,7 +270,7 @@ const RenderInput = (props) => {
         stateHandler((prevState) => {
           const newState = {
             ...prevState,
-            [item.id]: prevState[item.id].filter((ele) => ele != val),
+            [item.id]: prevState[item.id].filter((ele) => ele !== val),
           };
           return newState;
         });
@@ -312,14 +305,14 @@ const RenderInput = (props) => {
         </FormGroup>
       </div>
     );
-  } else if (item.type == "select") {
+  } else if (item.type === "select") {
     //  console.log("state[item.id]=====>", item.id, "=====>", state[item.id]);
 
     return (
-      <div className={props.containerClasses != undefined ? `${props.containerClasses}` : "py-1 flex flex-col"}>
+      <div className={props.containerClasses !== undefined ? `${props.containerClasses}` : "py-1 flex flex-col"}>
         <label
           className={
-            props.labelClasses != undefined
+            props.labelClasses !== undefined
               ? `${props.labelClasses}`
               : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
           }
@@ -372,7 +365,7 @@ const RenderInput = (props) => {
         </FormControl>
       </div>
     );
-  } else if (item.type == "location-picker") {
+  } else if (item.type === "location-picker") {
     return (
       <div className="py-1 flex flex-col">
         <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
@@ -399,7 +392,7 @@ const RenderInput = (props) => {
                   lat: lat,
                   long: lng,
                 },
-                address_city: city != "" ? city : district,
+                address_city: city !== "" ? city : district,
                 state: stateVal,
                 country,
                 area_code,
@@ -411,7 +404,7 @@ const RenderInput = (props) => {
         </div>
       </div>
     );
-  } else if (item.type == "date-picker") {
+  } else if (item.type === "date-picker") {
     function reverseString(str) {
       // empty string
       let newString = "";
@@ -461,7 +454,7 @@ const RenderInput = (props) => {
         </LocalizationProvider>
       </div>
     );
-  } else if (item.type == "time-picker") {
+  } else if (item.type === "time-picker") {
     function reverseString(str) {
       // empty string
       let newString = "";
@@ -520,7 +513,7 @@ const RenderInput = (props) => {
         </LocalizationProvider>
       </div>
     );
-  } else if (item.type == "days-picker") {
+  } else if (item.type === "days-picker") {
     function reverseString(str) {
       // empty string
       let newString = "";
@@ -593,7 +586,7 @@ const RenderInput = (props) => {
         />
       </div>
     );
-  } else if (item.type == "multi-select") {
+  } else if (item.type === "multi-select") {
     return (
       <div className="py-1 flex flex-col">
         {item.title && (
@@ -633,24 +626,24 @@ const RenderInput = (props) => {
         </FormControl>
       </div>
     );
-  } else if (item.type == "upload") {
+  } else if (item.type === "upload") {
     const allowedMaxSize = 2 * 1024 * 1024; // 2 MB in Bytes
-    const getSignUrl = async (file) => {
-      const url = `/api/v1/upload/${item?.file_type}`;
-      const file_type = file.type.split("/")[1];
-      const data = {
-        fileName: file.name.replace(`\.${file_type}`, ""),
-        fileType: file_type,
-      };
-      const res = await postCall(url, data);
-      return res;
-    };
+    // const getSignUrl = async (file) => {
+    //   const url = `/api/v1/seller/upload/${item?.file_type}`;
+    //   const file_type = file.type.split("/")[1];
+    //   const data = {
+    //     fileName: file.name.replace(`\.${file_type}`, ""),
+    //     fileType: file_type,
+    //   };
+    //   const res = await postMediaCall(url, data);
+    //   return res;
+    // };
 
     const renderUploadedUrls = () => {
       if (item?.multiple) {
         if (state?.uploaded_urls) {
           return state?.uploaded_urls?.map((url) => {
-            return <img src={url} height={50} width={50} style={{ margin: "10px" }} />;
+            return <img src={url} height={50} width={50} style={{ margin: "10px" }} alt=""/>;
           });
         }
       } else {
@@ -661,6 +654,7 @@ const RenderInput = (props) => {
               height={50}
               width={50}
               style={{ margin: "10px" }}
+              alt=""
             />
           );
         } else {
@@ -679,7 +673,7 @@ const RenderInput = (props) => {
             >
               {item?.title}
             </label>
-            <img className="ml-1 h-full w-full" src={state[item?.id]} />
+            <img className="ml-1 h-full w-full" src={state[item?.id]} alt=""/>
           </div>
         );
       } else {
@@ -687,7 +681,7 @@ const RenderInput = (props) => {
           <div style={{ height: 100, width: 100, marginBottom: 40, marginTop: 10 }} className="flex">
             <label className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block">{item.title}</label>
             {state[item.id]?.map((img_url) => (
-              <img className="ml-1 h-full w-full" key={img_url} src={img_url} />
+              <img className="ml-1 h-full w-full" key={img_url} src={img_url} alt=""/>
             ))}
           </div>
         );
@@ -727,7 +721,7 @@ const RenderInput = (props) => {
               stateHandler((prevState) => {
                 const newState = {
                   ...prevState,
-                  [item.id]: Array.isArray(prevState[item.id]) ? prevState[item.id].filter((ele) => ele != name) : "",
+                  [item.id]: Array.isArray(prevState[item.id]) ? prevState[item.id].filter((ele) => ele !== name) : "",
                   uploaded_urls: [],
                 };
                 return newState;
@@ -803,37 +797,34 @@ const RenderInput = (props) => {
                 }
                 const formData = new FormData();
                 formData.append("file", file);
-                getSignUrl(file).then((d) => {
-                  const url = d.urls;
+                //getSignUrl(file).then((d) => {
+                  const url = `/api/v1/seller/upload/${item?.file_type}`;
                   axios(url, {
-                    method: "PUT",
-                    data: file,
+                    method: "POST",
+                    data: formData,
                     headers: {
-                      ...(token && { "access-token": `Bearer ${token}` }),
-                      "Content-Type": "multipart/form-data",
+                      ...(token && { Authorization: `Bearer ${token}` }),
                     },
                   })
                     .then((response) => {
                       setIsImageChanged(true);
-
                       if (item.multiple) {
                         stateHandler((prevState) => {
                           const newState = {
                             ...prevState,
-                            [item.id]: [...prevState[item.id], d.path],
+                            [item.id]: [...prevState[item.id], response.data.urls],
                             uploaded_urls: [],
                           };
                           return newState;
                         });
                       } else {
-                        console.log("[item.id]", item.id, d.path);
                         let reader = new FileReader();
                         let tempUrl = "";
                         reader.onload = function (e) {
                           tempUrl = e.target.result;
                           stateHandler({
                             ...state,
-                            [item.id]: d.path,
+                            [item.id]: response.data.urls,
                             tempURL: {
                               ...state.tempURL,
                               [item.id]: tempUrl,
@@ -842,10 +833,9 @@ const RenderInput = (props) => {
                         };
                         reader.readAsDataURL(file);
                       }
-                      response.json();
                     })
                     .then((json) => {});
-                });
+                //});
               }
             }}
           />
@@ -862,7 +852,7 @@ const RenderInput = (props) => {
         </FormControl>
       </div>
     );
-  } else if (item.type == "switch") {
+  } else if (item.type === "switch") {
     return (
       <div className={item.containerClasses ? item.containerClasses : props.containerClasses || "py-1 flex flex-col"}>
         <label
@@ -890,9 +880,9 @@ const RenderInput = (props) => {
         />
       </div>
     );
-  } else if (item.type == "custom-component") {
+  } else if (item.type === "custom-component") {
     return <>{item.component}</>;
-  } else if (item.type == "label") {
+  } else if (item.type === "label") {
     return <p className="text-2xl font-semibold mb-4 mt-14">{item.title}</p>;
   }
 };

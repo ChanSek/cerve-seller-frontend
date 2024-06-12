@@ -3,6 +3,7 @@ import cogoToast from "cogo-toast";
 import axios from "axios";
 import ScriptTag from "react-script-tag";
 import "./PlacePickerMap.css";
+import {getCall} from "../../Api/axios";
 
 export default function MapPointer(props) {
   const {
@@ -20,10 +21,16 @@ export default function MapPointer(props) {
   const [script1Loaded, setScript1Loaded] = useState(false);
   const [script2Loaded, setScript2Loaded] = useState(false);
 
+  const getAccessToken = async () => {
+    const url = `/api/v1/seller/mmi/token`;
+    const res = await getCall(url);
+    return res.data;
+  };
+
   // fetch MMI API token
   useEffect(() => {
-    axios.post("/api/v1/auth/mmi/token").then((res) => {
-      setApiKey(res.data.access_token);
+    getAccessToken().then((data) => {
+      setApiKey(data.access_token);
     });
   }, []);
 
@@ -60,7 +67,7 @@ export default function MapPointer(props) {
     options.location =
       location?.lat && location?.lng
         ? location
-        : { lat: 28.679079, lng: 77.06971 };
+        : { lat: 30.679079, lng: 77.06971 };
     // eslint-disable-next-line
     new MapmyIndia.placePicker(options);
   }, [mapInitialised, props]);

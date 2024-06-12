@@ -115,14 +115,14 @@ export default function InventoryTable(props) {
           <MenuItem
             onClick={() => {
               if (row.type == "customization") {
-                fetchCustomizationItem(row._id);
+                fetchCustomizationItem(row.productId);
                 setShowCustomizationModal(true);
               } else {
                 navigate("/application/add-products", {
                   state: {
-                    productId: row._id,
-                    productCategory: row.productCategory,
-                    productSubCategory: row.productSubcategory1,
+                    productId: row.productId,
+                    productCategory: row.category,
+                    productSubCategory: row.subCategory,
                   },
                 });
               }
@@ -131,7 +131,7 @@ export default function InventoryTable(props) {
             Edit
           </MenuItem>
           {/* </Link> */}
-          <MenuItem onClick={() => handlePublishState(row?._id, row?.published)}>
+          <MenuItem onClick={() => handlePublishState(row?.productId, row?.published)}>
             {row?.published ? "Unpublish" : "Publish"}
           </MenuItem>
           {row.type != "customization" && (

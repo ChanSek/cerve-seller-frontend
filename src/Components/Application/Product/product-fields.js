@@ -17,7 +17,7 @@ export const allProductFieldDetails = [
     required: true,
   },
   {
-    id: "MRP",
+    id: "price",
     title: "MRP",
     placeholder: "MRP",
     type: "number",
@@ -41,14 +41,14 @@ export const allProductFieldDetails = [
     valueInDecimal: true,
   },
   {
-    id: "HSNCode",
+    id: "hSNCode",
     title: "HSN Code",
     placeholder: "HSN Code",
     type: "input",
     required: true,
   },
   {
-    id: "GST_Percentage",
+    id: "gstPercentage",
     title: "GST Percentage",
     placeholder: "Please Select GST Percentage",
     type: "select",
@@ -82,30 +82,29 @@ export const allProductFieldDetails = [
     disableClearable: true,
     required: true,
   },
-
   {
-    id: "manufacturerOrPackerName",
+    id: "packerName",
     title: "Manufacturer Or Packer Name",
     placeholder: "Manufacturer Or Packer Name",
     type: "input",
     required: true,
   },
   {
-    id: "manufacturerOrPackerAddress",
+    id: "packerAddress",
     title: "Manufacturer Or Packer Address",
     placeholder: "Manufacturer Or Packer Address",
     type: "input",
     required: true,
   },
   {
-    id: "commonOrGenericNameOfCommodity",
+    id: "genericNameOfCommodity",
     title: "Common Or Generic Name Of Commodity",
     placeholder: "Common Or Generic Name Of Commodity",
     type: "input",
     required: true,
   },
   {
-    id: "monthYearOfManufacturePackingImport",
+    id: "manufacturePackingImport",
     title: "Month Year Of Manufacture Packing Import",
     placeholder: "Month YearOf Manufacture Packing Import",
     type: "date-picker",
@@ -114,7 +113,7 @@ export const allProductFieldDetails = [
     views: ["year", "month"],
   },
   {
-    id: "importerFSSAILicenseNo",
+    id: "importerFssaiLicenseNo",
     title: "Importer FSSAI License No",
     placeholder: "Importer FSSAI License No",
     type: "number",
@@ -122,7 +121,7 @@ export const allProductFieldDetails = [
     required: true,
   },
   {
-    id: "brandOwnerFSSAILicenseNo",
+    id: "brandOwnerFssaiLicenseNo",
     title: "Brand Owner FSSAI License No",
     placeholder: "Brand Owner FSSAI License No",
     type: "number",
@@ -131,7 +130,7 @@ export const allProductFieldDetails = [
   },
 
   {
-    id: "quantity",
+    id: "availableQty",
     title: "Quantity",
     placeholder: "Quantity",
     type: "number",
@@ -155,7 +154,7 @@ export const allProductFieldDetails = [
     maxLength: 10,
   },
   {
-    id: "UOM",
+    id: "uom",
     title: "UOM",
     placeholder: "UOM",
     type: "select",
@@ -171,7 +170,7 @@ export const allProductFieldDetails = [
     ],
   },
   {
-    id: "UOMValue",
+    id: "uomValue",
     title: "UOM value",
     placeholder: "UOM value",
     type: "input",
@@ -283,7 +282,7 @@ export const allProductFieldDetails = [
     required: true,
   },
   {
-    id: "isCancellable",
+    id: "cancellable",
     title: "Cancellable",
     type: "radio",
     options: [
@@ -293,7 +292,7 @@ export const allProductFieldDetails = [
     required: true,
   },
   {
-    id: "isReturnable",
+    id: "returnable",
     title: "Returnable",
     type: "radio",
     options: [
@@ -313,7 +312,7 @@ export const allProductFieldDetails = [
     required: true,
   },
   {
-    id: "images",
+    id: "imageUrls",
     title: "Images (Select minimum 3 files with maximum size of 2Mb for each file)",
     type: "upload",
     multiple: true,
@@ -355,7 +354,7 @@ export const productDetailsFields = [
   "description",
   "longDescription",
   "countryOfOrigin",
-  "GST_Percentage",
+  "gstPercentage",
   "maxAllowedQty",
   "length",
   "breadth",
@@ -368,19 +367,19 @@ export const productDetailsFields = [
   "additiveInfo",
   "instructions",
   "vegNonVeg",
-  "isReturnable",
-  "isCancellable",
+  "returnable",
+  "cancellable",
   "availableOnCod",
-  "manufacturerOrPackerName",
-  "manufacturerOrPackerAddress",
-  "commonOrGenericNameOfCommodity",
-  "monthYearOfManufacturePackingImport",
-  "importerFSSAILicenseNo",
-  "brandOwnerFSSAILicenseNo",
+  "packerName",
+  "packerAddress",
+  "genericNameOfCommodity",
+  "manufacturePackingImport",
+  "importerFssaiLicenseNo",
+  "brandOwnerFssaiLicenseNo",
   "fulfillmentOption",
-  "UOM",
+  "uom",
 ];
 
-export const variationCommonFields = ["MRP", "purchasePrice", "quantity", "barcode", "images", "backImage"];
+export const variationCommonFields = ["price", "purchasePrice", "availableQty", "barcode", "imageUrls", "backImage"];
 
-export const UOMVariationFields = ["UOMValue"];
+export const UOMVariationFields = ["uomValue"];

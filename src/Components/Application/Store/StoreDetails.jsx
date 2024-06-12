@@ -161,6 +161,7 @@ const StoreDetails = (props) => {
           { key: "Bengaluru", value: "bengaluru" },
           { key: "Kolkata", value: "kolkata" },
           { key: "Noida", value: "noida" },
+          { key: "Hyd", value: "hyd" },
         ],
         type: "multi-select",
         required: false,
@@ -211,7 +212,7 @@ const StoreDetails = (props) => {
   };
 
   const onUpdate = () => {
-    const org_id = auth?.user?.organization;
+    const org_id = auth?.user?.organization._id;
     const url = `/api/v1/organizations/${org_id}/storeDetails`;
     const {
       categories,

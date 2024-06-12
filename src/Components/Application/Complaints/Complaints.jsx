@@ -47,7 +47,7 @@ const columns = [
   },
   {
     id: "sub_category",
-    label: "Issue Subcategory",
+    label: "Subcategory",
     format: (value) => value.toLocaleString("en-US"),
     minWidth: 100,
     align: "center",

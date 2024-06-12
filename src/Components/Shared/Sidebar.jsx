@@ -34,22 +34,22 @@ export default function Sidebar(props) {
   };
 
   const getUser = async (id) => {
-    const url = `/api/v1/users/${id}`;
+    const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
     const res = await getCall(url);
     setUser(res[0]);
     return res[0];
   };
 
   const getOrgDetails = async (org_id) => {
-    const url = `/api/v1/organizations/${org_id}/storeDetails`;
+    const url = `/api/v1/seller/merchantId/${org_id}/merchant`;
     const res = await getCall(url);
-    return res;
+    return res.data;
   };
 
   React.useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     getUser(user_id).then((userData) => {
-      getOrgDetails(userData.organization).then((org) => {
+      getOrgDetails(userData.organization._id).then((org) => {
         setCategory(org?.storeDetails?.category);
       });
     });
@@ -111,7 +111,7 @@ export default function Sidebar(props) {
                     <ListItemText primary="Inventory" />
                   </ListItemButton>
                 </NavLink>
-                <NavLink
+                {/* <NavLink
                   to={{
                     pathname: `/application/menu-category/${category}`,
                   }}
@@ -120,8 +120,8 @@ export default function Sidebar(props) {
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Custom Menu" />
                   </ListItemButton>
-                </NavLink>
-                <NavLink
+                </NavLink> */}
+                {/* <NavLink
                   to={{
                     pathname: `/application/customizations/customization-groups`,
                   }}
@@ -130,10 +130,20 @@ export default function Sidebar(props) {
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Customizations" />
                   </ListItemButton>
-                </NavLink>
+                </NavLink> */}
+                {/* <NavLink
+                  to={{
+                    pathname: `/application/offers`,
+                  }}
+                  className="no-underline text-black"
+                >
+                  <ListItemButton sx={{ pl: 4 }}>
+                    <ListItemText primary="Offers" />
+                  </ListItemButton>
+                </NavLink> */}
                 <NavLink
                   to={{
-                    pathname: `/application/store-details/${user?.organization}`,
+                    pathname: `/application/store-details/${user?.organization._id}`,
                   }}
                   className="no-underline text-black"
                 >
@@ -141,11 +151,11 @@ export default function Sidebar(props) {
                     <ListItemText primary="Store Details" />
                   </ListItemButton>
                 </NavLink>
-                <NavLink to="/application/returns" className="no-underline	text-black">
+                {/* <NavLink to="/application/returns" className="no-underline	text-black">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Returns" />
                   </ListItemButton>
-                </NavLink>
+                </NavLink> */}
               </div>
             )}
             <NavLink to="/application/orders" className="no-underline	text-black">
@@ -153,11 +163,11 @@ export default function Sidebar(props) {
                 <ListItemText primary="Orders" />
               </ListItemButton>
             </NavLink>
-            <NavLink to="/application/complaints" className="no-underline text-black">
+            {/* <NavLink to="/application/complaints" className="no-underline text-black">
               <ListItemButton sx={{ pl: 4 }}>
                 <ListItemText primary="Complaints" />
               </ListItemButton>
-            </NavLink>
+            </NavLink> */}
             {user?.role?.name === "Super Admin" && (
               <NavLink to="/application/user-listings" className="no-underline	text-black">
                 <ListItemButton sx={{ pl: 4 }}>

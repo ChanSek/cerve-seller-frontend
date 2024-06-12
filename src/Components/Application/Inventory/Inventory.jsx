@@ -57,38 +57,33 @@ export default function Inventory() {
   ];
 
   const columns = [
+    { id: "subCategory", label: "Category", minWidth: 100 },
     { id: "productName", label: "Product Name", minWidth: 100 },
     {
-      id: "type",
-      label: "Type",
-      minWidth: 120,
-      format: (value) => PRODUCT_CATEGORY[value] || value,
-    },
-    {
-      id: "quantity",
+      id: "availableQty",
       label: "Quantity",
       minWidth: 100,
       format: (value) => value.toLocaleString("en-US"),
     },
     {
-      id: "MRP",
+      id: "price",
       label: "Purchase Price",
       minWidth: 100,
       format: (value) => value.toLocaleString("en-US"),
     },
     {
-      id: "isCancellable",
+      id: "cancellable",
       label: "Cancellable",
       boolean: true,
       minWidth: 100,
     },
     {
-      id: "isReturnable",
+      id: "returnable",
       label: "Returnable",
       boolean: true,
       minWidth: 100,
     },
-    {
+    /*{
       id: "customizationGroupId",
       label: "Customization",
       format: (value) => {
@@ -104,7 +99,7 @@ export default function Inventory() {
         }
         return "-";
       },
-    },
+    },*/
     {
       id: "published",
       label: "Published",
@@ -117,6 +112,7 @@ export default function Inventory() {
   const navigate = useNavigate();
   const { cancellablePromise } = useCancellablePromise();
   const [products, setProducts] = useState([]);
+  const [storeId, setStoreId] = useState('');
 
   const [filters, setFilters] = useState({
     name: "",
@@ -138,24 +134,24 @@ export default function Inventory() {
     vegNonVeg: "veg",
   });
 
-  const getProducts = async () => {
+  const getProducts = async (storeId) => {
     try {
-      const res = await cancellablePromise(getCall(`/api/v1/products?limit=${rowsPerPage}&offset=${page}`));
-      setProducts(res.data);
-      setTotalRecords(res.count);
+      const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
+      setProducts(res.content);
+      setTotalRecords(res.totalElements);
     } catch (error) {
       // cogoToast.error("Something went wrong!");
     }
   };
 
   const getOrgDetails = async (org_id) => {
-    const url = `/api/v1/organizations/${org_id}/storeDetails`;
+    const url = `/api/v1/seller/merchantId/${org_id}/store`;
     const res = await getCall(url);
     return res;
   };
 
   const getUser = async (id) => {
-    const url = `/api/v1/users/${id}`;
+    const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
     const res = await getCall(url);
     return res[0];
   };
@@ -218,18 +214,22 @@ export default function Inventory() {
       if (u.isSystemGeneratedPassword) navigate("/initial-steps");
       else {
         if (u.role.name == "Organization Admin") {
-          getOrgDetails(u.organization).then((org) => {
-            if (isObjEmpty(org.storeDetails)) navigate("/initial-steps");
+          getOrgDetails(u.organization._id).then((org) => {
+            if (isObjEmpty(org.data)) navigate("/initial-steps");
+            else{
+              setStoreId(org.data.storeId);
+              getProducts(org.data.storeId);
+            }
           });
         } else navigate("/application/user-listings");
       }
     });
-    fetchCustomizationGroups();
+    //fetchCustomizationGroups();
   }, []);
 
   useEffect(() => {
-    getProducts();
-    console.log({ newCustomizationData });
+    //getProducts();
+    //console.log({ newCustomizationData });
   }, [page, rowsPerPage]);
 
   const handleRefresh = (data) => {
@@ -290,12 +290,12 @@ export default function Inventory() {
                 onClick={() => navigate("/application/add-products")}
               />
             </div>
-            <Button
+            {/* <Button
               variant="contained"
               icon={<AddIcon />}
               title="Add Customization"
               onClick={() => setShowCustomizationModal(true)}
-            />
+            /> */}
           </div>
         </div>
         <FilterComponent
@@ -315,7 +315,7 @@ export default function Inventory() {
           customizationGroups={customizationGroups}
           setShowCustomizationModal={setShowCustomizationModal}
           getProducts={getProducts}
-          fetchCustomizationItem={fetchCustomizationItem}
+          //fetchCustomizationItem={fetchCustomizationItem}
           handlePageChange={(val) => setPage(val)}
           handleRowsPerPageChange={(val) => setRowsPerPage(val)}
         />
