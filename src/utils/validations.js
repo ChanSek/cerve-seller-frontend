@@ -53,7 +53,7 @@ export const isAlphaNumericOnly = (value) => {
 }
 
 export function isObjEmpty(obj) {
-  return obj == null || Object.keys(obj).length === 0;
+  return obj == null || obj == "null" || Object.keys(obj).length === 0;
 }
 
 export const isValidBankAccountNumber = (str) => {

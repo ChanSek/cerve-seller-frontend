@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import RenderInput from "../../utils/RenderInput";
+import { deleteAllCookies } from "../../utils/cookies";
 import {
   isValidBankAccountNumber,
   isValidIFSC,
@@ -26,12 +27,24 @@ import {
   validateCaptcha,
 } from "react-simple-captcha";
 
+
 const InviteProvider = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
 
+  async function logout() {
+    if (window.confirm("Are you sure you want to logout your session?")) {
+      await postCall(`/api/v1/auth/logout`);
+      deleteAllCookies();
+      localStorage.clear();
+      navigate("/");
+    }
+  }
+
   const kycDetails = {
     providerStoreName: "",
+    shortDescription: "",
+    longDescription: "",
     address: "",
     contactEmail: "",
     contactMobile: "",
@@ -80,37 +93,39 @@ const InviteProvider = () => {
     setFormSubmited(true);
     try {
       const data = {
-        storeName: formValues.providerStoreName,
-          address: formValues.address,
-          contactEmail: formValues.contactEmail,
-          contactMobile: formValues.contactMobile,
-          addressProofUrl: formValues.address_proof,
-          idProofUrl: formValues.id_proof,
-          pan:formValues.PAN,
-          gstin:formValues.GSTN,
-          fssaiNo:formValues.FSSAI,
-          panProofUrl:formValues.PAN_proof,
-          gstinProofUrl:formValues.GST_proof,
-          account: {
-            accountHolderName: formValues.accHolderName,
-            accountNumber: formValues.accNumber,
-            ifscCode: formValues.IFSC,
-            cancelledChequeUrl: formValues.cancelledCheque,
-            bankName: formValues.bankName,
-            branchName: formValues.branchName,
-          },
+        storeName: formValues.providerStoreName.trim(),
+        shortDescription: formValues.shortDescription,
+        longDescription: formValues.longDescription,
+        address: formValues.address,
+        contactEmail: formValues.contactEmail.trim(),
+        contactMobile: formValues.contactMobile,
+        addressProofUrl: formValues.address_proof,
+        idProofUrl: formValues.id_proof,
+        pan: formValues.PAN,
+        gstin: formValues.GSTN,
+        fssaiNo: formValues.FSSAI,
+        panProofUrl: formValues.PAN_proof,
+        gstinProofUrl: formValues.GST_proof,
+        account: {
+          accountHolderName: formValues.accHolderName,
+          accountNumber: formValues.accNumber,
+          ifscCode: formValues.IFSC,
+          cancelledChequeUrl: formValues.cancelledCheque,
+          bankName: formValues.bankName,
+          branchName: formValues.branchName,
+        },
       };
       const user_id = localStorage.getItem("user_id");
       const url = `/api/v1/seller/subscriberId/${user_id}/merchant`;
       const res = await postCall(url, data);
       setFormSubmited(false);
-      if(res.status && res.status !== 200){
+      if (res.status && res.status !== 200) {
         cogoToast.error(res.message, { hideAfter: 5 });
       }
-      if(res.status && res.status === 200){
+      if (res.status && res.status === 200) {
         navigate("/application/inventory");
-        cogoToast.success("Provider onboarded successfully",{ hideAfter: 5 });
-      }      
+        cogoToast.success("Provider onboarded successfully", { hideAfter: 5 });
+      }
     } catch (error) {
       console.log("error.response", error.response);
       cogoToast.error(error.response.data.error);
@@ -165,6 +180,14 @@ const InviteProvider = () => {
         formValues.providerStoreName.trim() === ""
           ? "Provider Store Name is required"
           : "";
+      formErrors.shortDescription =
+        formValues.shortDescription.trim() === ""
+          ? "Short Description is required"
+          : "";
+      formErrors.longDescription =
+        formValues.longDescription.trim() === ""
+          ? "Long Description is required"
+          : "";
       formErrors.address =
         formValues.address.trim() === ""
           ? "Registered Address is required"
@@ -172,33 +195,33 @@ const InviteProvider = () => {
       formErrors.contactEmail =
         formValues.contactEmail.trim() === ""
           ? "Support Email is required"
-          : !isEmailValid(formValues.contactEmail)
-          ? "Please enter a valid email address"
-          : "";
+          : !isEmailValid(formValues.contactEmail.trim())
+            ? "Please enter a valid email address"
+            : "";
       formErrors.contactMobile =
         formValues.contactMobile.trim() === ""
           ? "Support Mobile Number is required"
-          : !isPhoneNoValid(formValues.contactMobile)
-          ? "Please enter a valid mobile number"
-          : "";
+          : !isPhoneNoValid(formValues.contactMobile.trim())
+            ? "Please enter a valid mobile number"
+            : "";
       formErrors.PAN =
         formValues.PAN.trim() === ""
           ? "PAN is required"
           : !isValidPAN(formValues.PAN)
-          ? "Please enter a valid PAN number"
-          : "";
+            ? "Please enter a valid PAN number"
+            : "";
       formErrors.GSTN =
         formValues.GSTN.trim() === ""
           ? "GSTIN Certificate is required"
           : !isValidGSTIN(formValues.GSTN)
-          ? "GSTIN Certificate should be alphanumeric and 15 characters long"
-          : "";
+            ? "GSTIN Certificate should be alphanumeric and 15 characters long"
+            : "";
       formErrors.FSSAI =
         formValues.FSSAI.trim() === ""
           ? "FSSAI Number is required"
           : !isValidFSSAI(formValues.FSSAI) || formValues.FSSAI.length !== 14
-          ? "FSSAI should be 14 digit number"
-          : "";
+            ? "FSSAI should be 14 digit number"
+            : "";
     } else if (step === 2) {
       formErrors.address_proof =
         formValues.address_proof.trim() === ""
@@ -217,14 +240,14 @@ const InviteProvider = () => {
         formValues.accHolderName.trim() === ""
           ? "Account Holder Name is required"
           : !isNameValid(formValues.accHolderName)
-          ? "Please enter a valid account holder name"
-          : "";
+            ? "Please enter a valid account holder name"
+            : "";
       formErrors.accNumber =
         formValues.accNumber.trim() === ""
           ? "Account Number is required"
           : !isValidBankAccountNumber(formValues.accNumber)
-          ? "Please enter a valid number"
-          : "";
+            ? "Please enter a valid number"
+            : "";
       formErrors.bankName =
         formValues.bankName.trim() === "" ? "Bank Name is required" : "";
       formErrors.branchName =
@@ -233,8 +256,8 @@ const InviteProvider = () => {
         formValues.IFSC.trim() === ""
           ? "IFSC Code is required"
           : !isValidIFSC(formValues.IFSC)
-          ? "Please enter a valid IFSC Code"
-          : "";
+            ? "Please enter a valid IFSC Code"
+            : "";
       formErrors.cancelledCheque =
         formValues.cancelledCheque === ""
           ? "Cancelled Cheque is required"
@@ -243,8 +266,8 @@ const InviteProvider = () => {
         formValues.captcha.trim() === ""
           ? "Captcha is required"
           : !validateCaptcha(formValues.captcha)
-          ? "Captcha does not match"
-          : "";
+            ? "Captcha does not match"
+            : "";
     }
     setErrors({
       ...formErrors,
@@ -266,13 +289,26 @@ const InviteProvider = () => {
       <div className="h-full flex fex-row items-center justify-center">
         <div
           className="flex w-full md:w-2/4 bg-white px-4 py-4 rounded-md shadow-xl h-max"
-          // style={{ minHeight: "75%" }}
+        // style={{ minHeight: "75%" }}
         >
           <div className="m-auto w-10/12 md:w-3/4 h-max">
             <form>
               <p className="text-2xl font-semibold mb-4 text-center">
                 {renderHeading()}
               </p>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+            <Button
+              type="button"
+              size="small"
+              style={{ marginRight: 10 }}
+              variant="contained"
+              color="primary"
+              onClick={() => logout()}
+            //  disabled={checkDisabled()}
+            >
+              Exit
+            </Button>
+          </div>
               <div>
                 {renderSteps()}
                 {step === 3 ? (
@@ -317,7 +353,7 @@ const InviteProvider = () => {
                   variant="contained"
                   color="primary"
                   onClick={handleSubmit}
-                  //  disabled={checkDisabled()}
+                //  disabled={checkDisabled()}
                 >
                   {step == 3 ? "Submit" : "Continue"}
                 </Button>

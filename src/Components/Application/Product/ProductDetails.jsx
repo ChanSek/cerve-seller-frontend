@@ -326,8 +326,8 @@ const AddGenericProduct = ({
             returnable: "false",
             cancellable: "false",
             availableOnCod: "false",
-            imageUrls: images_data.map((i) => i?.path),
-            uploaded_urls: images_data.map((i) => i?.url),
+            imageUrls: images_data.map((i) => i?.urls),
+            uploaded_urls: images_data.map((i) => i?.urls),
             packerAddress: "",
             genericNameOfCommodity: "",
             manufacturePackingImport: "",
@@ -351,9 +351,9 @@ const AddGenericProduct = ({
       .then((resp) => {
         resp = resp.data;
         resp.commonDetails["uploaded_urls"] =
-          resp?.commonDetails.imageUrls?.map((i) => i?.url) || [];
+          resp?.commonDetails.imageUrls?.map((i) => i) || [];
         resp.commonDetails["imageUrls"] =
-          resp?.commonDetails.imageUrls?.map((i) => i?.path) || [];
+          resp?.commonDetails.imageUrls?.map((i) => i) || [];
 
         resp.commonDetails.cancellable = resp.commonDetails.cancellable
           ? "true"
@@ -411,7 +411,6 @@ const AddGenericProduct = ({
     // id will be dynamic after schema changes
     try {
       let product_data = Object.assign({}, formValues);
-      console.log("product_data "+product_data);
       product_data.category = state.productCategory;
       product_data.subCategory = state.productSubCategory;
       let vital_data = Object.assign({}, vitalForm);
@@ -458,9 +457,9 @@ const AddGenericProduct = ({
       });
 
       delete vital_data["tempURL"];
-      if (backImagePath && product_data["backImage"].startsWith("https:")) {
-        product_data["backImage"] = backImagePath;
-      }
+      //if (backImagePath && product_data["backImage"].startsWith("https:")) {
+      //  product_data["backImage"] = product_data["backImage"];
+      //}
 
       let data = {
         commonDetails: product_data,

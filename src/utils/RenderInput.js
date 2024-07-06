@@ -831,6 +831,7 @@ const RenderInput = (props) => {
                             },
                           });
                         };
+                        
                         reader.readAsDataURL(file);
                       }
                     })

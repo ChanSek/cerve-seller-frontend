@@ -214,8 +214,8 @@ export default function Inventory() {
       if (u.isSystemGeneratedPassword) navigate("/initial-steps");
       else {
         if (u.role.name == "Organization Admin") {
-          getOrgDetails(u.organization._id).then((org) => {
-            if (isObjEmpty(org.data)) navigate("/initial-steps");
+          getOrgDetails(u?.organization?._id).then((org) => {
+            if (isObjEmpty(org.data)) navigate("/add-provider-info");
             else{
               setStoreId(org.data.storeId);
               getProducts(org.data.storeId);

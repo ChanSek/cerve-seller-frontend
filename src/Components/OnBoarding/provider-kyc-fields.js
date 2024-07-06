@@ -7,6 +7,20 @@ export default [
     required: true,
   },
   {
+    id: "shortDescription",
+    title: "Short Description",
+    placeholder: "Enter Provider Store Description In Short",
+    type: "input",
+    required: true,
+  },
+  {
+    id: "longDescription",
+    title: "Long Description",
+    placeholder: "Enter Provider Store Description In Detail",
+    type: "input",
+    required: true,
+  },
+  {
     id: "address",
     title: "Registered Address",
     placeholder: "Enter Provider Registered Address",

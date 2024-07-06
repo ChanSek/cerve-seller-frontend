@@ -85,6 +85,7 @@ export default function Login() {
   };
 
   function handleRedirect(token, user) {
+    console.log("Token 1 : " + getValueFromCookie("token"))
     const { _id } = user;
     AddCookie("token", token);
     AddCookie("organization", user.organization);
@@ -95,8 +96,12 @@ export default function Login() {
 
   useEffect(() => {
     if (getValueFromCookie("token")) {
-      if (!isObjEmpty(getValueFromCookie("organization"))) { navigate("/application/inventory") }
-      else { navigate("/add-provider-info") };
+      const cookieValue = getValueFromCookie("organization");
+      if (cookieValue !== null && cookieValue !== "null" && !isObjEmpty(cookieValue)) {
+        navigate("/application/inventory")
+      } else {
+        navigate("/add-provider-info")
+      }
     }
   }, []);
 

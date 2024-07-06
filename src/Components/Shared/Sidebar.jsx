@@ -49,7 +49,7 @@ export default function Sidebar(props) {
   React.useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     getUser(user_id).then((userData) => {
-      getOrgDetails(userData.organization._id).then((org) => {
+      getOrgDetails(userData?.organization?._id).then((org) => {
         setCategory(org?.storeDetails?.category);
       });
     });
@@ -104,7 +104,7 @@ export default function Sidebar(props) {
           onKeyDown={toggleDrawer(anchor, false)}
         >
           <List component="div" disablePadding>
-            {user?.role?.name === "Organization Admin" && (
+            {user?.role?.name === "Organization Admin" && user?.organization?._id !== null && (
               <div>
                 <NavLink to="/application/inventory" className="no-underline text-black">
                   <ListItemButton sx={{ pl: 4 }}>
@@ -143,7 +143,7 @@ export default function Sidebar(props) {
                 </NavLink> */}
                 <NavLink
                   to={{
-                    pathname: `/application/store-details/${user?.organization._id}`,
+                    pathname: `/application/store-details/${user?.organization?._id}`,
                   }}
                   className="no-underline text-black"
                 >
