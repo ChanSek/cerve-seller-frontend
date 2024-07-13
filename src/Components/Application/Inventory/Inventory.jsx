@@ -188,7 +188,7 @@ export default function Inventory() {
       setNewCustomizationData({ MRP: 0 });
       setShowCustomizationModal(false);
       getProducts();
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleUpdateCustomization = async () => {
@@ -204,23 +204,31 @@ export default function Inventory() {
       setCustomizationId(null);
       setShowCustomizationModal(false);
       getProducts();
-    } catch (error) {}
+    } catch (error) { }
   };
 
   useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     getUser(user_id).then((u) => {
       // roles - Organization Admin, Super Admin
-      if (u.isSystemGeneratedPassword) navigate("/initial-steps");
-      else {
+      if (u.isSystemGeneratedPassword) {
+        navigate("/initial-steps")
+      }else {
         if (u.role.name == "Organization Admin") {
-          getOrgDetails(u?.organization?._id).then((org) => {
-            if (isObjEmpty(org.data)) navigate("/add-provider-info");
-            else{
-              setStoreId(org.data.storeId);
-              getProducts(org.data.storeId);
-            }
-          });
+          const merchantId = u?.organization?._id;
+          if(!isObjEmpty(merchantId)){
+            getOrgDetails(merchantId).then((org) => {
+              let category = org?.data?.category;
+              if (!category){
+                navigate(`/application/store-details/${u.organization._id}`);
+              }else{
+                setStoreId(org.data.storeId);
+                getProducts(org.data.storeId);
+              }
+            });
+          }else{
+            navigate("/add-provider-info")
+          }
         } else navigate("/application/user-listings");
       }
     });

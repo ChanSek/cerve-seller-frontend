@@ -505,7 +505,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
         address: res?.providerDetail?.address,
         address_proof: res?.providerDetail?.addressProofUrl,
         gst_no: res?.providerDetail?.gstin,
-        gst_proof: res?.providerDetail?.fssaiProofUrl,
+        gst_proof: res?.providerDetail?.gstinProofUrl,
         pan_no: res?.providerDetail?.pan,
         pan_proof: res?.providerDetail?.panProofUrl,
         id_proof: res?.providerDetail?.idProofUrl,
@@ -552,7 +552,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
         : [];
       setPolygonPoints(polygonPoints);
 
-      const fulfillments = res.providerDetail.storeDetails.fulfillments;
+      const fulfillments = res?.providerDetail?.storeDetails?.fulfillments;
       const { supportedFulfillments, fulfillmentDetails } = getAvailableFulfillments(fulfillments);
 
       setSupportedFulfillments(supportedFulfillments);
@@ -563,9 +563,9 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
 
       const storeTimingDetails = res?.providerDetail?.storeDetails?.storeTimes;
 
-      setStoreStatus(storeTimingDetails.status);
+      setStoreStatus(storeTimingDetails?.status);
       setTemporaryClosedTimings(storeTimingDetails?.closed);
-      setTemporaryClosedDays(storeTimingDetails.closedDays);
+      setTemporaryClosedDays(storeTimingDetails?.closedDays);
 
       setStoreDetails(Object.assign({}, JSON.parse(JSON.stringify(storeData))));
       setDefaultStoreDetails(Object.assign({}, JSON.parse(JSON.stringify(storeData))));

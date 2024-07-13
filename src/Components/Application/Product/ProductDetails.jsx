@@ -166,6 +166,7 @@ const AddGenericProduct = ({
   const addProduct = async () => {
     try {
       let product_data = Object.assign({}, formValues);
+      product_data.category = categoryForm.formValues.productCategory;
       product_data.subCategory = categoryForm.formValues.productSubcategory1;
       let vital_data = Object.assign({}, vitalForm);
       let variant_data = formattedVariantDataForAddProduct();
