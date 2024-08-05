@@ -85,22 +85,32 @@ export default function Login() {
   };
 
   function handleRedirect(token, user) {
-    console.log("Token 1 : " + getValueFromCookie("token"))
     const { _id } = user;
     AddCookie("token", token);
     AddCookie("organization", user.organization);
+    AddCookie("enabled", user.enabled);
     localStorage.setItem("user_id", _id);
-    if (!isObjEmpty(user.organization)) { navigate("/application/inventory") }
-    else { navigate("/add-provider-info") };
+    if (!user.enabled) {
+      navigate("/activate");
+    } else if (!isObjEmpty(user.organization)) { 
+      navigate("/application/inventory") 
+    } else { 
+      navigate("/add-provider-info") 
+    };
   }
 
   useEffect(() => {
     if (getValueFromCookie("token")) {
-      const cookieValue = getValueFromCookie("organization");
-      if (cookieValue !== null && cookieValue !== "null" && !isObjEmpty(cookieValue)) {
-        navigate("/application/inventory")
-      } else {
-        navigate("/add-provider-info")
+      const enabled = getValueFromCookie("enabled");
+      if (enabled == "true") {
+        const cookieValue = getValueFromCookie("organization");
+        if (cookieValue !== null && cookieValue !== "null" && !isObjEmpty(cookieValue)) {
+          navigate("/application/inventory")
+        } else {
+          navigate("/add-provider-info")
+        }
+      }else{
+        navigate("/activate");
       }
     }
   }, []);

@@ -681,8 +681,6 @@ const AddGenericProduct = ({
     formErrors.productCode =
       formValues?.productCode?.trim() === ""
         ? "Product code is not allowed to be empty"
-        : !isNumberOnly(formValues?.productCode)
-        ? "Please enter only digit"
         : formValues?.productCode?.length > MAX_STRING_LENGTH_13
         ? `Cannot be more than ${MAX_STRING_LENGTH_13} characters`
         : "";
@@ -784,8 +782,6 @@ const AddGenericProduct = ({
     formErrors.longDescription =
       formValues?.longDescription?.trim() === ""
         ? "Long description is required"
-        : formValues?.longDescription?.length > MAX_STRING_LENGTH
-        ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
         : "";
     formErrors.description =
       formValues?.description?.trim() === ""

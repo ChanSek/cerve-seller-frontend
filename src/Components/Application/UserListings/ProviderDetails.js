@@ -519,12 +519,11 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
         accNumber: res?.providerDetail?.account?.accountNumber,
         cancelledCheque: res?.providerDetail?.account?.cancelledChequeUrl,
       });
-
       let storeData = {
         email: res.providerDetail.storeDetails?.supportEmail || "",
         mobile: res.providerDetail.storeDetails?.supportMobile || "",
         category: res?.providerDetail?.storeDetails?.category || "",
-        location: res?.providerDetail?.storeDetails?.storeGPSLocation || "",
+        location: res?.providerDetail?.storeDetails?.location || "",
         location_availability: res?.providerDetail?.storeDetails?.storeAvailability,
         cities: res?.providerDetail?.storeDetails?.city || [],
         default_cancellable: "false",
@@ -540,7 +539,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
         //logo_path: res?.providerDetail?.storeDetails?.logo?.path || "",
 
         holidays: res?.providerDetail?.storeDetails?.storeTimes?.holidays || [],
-        radius: res?.providerDetail?.storeDetails?.radius?.value || "",
+        radius: res?.providerDetail?.storeDetails?.circles[0].value || "",
         logisticsBppId: res?.providerDetail?.storeDetails?.logisticsBppId || "",
         logisticsDeliveryType: res?.providerDetail?.storeDetails?.logisticsDeliveryType || "",
         deliveryTime: res?.providerDetail?.storeDetails?.deliveryTime || "",
@@ -742,7 +741,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
       formErrors.radius = "";
     } else if (storeDetails.location_availability === "radius") {
       formErrors.radius =
-        storeDetails.radius?.trim() === ""
+        storeDetails.radius === ""
           ? "Serviceable Radius/Circle is required"
           : !isNumberOnly(storeDetails?.radius)
             ? "Please enter only digit"

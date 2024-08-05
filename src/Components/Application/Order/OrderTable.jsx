@@ -26,11 +26,14 @@ const StyledTableCell = styled(TableCell)({
 export default function InventoryTable(props) {
   const {
     page,
+    columns,
+    data,
     rowsPerPage,
     totalRecords,
     handlePageChange,
     handleRowsPerPageChange,
   } = props;
+  console.log("props ************************"+JSON.stringify(props));
   const navigate = useNavigate();
 
   const onPageChange = (event, newPage) => {
@@ -89,6 +92,7 @@ export default function InventoryTable(props) {
     const payment = row["payment"];
     const delivery_info = getFulfillmentData(row["fulfillments"], "Delivery");
     const ordered_items = row.items;
+    console.log("ordered_items ================= "+JSON.stringify(ordered_items));
 
     switch (column.id) {
       case "orderId":

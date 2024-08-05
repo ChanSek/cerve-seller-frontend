@@ -84,7 +84,7 @@ const UpdateOrderStatus = (props) => {
       cogoToast.error("Please select a reason to Initiate the RTO.");
       return;
     }
-    postCall(`/api/v1/orders/${order?.orderId}/fulfillment/status`, {
+    postCall(`/api/v1/seller/${order?.orderId}/fulfillment/status`, {
       fulfillmentId: (selectedStatus.fulfillmentType === 'Delivery' || selectedStatus.fulfillmentStatus === 'RTO-Initiated') ? deliveryData?.id : rtoData?.id,
       fulfillmentType: selectedStatus.fulfillmentType,
       newState: selectedStatus.fulfillmentStatus,

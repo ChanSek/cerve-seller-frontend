@@ -74,9 +74,9 @@ export default function Orders() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [user, setUser] = useState();
   const [columnList, setColumnList] = useState(columns);
-  
+
   const getUser = async (id) => {
-    const url = `/api/v1/users/${id}`;
+    const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
     const res = await getCall(url);
     setUser(res[0]);
     return res[0];
@@ -84,24 +84,32 @@ export default function Orders() {
 
   useEffect(() => {
     const user_id = localStorage.getItem("user_id");
-    getUser(user_id);
+    getUser(user_id).then((user) => {
+      getOrders(user?.organization?._id);
+      if(user && user?.role?.name === "Organization Admin"){
+        console.log("matched========= ");
+        const data = columns.filter((item) => item.id !== "provider_name")
+        setColumnList(data);
+      }
+    });
   }, []);
 
-  const getOrders = () => {
-    const url = `/api/v1/orders?limit=${rowsPerPage}&offset=${page}`;
+  const getOrders = (merchantId) => {
+    const url = `/api/v1/seller/${merchantId}/orders?limit=${rowsPerPage}&offset=${page}`;
     getCall(url)
       .then((resp) => {
-        setOrders(resp.data);
-        setTotalRecords(resp.count);
+        setOrders(resp.content);
+        setTotalRecords(resp.totalElements);
       })
       .catch((error) => {
         console.log(error.response);
       })
   };
 
-  useEffect(() => {
-    getOrders();
-  }, [page, rowsPerPage]);
+  // useEffect(() => {
+  //   console.log("get orders========================")
+  //   getOrders();
+  // }, [page, rowsPerPage]);
 
   useEffect(() => {
     if(user && user?.role?.name === "Organization Admin"){

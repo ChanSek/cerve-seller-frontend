@@ -28,6 +28,7 @@ import CustomizationGroupDetails from "../Components/Application/Customizations/
 import Offer from "../Components/Application/Offer/Offer";
 import AddOffer from "../Components/Application/Offer/AddOffer";
 import AddSeller from "../Components/OnBoarding/addSeller";
+import ActivateSeller from "../Components/OnBoarding/activateSeller";
 
 export default function OndcRoutes() {
   return (
@@ -197,12 +198,17 @@ export default function OndcRoutes() {
           }
         />
         <Route
+          path="/activate"
+          element={
+            <ActivateSeller />
+          }
+        />
+        <Route
           path="/add-provider-info"
           element={
             <PrivateInitRoute>
               <AddProvider />
             </PrivateInitRoute>
-
           }
         />
         <Route

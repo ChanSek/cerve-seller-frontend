@@ -2,35 +2,23 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import RenderInput from "../../utils/RenderInput";
 import {
-  isValidBankAccountNumber,
-  isValidIFSC,
-  isNameValid,
-  isEmailValid,
-  isValidPAN,
-  isPhoneNoValid,
-  isValidFSSAI,
-  isValidGSTIN,
+    isNumberOnly
 } from "../../utils/validations";
 import { postCall } from "../../Api/axios";
 import cogoToast from "cogo-toast";
 import { useNavigate } from "react-router-dom";
 import useForm from "../../hooks/useForm";
-import userFields from "./provider-user-fields";
-import { AddCookie, getValueFromCookie } from "../../utils/cookies";
+import userFields from "./seller-activation-fields";
+import { AddCookie} from "../../utils/cookies";
 import {
   loadCaptchaEnginge,
-  LoadCanvasTemplate,
-  validateCaptcha,
 } from "react-simple-captcha";
 
-const AddSeller = () => {
+const ActivateSeller = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const user = {
-    email: "",
-    mobile: "",
-    name: "",
-    password: "",
+    email_otp: ""
   };
 
   const { formValues, setFormValues, errors, setErrors } = useForm({
@@ -51,26 +39,26 @@ const AddSeller = () => {
   }, [step]);
 
   const sendInvite = async () => {
-    setFormSubmited(true);
+    //setFormSubmited(true);
     try {
       const data = {
-          name: formValues.name,
-          email: formValues.email,
-          mobile: formValues.mobile,
-          password: formValues.password,
+          emailOtp: formValues.email_otp
       };
-      const url = `/api/v1/auth/signup`;
+      const subscriberId = localStorage.getItem("user_id");
+      const url = `/api/v1/seller/subscriberId/${subscriberId}/activate`;
       const res = await postCall(url, data);
-      setFormSubmited(false);
+      //setFormSubmited(false);
       if(res.status && res.status !== 200){
         cogoToast.error(res.message, { hideAfter: 5 });
       }
-      if(res.status && res.status === 200 && res.data.status){
-        const { _id } = res.data.user;
-        AddCookie("token", res.data.access_token);
-        localStorage.setItem("user_id", _id);
-        navigate("/activate");
-        cogoToast.success("Seller Account Created Successfully", { hideAfter: 5 });
+      if(res.status && res.status === 200){
+        if(res.data.status){
+            AddCookie("enabled", res.data.status);
+            navigate("/");
+            cogoToast.success(res.data.message, { hideAfter: 5 });
+        }else{
+            cogoToast.error(res.data.message, { hideAfter: 15 });
+        }
       }
     } catch (error) {
       console.log("error.response", error.response);
@@ -79,7 +67,7 @@ const AddSeller = () => {
   };
 
   const renderHeading = () => {
-    if (step == 1) return "Create New Seller Account";
+    if (step == 1) return "Seller Account Activation";
   };
 
   const renderFormFields = (fields) => {
@@ -98,50 +86,20 @@ const AddSeller = () => {
 
   const renderSteps = () => {
     let uFields = [
-      ...userFields,
-      {
-        id: "password",
-        title: "Password",
-        placeholder: "Enter your password",
-        type: "input",
-        password: true,
-        required: true,
-      },
-    ];
+        ...userFields
+      ];
     if (step == 1) return renderFormFields(uFields);
-  };
-
-  const handleBack = () => {
-    if (step === 1) {
-      navigate(-1);
-    } else {
-      setStep(step - 1);
-    }
   };
 
   const validate = () => {
     const formErrors = {};
     if (step === 1) {
-      formErrors.email =
-        formValues.email.trim() === ""
-          ? "Email is required"
-          : !isEmailValid(formValues.email)
-          ? "Please enter a valid email address"
+      formErrors.email_otp =
+        formValues.email_otp === ""
+          ? "Activation Number is required"
+          : !isNumberOnly(formValues.email_otp)
+          ? "Please enter a valid activation number"
           : "";
-      formErrors.mobile =
-        formValues.mobile.trim() === ""
-          ? "Mobile Number is required"
-          : !isPhoneNoValid(formValues.mobile)
-          ? "Please enter a valid mobile number"
-          : "";
-      formErrors.name =
-        formValues.name.trim() === ""
-          ? "Name is required"
-          : !isNameValid(formValues.name)
-          ? "Please enter a valid name"
-          : "";
-      formErrors.password =
-        formValues.password.trim() === "" ? "Password is required" : ""; 
     }
     setErrors({
       ...formErrors,
@@ -155,10 +113,6 @@ const AddSeller = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (!formSubmitted) return
-  //   validate()
-  // }, [formValues])
 
   console.log("formValues====>", formValues);
   return (
@@ -183,23 +137,13 @@ const AddSeller = () => {
                 <Button
                   type="button"
                   size="small"
-                  style={{ marginRight: 10 }}
-                  variant="text"
-                  onClick={handleBack}
-                  disabled={formSubmitted}
-                >
-                  Back
-                </Button>
-                <Button
-                  type="button"
-                  size="small"
                   disabled={formSubmitted}
                   variant="contained"
                   color="primary"
                   onClick={handleSubmit}
                   //  disabled={checkDisabled()}
                 >
-                  SignUp
+                  Activate
                 </Button>
               </div>
             </form>
@@ -210,4 +154,4 @@ const AddSeller = () => {
   );
 };
 
-export default AddSeller;
+export default ActivateSeller;

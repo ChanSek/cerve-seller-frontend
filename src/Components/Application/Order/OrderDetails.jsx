@@ -53,25 +53,33 @@ const OrderDetails = () => {
   });
 
   const getOrder = async () => {
-    const url = `/api/v1/orders/${params?.id}`;
+    const url = `/api/v1/seller/${params?.id}/order`;
     getCall(url).then((resp) => {
-      setOrder(resp);
-      setOrganizationId(resp.organization)
+      setOrder(resp.data);
+      getOrgDetails(resp.data.merchantId)
     });
   };
 
-  const getOrgDetails = async () => {
-    const orgUrl = `/api/v1/organizations/${order.organization}`;
-    const res = await getCall(orgUrl);
-    const onLogistic = res.providerDetail.storeDetails?.onNetworkLogistics ?? true;
+  const getOrgDetails = async (org_id) => {
+    const url = `/api/v1/seller/merchantId/${org_id}/store`;
+    const res = await getCall(url);
+    const onLogistic = res.data?.useNetworkLogistics??true;
     setOrgOnNetwork(onLogistic);
+    return res;
   };
 
-  useEffect(() => {
-    if (organizationId) {
-      getOrgDetails();
-    }
-  }, [organizationId]);
+  // const getOrgDetails = async () => {
+  //   const orgUrl = `/api/v1/organizations/${order.organization}`;
+  //   const res = await getCall(orgUrl);
+  //   const onLogistic = res.providerDetail.storeDetails?.onNetworkLogistics ?? true;
+  //   setOrgOnNetwork(onLogistic);
+  // };
+
+  // useEffect(() => {
+  //   if (organizationId) {
+  //     getOrgDetails();
+  //   }
+  // }, [organizationId]);
 
   useEffect(() => {
     if (params.id) {
@@ -80,7 +88,7 @@ const OrderDetails = () => {
   }, [params]);
 
   const getUser = async (id) => {
-    const url = `/api/v1/users/${id}`;
+    const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
     const res = await getCall(url);
     setUser(res[0]);
     return res[0];
@@ -347,6 +355,10 @@ const OrderDetails = () => {
           <div className="flex justify-between mt-3">
             <p className="text-base font-normal">Order Status</p>
             <p className="text-base font-normal">{order?.state}</p>
+          </div>
+          <div className="flex justify-between mt-3">
+            <p className="text-base font-normal">Fulfilment Status</p>
+            <p className="text-base font-normal">{order?.fulfillments[0].state.descriptor.code}</p>
           </div>
           <div className="flex justify-between mt-3">
             <p className="text-base font-normal">Payment Method</p>
@@ -659,12 +671,6 @@ const OrderItemsSummaryCard = (props) => {
     { id: "url name", align: "left", minWidth: 50, label: "Items Summary" },
     { id: "quantity", align: "center", minWidth: "auto", label: "Qty" },
     { id: "price", align: "center", minWidth: "50", label: "Price" },
-    {
-      id: "state",
-      align: "center",
-      minWidth: "50",
-      label: "Fulfillment Status",
-    },
     { id: "totalPrice", align: "right", minWidth: "50", label: "Total Amount" },
   ];
 
