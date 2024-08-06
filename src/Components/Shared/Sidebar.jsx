@@ -84,7 +84,7 @@ export default function Sidebar(props) {
     <Box sx={{ width: anchor === "top" || anchor === "bottom" ? "auto" : 250 }} role="presentation">
       <Stack direction="row" alignItems="center" style={{ padding: "8px 16px" }}>
         <img src={logo} alt="logo" style={{ height: "45px" }} />
-        <Typography>SELLER APP</Typography>
+        <Typography>CERVE SELLER</Typography>
       </Stack>
       <Divider />
       <List
@@ -141,6 +141,16 @@ export default function Sidebar(props) {
                     <ListItemText primary="Offers" />
                   </ListItemButton>
                 </NavLink> */}
+                <NavLink
+                  to={{
+                    pathname: `/application/seller-details/${user?.organization?._id}`,
+                  }}
+                  className="no-underline text-black"
+                >
+                  <ListItemButton sx={{ pl: 4 }}>
+                    <ListItemText primary="Provider Details" />
+                  </ListItemButton>
+                </NavLink>
                 <NavLink
                   to={{
                     pathname: `/application/store-details/${user?.organization?._id}`,

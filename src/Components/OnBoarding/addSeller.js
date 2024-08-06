@@ -141,7 +141,11 @@ const AddSeller = () => {
           ? "Please enter a valid name"
           : "";
       formErrors.password =
-        formValues.password.trim() === "" ? "Password is required" : ""; 
+        formValues.password.trim() === "" 
+        ? "Password is required" 
+        : formValues.password.length < 6
+        ? "Password should have minimum 6 characters"
+        : "";
     }
     setErrors({
       ...formErrors,

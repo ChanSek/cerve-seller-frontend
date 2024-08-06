@@ -61,7 +61,7 @@ const StoreTimings = ({ storeTiming, setStoreTiming, handleRemoveDaysAndTimings 
           variant="outlined"
         >
           {days_list.map((day) => (
-            <MenuItem value={day.value}>{day.label}</MenuItem>
+            <MenuItem key={day.value} value={day.value}>{day.label}</MenuItem>
           ))}
         </Select>
       </div>
@@ -148,7 +148,7 @@ const StoreTimings = ({ storeTiming, setStoreTiming, handleRemoveDaysAndTimings 
         </div>
         {storeTiming.timings.map((timing, index) => {
           return (
-            <div style={{ marginBottom: "7px", display: "flex" }}>
+            <div key={index} style={{ marginBottom: "7px", display: "flex" }}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 {renderTimePicker(index, "start")}
                 {renderTimePicker(index, "end")}

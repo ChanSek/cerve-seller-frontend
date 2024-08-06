@@ -12,6 +12,7 @@ import OrderDetails from "../Components/Application/Order/OrderDetails";
 import UserListings from "../Components/Application/UserListings/UserListings";
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
 import ProviderDetails from "../Components/Application/UserListings/ProviderDetails";
+import StoreDetails from "../Components/Application/UserListings/StoreDetails";
 import InviteAdmin from "../Components/OnBoarding/InviteAdmin";
 import InviteProvider from "../Components/OnBoarding/inviteProvider";
 import AddProvider from "../Components/OnBoarding/addProvider";
@@ -176,6 +177,14 @@ export default function OndcRoutes() {
           }
         />
         <Route
+          path="/user-listings/provider-details/:id"
+          element={
+            <PrivateRoute>
+              <ProviderDetails isFromUserListing={true} />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/invite-admin"
           element={
             <PrivateRoute>
@@ -212,10 +221,18 @@ export default function OndcRoutes() {
           }
         />
         <Route
-          path="/application/store-details/:id"
+          path="/application/seller-details/:id"
           element={
             <PrivateRoute>
               <ProviderDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/store-details/:id"
+          element={
+            <PrivateRoute>
+              <StoreDetails />
             </PrivateRoute>
           }
         />

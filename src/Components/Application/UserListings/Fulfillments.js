@@ -45,7 +45,7 @@ const Fulfillments = (props) => {
       <>
         {deliveryFulfillmentFields.map((field) => {
           return (
-            <>
+            <React.Fragment key={field?.id}>
               <RenderInput
                 item={{
                   ...field,
@@ -58,7 +58,7 @@ const Fulfillments = (props) => {
                 key={field?.id}
                 handleChange={handleChange}
               />
-            </>
+            </React.Fragment>
           );
         })}
         <StoreTimingsRenderer

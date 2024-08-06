@@ -1,8 +1,8 @@
 export default [
     {
       id: "email_otp",
-      title: "Enter Activation Number Provided Through Email",
-      placeholder: "Enter Activation Number",
+      title: "Activation Number",
+      placeholder: "Enter Activation Number Provided Through Email",
       type: "input",
       email: false,
       required: true,
