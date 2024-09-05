@@ -101,14 +101,14 @@ const RenderInput = (props) => {
           className={
             props.labelClasses
               ? props.labelClasses
-              : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           }
         >
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
         <CssTextField
-          variant={item.variant ? item.variant : "outlined"}
+          variant={item.variant ? item.variant : "standard"}
           type={item.password ? "password" : "input"}
           className={
             props.inputClasses
@@ -152,14 +152,14 @@ const RenderInput = (props) => {
           className={
             props.labelClasses
               ? props.labelClasses
-              : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           }
         >
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
         <CssTextField
-          variant={item.variant ? item.variant : "outlined"}
+          variant={item.variant ? item.variant : "standard"}
           type="number"
           className={
             props.inputClasses
@@ -214,7 +214,7 @@ const RenderInput = (props) => {
               className={
                 props.labelClasses
                   ? props.labelClasses
-                  : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+                  : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
               }
             >
               {item.title}
@@ -278,7 +278,7 @@ const RenderInput = (props) => {
     };
     return (
       <div className="py-1 flex flex-col">
-        <label className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block">
+        <label className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block">
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
@@ -314,7 +314,7 @@ const RenderInput = (props) => {
           className={
             props.labelClasses !== undefined
               ? `${props.labelClasses}`
-              : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           }
         >
           {item.title}
@@ -356,7 +356,7 @@ const RenderInput = (props) => {
               <TextField
                 {...params}
                 placeholder={!previewOnly && !state[item.id] ? item.placeholder : ""}
-                variant={item.variant ? item.variant : "outlined"}
+                variant={item.variant ? item.variant : "standard"}
                 error={item.error || false}
                 helperText={item.error && item.helperText}
               />
@@ -368,7 +368,7 @@ const RenderInput = (props) => {
   } else if (item.type === "location-picker") {
     return (
       <div className="py-1 flex flex-col">
-        <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+        <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
@@ -418,7 +418,7 @@ const RenderInput = (props) => {
     );
     return (
       <div className="py-1 flex flex-col">
-        <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+        <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
@@ -444,7 +444,7 @@ const RenderInput = (props) => {
               TextField: (params) => (
                 <TextField
                   {...params}
-                  variant="outlined"
+                  variant="standard"
                   error={item.error || false}
                   helperText={item.error && item.helperText}
                 />
@@ -469,7 +469,7 @@ const RenderInput = (props) => {
     return (
       <div className="py-1 flex flex-col" style={{ position: "relative" }}>
         {item.title && (
-          <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+          <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
             {item.title}
             {item.required && <span className="text-[#FF0000]"> *</span>}
           </label>
@@ -503,7 +503,7 @@ const RenderInput = (props) => {
               TextField: (params) => (
                 <TextField
                   {...params}
-                  variant="outlined"
+                  variant="standard"
                   error={item.error || false}
                   helperText={item.error && item.helperText}
                 />
@@ -529,7 +529,7 @@ const RenderInput = (props) => {
 
     return (
       <div className="py-1 flex flex-col">
-        <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+        <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
@@ -590,7 +590,7 @@ const RenderInput = (props) => {
     return (
       <div className="py-1 flex flex-col">
         {item.title && (
-          <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+          <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
             {item.title}
             {item.required && <span className="text-[#FF0000]"> *</span>}
           </label>
@@ -617,7 +617,7 @@ const RenderInput = (props) => {
               <TextField
                 {...params}
                 placeholder={state[item.id].length === 0 ? item.placeholder : ""}
-                variant={item.variant ? item.variant : "outlined"}
+                variant={item.variant ? item.variant : "standard"}
                 error={item.error || false}
                 helperText={item.error && item.helperText}
               />
@@ -668,20 +668,20 @@ const RenderInput = (props) => {
         return (
           <div style={{ height: 100, width: 100, marginBottom: 40, marginTop: 10 }}>
             <label
-              className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
               style={{ width: 200 }}
             >
               {item?.title}
             </label>
-            <img className="ml-1 h-full w-full" src={state[item?.id]} alt=""/>
+            <img className="ml-0 h-full w-full" src={state[item?.id]} alt=""/>
           </div>
         );
       } else {
         return (
           <div style={{ height: 100, width: 100, marginBottom: 40, marginTop: 10 }} className="flex">
-            <label className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block">{item.title}</label>
+            <label className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block">{item.title}</label>
             {state[item.id]?.map((img_url) => (
-              <img className="ml-1 h-full w-full" key={img_url} src={img_url} alt=""/>
+              <img className="ml-0 h-full w-full" key={img_url} src={img_url} alt=""/>
             ))}
           </div>
         );
@@ -753,7 +753,7 @@ const RenderInput = (props) => {
       <div className="py-1 flex flex-col">
         <label
           for="contained-button-file"
-          className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+          className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
         >
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
@@ -860,7 +860,7 @@ const RenderInput = (props) => {
           className={
             props.labelClasses
               ? props.labelClasses
-              : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           }
         >
           {item.title}

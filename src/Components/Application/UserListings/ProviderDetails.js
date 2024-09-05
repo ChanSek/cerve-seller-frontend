@@ -238,7 +238,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
                     : navigate("/application/inventory");
                 }}
               />
-              <p className="text-2xl font-semibold mb-4">Provider Details</p>
+              <p className="text-2xl font-semibold mb-4">Seller Details</p>
               {providerFields.map((item) => (
                 <RenderInput previewOnly={true} item={item} state={providerDetails} statehandler={setProviderDetails} />
               ))}

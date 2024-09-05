@@ -29,7 +29,7 @@ export default [
   },
   {
     id: "contactEmail",
-    title: "Email",
+    title: "Contact Email",
     placeholder: "Enter Provider Email Address",
     type: "input",
     email: true,
@@ -37,11 +37,11 @@ export default [
   },
   {
     id: "contactMobile",
-    title: "Mobile Number",
+    title: "Contact Mobile Number",
     placeholder: "Enter Provider Mobile Number",
     type: "input",
     mobile: true,
-    maxLength: 10,
+    maxLength: 14,
     required: true,
   },
   {

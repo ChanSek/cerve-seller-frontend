@@ -20,7 +20,7 @@ export const getFormErrors = (fields, formValues) => {
         error = field_value.length < 3 ? "Minimum 3 images are required" : "";
       } else {
         error =
-          field_value?.trim() === ""
+          field_value === ""
             ? id + " is required"
             : field_value?.length > MAX_STRING_LENGTH_50
             ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`

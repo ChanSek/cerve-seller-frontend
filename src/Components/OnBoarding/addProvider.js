@@ -11,13 +11,14 @@ import {
   isPhoneNoValid,
   isValidFSSAI,
   isValidGSTIN,
+  isValidChars,
+  isValidDescription,
+  hasRepeatedChars,
 } from "../../utils/validations";
-import { postCall } from "../../Api/axios";
+import { getCall, postCall } from "../../Api/axios";
 import cogoToast from "cogo-toast";
 import { useNavigate } from "react-router-dom";
-import { containsOnlyNumbers } from "../../utils/formatting/string";
 import useForm from "../../hooks/useForm";
-import userFields from "./provider-user-fields";
 import kycDetailFields from "./provider-kyc-fields";
 import kycDocumentFields from "./provider-kyc-doc-fields";
 import bankDetailFields from "./provider-bank-details-fields";
@@ -63,9 +64,9 @@ const InviteProvider = () => {
   const bankDetails = {
     accHolderName: "",
     accNumber: "",
+    IFSC: "",
     bankName: "",
     branchName: "",
-    IFSC: "",
     cancelledCheque: "",
     captcha: "",
   };
@@ -82,21 +83,51 @@ const InviteProvider = () => {
     setFormSubmited(false);
   };
 
+  const getProviderDetails = async (subscriberId) => {
+    try {
+      const url = `/api/v1/seller/subscriberId/${subscriberId}/merchant`;
+      const result = await getCall(url);
+      const res = result.data;
+      setFormValues({
+        providerStoreName: res?.providerDetail?.storeName,
+        shortDescription: res?.providerDetail?.shortDescription,
+        longDescription: res?.providerDetail?.longDescription,
+        address: res?.providerDetail?.address,
+        contactEmail: res?.providerDetail?.contactEmail,
+        contactMobile: res?.providerDetail?.contactMobile,
+        PAN: res?.providerDetail?.pan,
+        GSTN: res?.providerDetail?.gstin,
+        FSSAI: res?.providerDetail?.fssaiNo,
+        address_proof: res?.providerDetail?.addressProofUrl,
+        id_proof: res?.providerDetail?.idProofUrl,
+        PAN_proof: res?.providerDetail?.panProofUrl,
+        GST_proof: res?.providerDetail?.gstinProofUrl,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    if (step === 3) {
-      console.log("alert");
+    if (step === 1 || step === 2) {
+      const subscriberId = localStorage.getItem("user_id");
+      getProviderDetails(subscriberId);
+    } else if (step === 3) {
       loadCaptchaEnginge(6);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
-  const sendInvite = async () => {
-    setFormSubmited(true);
+  const sendInvite = async (persistence) => {
+    if (persistence) {
+      setFormSubmited(true);
+    }
     try {
       const data = {
         storeName: formValues.providerStoreName.trim(),
-        shortDescription: formValues.shortDescription,
-        longDescription: formValues.longDescription,
-        address: formValues.address,
+        shortDescription: formValues.shortDescription.trim(),
+        longDescription: formValues.longDescription.trim(),
+        address: formValues.address.trim(),
         contactEmail: formValues.contactEmail.trim(),
         contactMobile: formValues.contactMobile,
         addressProofUrl: formValues.address_proof,
@@ -114,17 +145,20 @@ const InviteProvider = () => {
           bankName: formValues.bankName,
           branchName: formValues.branchName,
         },
+        persistence: persistence
       };
       const subscriberId = localStorage.getItem("user_id");
       const url = `/api/v1/seller/subscriberId/${subscriberId}/merchant`;
       const res = await postCall(url, data);
-      setFormSubmited(false);
-      if (res.status && res.status !== 200) {
-        cogoToast.error(res.message, { hideAfter: 5 });
-      }
-      if (res.status && res.status === 200) {
-        navigate("/application/inventory");
-        cogoToast.success("Provider onboarded successfully", { hideAfter: 5 });
+      if (persistence) {
+        setFormSubmited(false);
+        if (res.status && res.status !== 200) {
+          cogoToast.error(res.message, { hideAfter: 5 });
+        }
+        if (res.status && res.status === 200) {
+          navigate("/application/inventory");
+          cogoToast.success("Seller onboarded successfully", { hideAfter: 5 });
+        }
       }
     } catch (error) {
       console.log("error.response", error.response);
@@ -132,17 +166,50 @@ const InviteProvider = () => {
     }
   };
 
-  // const checkDisabled = () => {
-  //   if (user.email == "" || !isEmailValid(user.email)) return true;
-  //   if (user.password == "" || !isPhoneNoValid(user.mobile_number)) return true;
-  //   if (user.provider_admin_name.trim() == "") return true;
-  //   return false;
-  // };
-
   const renderHeading = () => {
-    if (step == 1) return "KYC Details";
-    if (step == 2) return "KYC Documents";
-    if (step == 3) return "Bank Details";
+    if (step === 1) return "KYC Details";
+    if (step === 2) return "KYC Documents";
+    if (step === 3) return "Bank Details";
+  };
+
+
+  const handleChange = (e, item, args) => {
+    var value = item.isUperCase ? e.target.value.toUpperCase() : e.target.value;
+    setFormValues({
+      ...formValues,
+      [item.id]: value,
+    });
+    fieldValidate(item.id, value);
+    if (step === 3) {
+      if (item.id === "IFSC") {
+        setFormValues({
+          ...formValues,
+          IFSC: value,
+          bankName: "",
+          branchName: "",
+        });
+        if (isValidIFSC(value)) {
+          getIFSCDetails(value).then((ifscDetails) => {
+            console.log("IFSC *** " + value);
+            console.log("ifscDetails " + JSON.stringify(ifscDetails));
+            setFormValues({
+              ...formValues,
+              IFSC: value,
+              bankName: ifscDetails.data.BANK,
+              branchName: ifscDetails.data.BRANCH,
+            });
+          });
+        }
+      }
+    }
+  }
+
+  const getIFSCDetails = async (ifsc_code) => {
+    console.log("ifsc_code " + ifsc_code);
+    const url = `/api/v1/seller/reference/${ifsc_code}/ifsc`;
+    const res = await getCall(url);
+    console.log("res " + res);
+    return res;
   };
 
   const renderFormFields = (fields) => {
@@ -154,15 +221,17 @@ const InviteProvider = () => {
           helperText: errors?.[item.id] || "",
         }}
         state={formValues}
+        handleChange={handleChange}
         stateHandler={setFormValues}
+        Key={item?.id}
       />
     ));
   };
 
   const renderSteps = () => {
-    if (step == 1) return renderFormFields(kycDetailFields);
-    if (step == 2) return renderFormFields(kycDocumentFields);
-    if (step == 3) return renderFormFields(bankDetailFields);
+    if (step === 1) return renderFormFields(kycDetailFields);
+    if (step === 2) return renderFormFields(kycDocumentFields);
+    if (step === 3) return renderFormFields(bankDetailFields);
   };
 
   const handleBack = () => {
@@ -179,28 +248,38 @@ const InviteProvider = () => {
       formErrors.providerStoreName =
         formValues.providerStoreName.trim() === ""
           ? "Provider Store Name is required"
-          : "";
+          : hasRepeatedChars(formValues.providerStoreName.trim())
+            ? "Please Provide a valid Store Name"
+            : !isValidChars(formValues.providerStoreName.trim())
+              ? "Please Provide a valid Store Name"
+              : "";
       formErrors.shortDescription =
         formValues.shortDescription.trim() === ""
           ? "Short Description is required"
-          : "";
+          : !isValidDescription(formValues.shortDescription.trim())
+            ? "Please Provide a Clear Description"
+            : "";
       formErrors.longDescription =
         formValues.longDescription.trim() === ""
           ? "Long Description is required"
-          : "";
+          : !isValidDescription(formValues.longDescription.trim())
+            ? "Please Provide a Clear Description"
+            : "";
       formErrors.address =
         formValues.address.trim() === ""
           ? "Registered Address is required"
-          : "";
+          : !isValidChars(formValues.address.trim())
+            ? "Please Provide a valid Registered Address"
+            : ""
       formErrors.contactEmail =
         formValues.contactEmail.trim() === ""
-          ? "Support Email is required"
+          ? "Contact Email is required"
           : !isEmailValid(formValues.contactEmail.trim())
             ? "Please enter a valid email address"
             : "";
       formErrors.contactMobile =
         formValues.contactMobile.trim() === ""
-          ? "Support Mobile Number is required"
+          ? "Contact Mobile Number is required"
           : !isPhoneNoValid(formValues.contactMobile.trim())
             ? "Please enter a valid mobile number"
             : "";
@@ -217,9 +296,9 @@ const InviteProvider = () => {
             ? "GSTIN Certificate should be alphanumeric and 15 characters long"
             : "";
       formErrors.FSSAI =
-        formValues.FSSAI.trim() === ""
+        formValues.FSSAI === ""
           ? "FSSAI Number is required"
-          : !isValidFSSAI(formValues.FSSAI) || formValues.FSSAI.length !== 14
+          : !isValidFSSAI(formValues.FSSAI) || String(formValues.FSSAI).length !== 14
             ? "FSSAI should be 14 digit number"
             : "";
     } else if (step === 2) {
@@ -236,34 +315,39 @@ const InviteProvider = () => {
           ? "GSTIN Certificate is required"
           : "";
     } else if (step === 3) {
-      formErrors.accHolderName =
-        formValues.accHolderName.trim() === ""
-          ? "Account Holder Name is required"
+      formErrors.accHolderName = formValues.accHolderName === undefined || formValues.accHolderName === ""
+        ? "Account Holder Name is required"
+        : hasRepeatedChars(formValues.accHolderName.trim())
+          ? "Please enter a valid account holder name"
           : !isNameValid(formValues.accHolderName)
             ? "Please enter a valid account holder name"
             : "";
       formErrors.accNumber =
-        formValues.accNumber.trim() === ""
+        formValues.accNumber === undefined || formValues.accNumber === ""
           ? "Account Number is required"
           : !isValidBankAccountNumber(formValues.accNumber)
             ? "Please enter a valid number"
             : "";
       formErrors.bankName =
-        formValues.bankName.trim() === "" ? "Bank Name is required" : "";
+        formValues.bankName === undefined || formValues.bankName.trim() === ""
+          ? "Bank Name is required"
+          : hasRepeatedChars(formValues.bankName.trim())
+            ? "Repititive characters not allowed"
+            : ""
       formErrors.branchName =
-        formValues.branchName.trim() === "" ? "Branch Name is required" : "";
+        formValues.branchName === undefined || formValues.branchName.trim() === "" ? "Branch Name is required" : "";
       formErrors.IFSC =
-        formValues.IFSC.trim() === ""
+        formValues.IFSC === undefined || formValues.IFSC.trim() === ""
           ? "IFSC Code is required"
           : !isValidIFSC(formValues.IFSC)
             ? "Please enter a valid IFSC Code"
             : "";
       formErrors.cancelledCheque =
-        formValues.cancelledCheque === ""
+        formValues.cancelledCheque === undefined || formValues.cancelledCheque === ""
           ? "Cancelled Cheque is required"
           : "";
       formErrors.captcha =
-        formValues.captcha.trim() === ""
+        formValues.captcha === ""
           ? "Captcha is required"
           : !validateCaptcha(formValues.captcha)
             ? "Captcha does not match"
@@ -275,9 +359,297 @@ const InviteProvider = () => {
     return !Object.values(formErrors).some((val) => val !== "");
   };
 
+  const fieldValidate = (fieldName, fieldValue) => {
+    if (step === 1) {
+      if (fieldName === "providerStoreName") {
+        if (fieldValue.trim() === "") {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            providerStoreName: "Provider Store Name is required",
+          }));
+          return false;
+        } else if (!isValidChars(fieldValue) || hasRepeatedChars(fieldValue)) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            providerStoreName: "Please Provide a valid Store Name",
+          }));
+          return false;
+        }
+      }
+
+      if (fieldName === "shortDescription") {
+        if (fieldValue.trim() === "") {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            shortDescription: "Short Description is required",
+          }));
+          return false;
+        } else if (!isValidDescription(fieldValue)) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            shortDescription: "Please Provide a Clear Description",
+          }));
+          return false;
+        }
+      }
+
+      if (fieldName === "longDescription") {
+        if (fieldValue.trim() === "") {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            longDescription: "Long Description is required",
+          }));
+          return false;
+        } else if (!isValidDescription(fieldValue)) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            longDescription: "Please Provide a Clear Description",
+          }));
+          return false;
+        }
+      }
+
+      if (fieldName === "address") {
+        if (fieldValue.trim() === "") {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            address: "Registered Address is required",
+          }));
+          return false;
+        } else if (!isValidChars(fieldValue)) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            address: "Please Provide a valid Registered Address",
+          }));
+          return false;
+        }
+      }
+
+
+      if (fieldName === "contactEmail") {
+        if (fieldValue.trim() === "") {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            contactEmail: "Contact Email is required",
+          }));
+          return false;
+        } else if (!isEmailValid(fieldValue.trim())) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            contactEmail: "Please enter a valid email address",
+          }));
+          return false;
+        } else if (fieldValue.trim().length > 64) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            contactEmail: "Email address max 64 characters long",
+          }));
+          return false;
+        }
+      }
+
+      if (fieldName === "contactMobile" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          contactMobile: "Contact Mobile Number is required",
+        }));
+        return false;
+      } else if (fieldName === "contactMobile" && !isPhoneNoValid(fieldValue.trim())) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          contactMobile: "Please enter a valid mobile number",
+        }));
+        return false;
+      }
+
+      if (fieldName === "PAN" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          PAN: "PAN is required",
+        }));
+        return false;
+      } else if (fieldName === "PAN" && !isValidPAN(fieldValue)) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          PAN: "Please enter a valid PAN number",
+        }));
+        return false;
+      }
+
+      if (fieldName === "GSTN" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          GSTN: "GSTIN Certificate is required",
+        }));
+        return false;
+      } else if (fieldName === "GSTN" && !isValidGSTIN(fieldValue)) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          GSTN: "GSTIN Certificate should be alphanumeric and 15 characters long",
+        }));
+        return false;
+      }
+
+      if (fieldName === "FSSAI") {
+        if (fieldValue === "") {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            FSSAI: "FSSAI Number is required",
+          }));
+          return false;
+        } else if (!isValidFSSAI(fieldValue) || String(fieldValue).length !== 14) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            FSSAI: "FSSAI should be 14 digit number",
+          }));
+          return false;
+        }
+      }
+
+    } else if (step === 2) {
+      if (fieldName === "address_proof" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          address_proof: "Address Proof is required",
+        }));
+        return false;
+      }
+
+      if (fieldName === "id_proof" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          id_proof: "ID Proof is required",
+        }));
+        return false;
+      }
+
+      if (fieldName === "PAN_proof" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          PAN_proof: "PAN Card Image is required",
+        }));
+        return false;
+      }
+
+      if (fieldName === "GST_proof" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          GST_proof: "GSTIN Certificate is required",
+        }));
+        return false;
+      }
+    } else if (step === 3) {
+      if (fieldName === "accHolderName") {
+        if (fieldValue.trim() === "") {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            accHolderName: "Account Holder Name is required",
+          }));
+          return false;
+        } else if (hasRepeatedChars(fieldValue)) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            accHolderName: "Please enter a valid account holder name",
+          }));
+          return false;
+        } else if (!isNameValid(fieldValue)) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            accHolderName: "Please enter a valid account holder name",
+          }));
+          return false;
+        }
+      }
+
+
+      if (fieldName === "accNumber" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          accNumber: "Account Number is required",
+        }));
+        return false;
+      } else if (fieldName === "accNumber" && !isValidBankAccountNumber(fieldValue)) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          accNumber: "Please enter a valid number",
+        }));
+        return false;
+      }
+
+      if (fieldName === "bankName" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          bankName: "Bank Name is required",
+        }));
+        return false;
+      }
+
+      if (fieldName === "branchName" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          branchName: "Branch Name is required",
+        }));
+        return false;
+      }
+
+      if (fieldName === "IFSC" && fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          IFSC: "IFSC Code is required",
+        }));
+        return false;
+      } else if (fieldName === "IFSC" && !isValidIFSC(fieldValue)) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          IFSC: "Please enter a valid IFSC Code",
+        }));
+        return false;
+      }
+
+      if (fieldName === "cancelledCheque"){
+        console.log("Value-----------------> "+fieldValue);
+      }
+      if (fieldName === "cancelledCheque" && (fieldValue === undefined || fieldValue.trim() === "")) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          cancelledCheque: "Cancelled Cheque is required",
+        }));
+        return false;
+      }
+
+      if (fieldName === "captcha" && (fieldValue === undefined || fieldValue.trim() === "")) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          captcha: "Captcha is required",
+        }));
+        return false;
+      } else if (fieldName === "captcha" && !validateCaptcha(fieldValue)) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          captcha: "Captcha does not match",
+        }));
+        return false;
+      }
+    }
+
+    setErrors({});
+    return true;
+  };
+
+
+
   const handleSubmit = () => {
+    console.log("step ----------------->" + step);
     if (validate()) {
-      step === 3 ? sendInvite() : handleContinue();
+      if (step === 1) {
+        handleContinue();
+        sendInvite(false);
+      } else if (step === 2) {
+        handleContinue();
+        sendInvite(false);
+      } else if (step === 3) {
+        sendInvite(true);
+      }
     }
   };
 
@@ -297,18 +669,18 @@ const InviteProvider = () => {
                 {renderHeading()}
               </p>
               <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-            <Button
-              type="button"
-              size="small"
-              style={{ marginRight: 10 }}
-              variant="contained"
-              color="primary"
-              onClick={() => logout()}
-            //  disabled={checkDisabled()}
-            >
-              Exit
-            </Button>
-          </div>
+                <Button
+                  type="button"
+                  size="small"
+                  style={{ marginRight: 10 }}
+                  variant="contained"
+                  color="primary"
+                  onClick={() => logout()}
+                //  disabled={checkDisabled()}
+                >
+                  Exit
+                </Button>
+              </div>
               <div>
                 {renderSteps()}
                 {step === 3 ? (
@@ -355,7 +727,7 @@ const InviteProvider = () => {
                   onClick={handleSubmit}
                 //  disabled={checkDisabled()}
                 >
-                  {step == 3 ? "Submit" : "Continue"}
+                  {step === 3 ? "Submit" : "Continue"}
                 </Button>
               </div>
             </form>

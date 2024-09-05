@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import MyButton from "../../Shared/Button";
 import VarinatForm from "./VariantForm";
 import { v4 as uuidv4 } from "uuid";
@@ -5,11 +6,28 @@ import { v4 as uuidv4 } from "uuid";
 const AddVariants = ({
   variantFields,
   variantInitialValues,
+  variantUpdatedValues,
   variantForms,
   setVariantForms,
   shouldValidate,
   variantFormsErrors,
 }) => {
+
+  useEffect(() => {
+    if (variantUpdatedValues != null && variantUpdatedValues.length > 0) {
+      handleRemoveForm(0);
+      // Create a new array that includes all current forms plus the new ones
+      const updatedForms = [
+        ...variantForms,
+        ...variantUpdatedValues.map(value => ({
+          ...value,
+          formKey: uuidv4()
+        }))
+      ];
+      setVariantForms(updatedForms);
+    }
+  }, [variantUpdatedValues]);
+
   const addNewVariationForm = () => {
     setVariantForms([...variantForms, { ...variantInitialValues, formKey: uuidv4() }]);
   };

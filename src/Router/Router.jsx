@@ -28,7 +28,7 @@ import CustomizationGroups from "../Components/Application/Customizations/Custom
 import CustomizationGroupDetails from "../Components/Application/Customizations/CustomizationGroupDetails.js";
 import Offer from "../Components/Application/Offer/Offer";
 import AddOffer from "../Components/Application/Offer/AddOffer";
-import AddSeller from "../Components/OnBoarding/addSeller";
+import NewSeller from "../Components/OnBoarding/new-seller-account";
 import ActivateSeller from "../Components/OnBoarding/activateSeller";
 
 export default function OndcRoutes() {
@@ -203,7 +203,7 @@ export default function OndcRoutes() {
         <Route
           path="/sign-up"
           element={
-            <AddSeller />
+            <NewSeller />
           }
         />
         <Route

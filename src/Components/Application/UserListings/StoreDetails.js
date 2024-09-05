@@ -351,8 +351,8 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 location: res?.providerDetail?.storeDetails?.location || "",
                 location_availability: res?.providerDetail?.storeDetails?.storeAvailability,
                 cities: res?.providerDetail?.storeDetails?.city || [],
-                default_cancellable: "false",
-                default_returnable: "false",
+                default_cancellable: res?.providerDetail?.storeDetails?.defaultCancellable + "" || "",
+                default_returnable: res?.providerDetail?.storeDetails?.defaultReturnable + "" || "",
                 country: res.providerDetail?.storeDetails?.address?.country || "",
                 state: res.providerDetail?.storeDetails?.address?.state || "",
                 city: res.providerDetail?.storeDetails?.address.city || "",
@@ -364,7 +364,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 //logo_path: res?.providerDetail?.storeDetails?.logo?.path || "",
 
                 holidays: res?.providerDetail?.storeDetails?.storeTimes?.holidays || [],
-                radius: res?.providerDetail?.storeDetails?.circles[0].value || "",
+                radius: res?.providerDetail?.storeDetails?.radius || "",
                 logisticsBppId: res?.providerDetail?.storeDetails?.logisticsBppId || "",
                 logisticsDeliveryType: res?.providerDetail?.storeDetails?.logisticsDeliveryType || "",
                 deliveryTime: res?.providerDetail?.storeDetails?.deliveryTime || "",
@@ -388,13 +388,14 @@ const StoreDetails = ({ isFromUserListing = false }) => {
             const storeTimingDetails = res?.providerDetail?.storeDetails?.storeTimes;
 
             setStoreStatus(storeTimingDetails?.status);
-            setTemporaryClosedTimings(storeTimingDetails?.closed);
-            setTemporaryClosedDays(storeTimingDetails?.closedDays);
-
+            if (storeTimingDetails?.closed !== undefined)
+                setTemporaryClosedTimings(storeTimingDetails?.closed);
+            if (storeTimingDetails?.closedDays !== undefined)
+                setTemporaryClosedDays(storeTimingDetails?.closedDays);
             setStoreDetails(Object.assign({}, JSON.parse(JSON.stringify(storeData))));
             setDefaultStoreDetails(Object.assign({}, JSON.parse(JSON.stringify(storeData))));
-            setStoreTimings(res?.providerDetail?.storeDetails?.storeTiming?.enabled || defaultStoreTimings);
-            setOriginalStoreTimings(res?.providerDetail?.storeDetails?.storeTiming?.enabled || defaultStoreTimings);
+            setStoreTimings(res?.providerDetail?.storeDetails?.storeTimes?.enabled || defaultStoreTimings);
+            setOriginalStoreTimings(res?.providerDetail?.storeDetails?.storeTimes?.enabled || defaultStoreTimings);
         } catch (error) {
             console.log(error);
         }
@@ -454,7 +455,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
 
     const getTimingErrors = (storeTimings) => {
         let values = storeTimings?.reduce((acc, storeTiming) => {
-            console.log("storeTiming "+JSON.stringify(storeTiming));
+            console.log("storeTiming " + JSON.stringify(storeTiming));
             acc.push(storeTiming.daysRange.from);
             acc.push(storeTiming.daysRange.to);
             storeTiming.timings.forEach((element) => {
@@ -781,10 +782,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 supportMobile: mobile,
                 fulfillments,
                 storeTimes,
-                circles: [{
-                    unit: "km",
-                    value: storeDetails.radius || "",
-                }],
+                radius: storeDetails.radius || "",
                 useNetworkLogistics: storeDetails.onNetworkLogistics,
                 logisticsBppId: storeDetails.onNetworkLogistics === 'true' ? storeDetails.logisticsBppId : '',
                 logisticsDeliveryType: storeDetails.logisticsDeliveryType,
@@ -942,214 +940,214 @@ const StoreDetails = ({ isFromUserListing = false }) => {
 
     let userRole = 'Organization Admin';//JSON.parse(localStorage.getItem("user"))?.role?.name;
 
-        return (
-            <div>
-                <div className="container mx-auto my-8">
-                    <div className="w-full bg-white px-4 py-4 rounded-md h-full overflow-auto" style={{ minHeight: "95%", maxHeight: "100%" }}>
-                        <div className="m-auto w-10/12 md:w-3/4 h-max">
-                            <BackNavigationButton
-                                onClick={() => {
-                                    userRole === "Super Admin"
-                                        ? navigate("/application/user-listings?view=provider")
-                                        : navigate("/application/inventory");
+    return (
+        <div>
+            <div className="container mx-auto my-8">
+                <div className="w-full bg-white px-4 py-4 rounded-md h-full overflow-auto" style={{ minHeight: "95%", maxHeight: "100%" }}>
+                    <div className="m-auto w-10/12 md:w-3/4 h-max">
+                        <BackNavigationButton
+                            onClick={() => {
+                                userRole === "Super Admin"
+                                    ? navigate("/application/user-listings?view=provider")
+                                    : navigate("/application/inventory");
+                            }}
+                        />
+                        <p className="text-2xl font-semibold mb-4 mt-14">Store Details</p>
+
+                        {storeDetailFields.map((item) => (
+                            <RenderInput
+                                key={item.id} // Ensure unique key for list items
+                                item={{
+                                    ...item,
+                                    error: !!errors?.[item.id],
+                                    helperText: errors?.[item.id] || "",
                                 }}
+                                state={storeDetails}
+                                stateHandler={setStoreDetails}
                             />
-                            <p className="text-2xl font-semibold mb-4 mt-14">Store Details</p>
-    
-                            {storeDetailFields.map((item) => (
+                        ))}
+
+                        {!isFromUserListing && (
+                            <>
+                                <p className="text-2xl font-semibold mb-4 mt-14">Logistics Details</p>
                                 <RenderInput
-                                    key={item.id} // Ensure unique key for list items
                                     item={{
-                                        ...item,
-                                        error: !!errors?.[item.id],
-                                        helperText: errors?.[item.id] || "",
+                                        id: "onNetworkLogistics",
+                                        title: "Network Logistics",
+                                        options: [
+                                            { key: "On", value: "true" },
+                                            { key: "Off", value: "false" },
+                                        ],
+                                        type: "radio",
+                                        required: true,
+                                        error: !!errors?.["onNetworkLogistics"],
+                                        helperText: errors?.["onNetworkLogistics"] || "",
                                     }}
                                     state={storeDetails}
                                     stateHandler={setStoreDetails}
                                 />
-                            ))}
-    
-                            {!isFromUserListing && (
-                                <>
-                                    <p className="text-2xl font-semibold mb-4 mt-14">Logistics Details</p>
+                                <RenderInput
+                                    item={{
+                                        id: "logisticsDeliveryType",
+                                        title: "Logistics Delivery Type",
+                                        placeholder: "Logistics Delivery Type",
+                                        error: !!errors?.["logisticsDeliveryType"],
+                                        helperText: errors?.["logisticsDeliveryType"] || "",
+                                        options: deliveryTypeList,
+                                        type: "select",
+                                    }}
+                                    state={storeDetails}
+                                    stateHandler={setStoreDetails}
+                                />
+                                {storeDetails.onNetworkLogistics === 'true' ? (
                                     <RenderInput
                                         item={{
-                                            id: "onNetworkLogistics",
-                                            title: "Network Logistics",
-                                            options: [
-                                                { key: "On", value: "true" },
-                                                { key: "Off", value: "false" },
-                                            ],
-                                            type: "radio",
-                                            required: true,
-                                            error: !!errors?.["onNetworkLogistics"],
-                                            helperText: errors?.["onNetworkLogistics"] || "",
+                                            id: "logisticsBppId",
+                                            title: "Logistics Bpp Id",
+                                            placeholder: "Logistics Bpp Id",
+                                            type: "input",
+                                            error: !!errors?.["logisticsBppId"],
+                                            helperText: errors?.["logisticsBppId"] || "",
                                         }}
                                         state={storeDetails}
                                         stateHandler={setStoreDetails}
                                     />
+                                ) : (
                                     <RenderInput
                                         item={{
-                                            id: "logisticsDeliveryType",
-                                            title: "Logistics Delivery Type",
-                                            placeholder: "Logistics Delivery Type",
-                                            error: !!errors?.["logisticsDeliveryType"],
-                                            helperText: errors?.["logisticsDeliveryType"] || "",
-                                            options: deliveryTypeList,
-                                            type: "select",
+                                            id: "deliveryTime",
+                                            title: "Delivery Time (in hours)",
+                                            placeholder: "Delivery Time (in hours)",
+                                            type: "number",
+                                            error: !!errors?.["deliveryTime"],
+                                            helperText: errors?.["deliveryTime"] || "",
                                         }}
                                         state={storeDetails}
                                         stateHandler={setStoreDetails}
                                     />
-                                    {storeDetails.onNetworkLogistics === 'true' ? (
+                                )}
+                                <Fulfillments
+                                    errors={errors}
+                                    supportedFulfillments={supportedFulfillments}
+                                    setSupportedFulfillments={setSupportedFulfillments}
+                                    fulfillmentDetails={fulfillmentDetails}
+                                    setFulfillmentDetails={setFulfillmentDetails}
+                                />
+
+                                <p className="text-2xl font-semibold mb-2 mt-14">Store Timing</p>
+                                <div className="py-1 flex flex-col">
+                                    <FormControl component="fieldset">
+                                        <label className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block">
+                                            Store Status
+                                            <span className="text-[#FF0000]"> *</span>
+                                        </label>
+                                        <RadioGroup
+                                            value={storeStatus}
+                                            onChange={(e) => {
+                                                setStoreStatus(e.target.value);
+                                            }}
+                                        >
+                                            <div className="flex flex-row">
+                                                {[
+                                                    { key: "Enabled", value: "enabled" },
+                                                    { key: "Temporarily Closed", value: "closed" },
+                                                    { key: "Disabled", value: "disabled" },
+                                                ].map((radioItem) => (
+                                                    <FormControlLabel
+                                                        key={radioItem.value}
+                                                        value={radioItem.value}
+                                                        control={<Radio size="small" checked={radioItem.value === storeStatus} />}
+                                                        label={<div className="text-sm font-medium text-[#606161]">{radioItem.key}</div>}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </RadioGroup>
+                                    </FormControl>
+                                </div>
+
+                                {storeStatus === "enabled" && (
+                                    <>
                                         <RenderInput
                                             item={{
-                                                id: "logisticsBppId",
-                                                title: "Logistics Bpp Id",
-                                                placeholder: "Logistics Bpp Id",
-                                                type: "input",
-                                                error: !!errors?.["logisticsBppId"],
-                                                helperText: errors?.["logisticsBppId"] || "",
+                                                id: "holidays",
+                                                title: "Holidays",
+                                                placeholder: "Holidays",
+                                                type: "days-picker",
+                                                required: false,
+                                                format: "YYYY-MM-DD",
+                                                error: !!errors?.["holidays"],
+                                                helperText: errors?.["holidays"] || "",
                                             }}
                                             state={storeDetails}
                                             stateHandler={setStoreDetails}
                                         />
-                                    ) : (
-                                        <RenderInput
-                                            item={{
-                                                id: "deliveryTime",
-                                                title: "Delivery Time (in hours)",
-                                                placeholder: "Delivery Time (in hours)",
-                                                type: "number",
-                                                error: !!errors?.["deliveryTime"],
-                                                helperText: errors?.["deliveryTime"] || "",
+                                        <p
+                                            style={{
+                                                color: "#d32f2f",
+                                                fontSize: "0.75rem",
+                                                marginLeft: 12,
                                             }}
-                                            state={storeDetails}
-                                            stateHandler={setStoreDetails}
-                                        />
-                                    )}
-                                    <Fulfillments
-                                        errors={errors}
-                                        supportedFulfillments={supportedFulfillments}
-                                        setSupportedFulfillments={setSupportedFulfillments}
-                                        fulfillmentDetails={fulfillmentDetails}
-                                        setFulfillmentDetails={setFulfillmentDetails}
-                                    />
-    
-                                    <p className="text-2xl font-semibold mb-2 mt-14">Store Timing</p>
-                                    <div className="py-1 flex flex-col">
-                                        <FormControl component="fieldset">
-                                            <label className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block">
-                                                Store Status
-                                                <span className="text-[#FF0000]"> *</span>
-                                            </label>
-                                            <RadioGroup
-                                                value={storeStatus}
-                                                onChange={(e) => {
-                                                    setStoreStatus(e.target.value);
-                                                }}
-                                            >
-                                                <div className="flex flex-row">
-                                                    {[
-                                                        { key: "Enabled", value: "enabled" },
-                                                        { key: "Temporarily Closed", value: "closed" },
-                                                        { key: "Disabled", value: "disabled" },
-                                                    ].map((radioItem) => (
-                                                        <FormControlLabel
-                                                            key={radioItem.value}
-                                                            value={radioItem.value}
-                                                            control={<Radio size="small" checked={radioItem.value === storeStatus} />}
-                                                            label={<div className="text-sm font-medium text-[#606161]">{radioItem.key}</div>}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </RadioGroup>
-                                        </FormControl>
-                                    </div>
-    
-                                    {storeStatus === "enabled" && (
-                                        <>
-                                            <RenderInput
-                                                item={{
-                                                    id: "holidays",
-                                                    title: "Holidays",
-                                                    placeholder: "Holidays",
-                                                    type: "days-picker",
-                                                    required: false,
-                                                    format: "YYYY-MM-DD",
-                                                    error: !!errors?.["holidays"],
-                                                    helperText: errors?.["holidays"] || "",
-                                                }}
-                                                state={storeDetails}
-                                                stateHandler={setStoreDetails}
-                                            />
-                                            <p
-                                                style={{
-                                                    color: "#d32f2f",
-                                                    fontSize: "0.75rem",
-                                                    marginLeft: 12,
-                                                }}
-                                            >
-                                                {errors?.["holidays"] || ""}
-                                            </p>
-                                        </>
-                                    )}
-    
-                                    <StoreTimingsRenderer
-                                        errors={errors}
-                                        storeStatus={storeStatus}
-                                        storeTimings={storeTimings}
-                                        setStoreTimings={setStoreTimings}
-                                        temporaryClosedTimings={temporaryClosedTimings}
-                                        setTemporaryClosedTimings={setTemporaryClosedTimings}
-                                        temporaryClosedDays={temporaryClosedDays}
-                                        setTemporaryClosedDays={setTemporaryClosedDays}
-                                    />
-                                </>
-                            )}
-    
-                            <div className="flex mt-16">
-                                <Button
-                                    style={{ marginRight: 10 }}
-                                    variant="contained"
-                                    onClick={onUpdate}
-                                    disabled={!anyChangeInData()}
-                                >
-                                    Update Store
-                                </Button>
-                            </div>
+                                        >
+                                            {errors?.["holidays"] || ""}
+                                        </p>
+                                    </>
+                                )}
+
+                                <StoreTimingsRenderer
+                                    errors={errors}
+                                    storeStatus={storeStatus}
+                                    storeTimings={storeTimings}
+                                    setStoreTimings={setStoreTimings}
+                                    temporaryClosedTimings={temporaryClosedTimings}
+                                    setTemporaryClosedTimings={setTemporaryClosedTimings}
+                                    temporaryClosedDays={temporaryClosedDays}
+                                    setTemporaryClosedDays={setTemporaryClosedDays}
+                                />
+                            </>
+                        )}
+
+                        <div className="flex mt-16">
+                            <Button
+                                style={{ marginRight: 10 }}
+                                variant="contained"
+                                onClick={onUpdate}
+                                disabled={!anyChangeInData()}
+                            >
+                                Update Store
+                            </Button>
                         </div>
                     </div>
                 </div>
-                <Modal open={openPolygonMap} onClose={() => setOpenPolygonMap(false)}>
-                    <div
-                        style={{
-                            position: "absolute",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            backgroundColor: "#fff",
-                            padding: "16px 20px",
-                            borderRadius: 4,
-                        }}
-                    >
-                        <div style={{ width: "70vw" }}>
-                            <div className="flex justify-between mb-4">
-                                <h1 style={{ fontSize: 16, marginBottom: 10, fontWeight: 600 }}>
-                                    Mark Your Locations and Define a Custom Area
-                                </h1>
-                            </div>
-                            <PolygonMap
-                                openPolygonMap={openPolygonMap}
-                                setOpenPolygonMap={setOpenPolygonMap}
-                                polygonPoints={polygonPoints}
-                                setPolygonPoints={setPolygonPoints}
-                            />
-                        </div>
-                    </div>
-                </Modal>
             </div>
-        );
+            <Modal open={openPolygonMap} onClose={() => setOpenPolygonMap(false)}>
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        backgroundColor: "#fff",
+                        padding: "16px 20px",
+                        borderRadius: 4,
+                    }}
+                >
+                    <div style={{ width: "70vw" }}>
+                        <div className="flex justify-between mb-4">
+                            <h1 style={{ fontSize: 16, marginBottom: 10, fontWeight: 600 }}>
+                                Mark Your Locations and Define a Custom Area
+                            </h1>
+                        </div>
+                        <PolygonMap
+                            openPolygonMap={openPolygonMap}
+                            setOpenPolygonMap={setOpenPolygonMap}
+                            polygonPoints={polygonPoints}
+                            setPolygonPoints={setPolygonPoints}
+                        />
+                    </div>
+                </div>
+            </Modal>
+        </div>
+    );
 };
 
 export default StoreDetails;

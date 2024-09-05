@@ -218,8 +218,8 @@ export default function AddProduct() {
         let data = [...fields]; // Create a copy of the fields array
         const subCategoryIndex = data.findIndex(
           (item) => item.id === "productSubcategory1"
-        );        
-        getProductCategory(category).then((categoryList) =>{
+        );
+        getProductCategory(category).then((categoryList) => {
           data[subCategoryIndex].options = categoryList;
           setFields(data);
         });
@@ -398,6 +398,7 @@ export default function AddProduct() {
     } else {
       let selectedCategory = categoryForm.formValues?.productCategory;
       if (!selectedCategory) selectedCategory = state?.productCategory;
+      const variationData = state?.productVariationOn.toLowerCase() || variationOn;
       return (
         <ProductDetails
           state={state}
@@ -407,7 +408,7 @@ export default function AddProduct() {
           subCategory={categoryForm.formValues?.productSubcategory1}
           attributes={attributes}
           variants={variants}
-          variationOn={dataEntryForm.formValues.dataEntryMode === "manual" ? variationOn : "none"}
+          variationOn={dataEntryForm.formValues.dataEntryMode === "manual" ? variationData : "none"}
           selectedVariantNames={getSelectedVariantNames()}
         />
       );
@@ -431,7 +432,7 @@ export default function AddProduct() {
             <form>
               <div className="mt-2">{renderFields()}</div>
             </form>
-            {}
+            { }
             <div className="flex flex-row justify-center py-2 sm:pt-5 md:!mt-10">
               <MyButton
                 type="button"
@@ -450,10 +451,10 @@ export default function AddProduct() {
                       categoryForm.formValues["productSubcategory1"] &&
                       (dataEntryForm.formValues.dataEntryMode === "manual"
                         ? variationOn === "none" ||
-                          variationOn === "uom" ||
-                          anyVariantSelected()
+                        variationOn === "uom" ||
+                        anyVariantSelected()
                         : barCodeForm.formValues.barCodeType &&
-                          barCodeForm.formValues.barCodeValue)
+                        barCodeForm.formValues.barCodeValue)
                     )
                   }
                   onClick={() => setRenderCategories(false)}

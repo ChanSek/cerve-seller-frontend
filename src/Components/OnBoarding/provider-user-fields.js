@@ -13,7 +13,7 @@ export default [
     placeholder: "Enter Provider Mobile Number",
     type: "input",
     mobile: true,
-    maxLength: 10,
+    maxLength: 14,
     required: true,
   },
   {

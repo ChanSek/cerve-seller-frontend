@@ -83,6 +83,7 @@ export default function Inventory() {
       boolean: true,
       minWidth: 100,
     },
+    { id: "variationOn", label: "Variation On", minWidth: 100 },
     /*{
       id: "customizationGroupId",
       label: "Customization",
@@ -135,6 +136,16 @@ export default function Inventory() {
   });
 
   const getProducts = async (storeId) => {
+    try {
+      const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
+      setProducts(res.content);
+      setTotalRecords(res.totalElements);
+    } catch (error) {
+      // cogoToast.error("Something went wrong!");
+    }
+  };
+
+  const getTempProducts = async () => {
     try {
       const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
       setProducts(res.content);
@@ -236,9 +247,10 @@ export default function Inventory() {
   }, []);
 
   useEffect(() => {
-    //getProducts();
-    //console.log({ newCustomizationData });
-  }, [page, rowsPerPage]);
+    if(storeId && storeId !== undefined ){
+      getTempProducts();
+    }
+  }, [page, rowsPerPage, storeId]);
 
   const handleRefresh = (data) => {
     getProducts();

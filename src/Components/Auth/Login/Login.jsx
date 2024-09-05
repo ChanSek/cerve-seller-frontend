@@ -5,6 +5,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import ErrorMessage from "../../Shared/ErrorMessage";
 import TextField from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
+import { isEmailValid } from "../../../utils/validations";
 import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
 import { AddCookie, getValueFromCookie } from "../../../utils/cookies";
 import { postCall } from "../../../Api/axios";
@@ -48,6 +49,12 @@ export default function Login() {
         username_error: "Email cannot be empty",
       }));
       return false;
+    } else if (!isEmailValid(login.username)) {
+      setInlineError((inlineError) => ({
+        ...inlineError,
+        username_error: "Email is not Valid",
+      }));
+      return false;
     }
     return true;
   }
@@ -66,17 +73,18 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (enableCaptcha && !validateCaptcha(captchaVal)) {
-      setInlineError((inlineError) => ({
-        ...inlineError,
-        captcha_error: "Captcha does not match",
-      }));
-      return
-    }
     const url = "/api/v1/auth/login";
     try {
       const res = await postCall(url, login);
-      handleRedirect(res.data.access_token, res.data.user);
+      if (res.status == 200) {
+        if (res.data.emailExist) {
+          handleRedirect(res.data.access_token, res.data.user);
+        } else {
+          cogoToast.error("Email id not registered!");
+        }
+      } else {
+        cogoToast.error("Authentication failed!");
+      }
     } catch (error) {
       cogoToast.error("Authentication failed!");
       //setEnableCaptcha(true)
@@ -92,10 +100,10 @@ export default function Login() {
     localStorage.setItem("user_id", _id);
     if (!user.enabled) {
       navigate("/activate");
-    } else if (!isObjEmpty(user.organization)) { 
-      navigate("/application/inventory") 
-    } else { 
-      navigate("/add-provider-info") 
+    } else if (!isObjEmpty(user.organization)) {
+      navigate("/application/inventory")
+    } else {
+      navigate("/add-provider-info")
     };
   }
 
@@ -109,7 +117,7 @@ export default function Login() {
         } else {
           navigate("/add-provider-info")
         }
-      }else{
+      } else {
         navigate("/activate");
       }
     }
@@ -124,7 +132,7 @@ export default function Login() {
       <div className="py-1">
         <label
           htmlFor="username"
-          className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+          className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
         >
           Email
           <span className="text-[#FF0000]"> *</span>
@@ -135,6 +143,7 @@ export default function Login() {
               ? "outlined-error"
               : "demo-helper-text-aligned"
           }
+          variant="standard"
           name="username"
           type="email"
           placeholder="Enter Email"
@@ -160,7 +169,7 @@ export default function Login() {
       <div className="py-1">
         <label
           htmlFor="password"
-          className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+          className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
         >
           Password
           <span className="text-[#FF0000]"> *</span>
@@ -171,6 +180,7 @@ export default function Login() {
               ? "outlined-error"
               : "demo-helper-text-aligned"
           }
+          variant="standard"
           name="password"
           type="password"
           placeholder="Enter Password"

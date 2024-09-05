@@ -2,14 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import RenderInput from "../../utils/RenderInput";
 import {
-  isValidBankAccountNumber,
-  isValidIFSC,
   isNameValid,
   isEmailValid,
-  isValidPAN,
   isPhoneNoValid,
-  isValidFSSAI,
-  isValidGSTIN,
 } from "../../utils/validations";
 import { postCall } from "../../Api/axios";
 import cogoToast from "cogo-toast";
@@ -17,11 +12,6 @@ import { useNavigate } from "react-router-dom";
 import useForm from "../../hooks/useForm";
 import userFields from "./provider-user-fields";
 import { AddCookie, getValueFromCookie } from "../../utils/cookies";
-import {
-  loadCaptchaEnginge,
-  LoadCanvasTemplate,
-  validateCaptcha,
-} from "react-simple-captcha";
 
 const AddSeller = () => {
   const navigate = useNavigate();
@@ -46,7 +36,6 @@ const AddSeller = () => {
   useEffect(() => {
     if (step === 4) {
       console.log("alert");
-      loadCaptchaEnginge(6);
     }
   }, [step]);
 
@@ -54,18 +43,18 @@ const AddSeller = () => {
     setFormSubmited(true);
     try {
       const data = {
-          name: formValues.name,
-          email: formValues.email,
-          mobile: formValues.mobile,
-          password: formValues.password,
+        name: formValues.name,
+        email: formValues.email,
+        mobile: formValues.mobile,
+        password: formValues.password,
       };
       const url = `/api/v1/auth/signup`;
       const res = await postCall(url, data);
       setFormSubmited(false);
-      if(res.status && res.status !== 200){
+      if (res.status && res.status !== 200) {
         cogoToast.error(res.message, { hideAfter: 5 });
       }
-      if(res.status && res.status === 200 && res.data.status){
+      if (res.status && res.status === 200 && res.data.status) {
         const { _id } = res.data.user;
         AddCookie("token", res.data.access_token);
         localStorage.setItem("user_id", _id);
@@ -82,6 +71,15 @@ const AddSeller = () => {
     if (step == 1) return "Create New Seller Account";
   };
 
+  const handleChange = (e, item, args) => {
+    var value = item.isUperCase ? e.target.value.toUpperCase() : e.target.value;
+    setFormValues({
+      ...formValues,
+      [item.id]: value,
+    });
+    fieldValidate(item.id, value);
+  }
+
   const renderFormFields = (fields) => {
     return fields.map((item) => (
       <RenderInput
@@ -91,10 +89,52 @@ const AddSeller = () => {
           helperText: errors?.[item.id] || "",
         }}
         state={formValues}
+        handleChange={handleChange}
         stateHandler={setFormValues}
       />
     ));
   };
+
+  const fieldValidate = (fieldName, fieldValue) => {
+    if (fieldName === "email") {
+      if (fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          email: "Support Email is required",
+        }));
+        return false;
+      } else if (!isEmailValid(fieldValue.trim())) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          email: "Please enter a valid email address",
+        }));
+        return false;
+      } else if (fieldValue.trim().length > 64) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          email: "Email address max 64 characters long",
+        }));
+        return false;
+      }
+    }
+    if (fieldName === "mobile") {
+      if (fieldValue.trim() === "") {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          mobile: "Mobile Number is required",
+        }));
+        return false;
+      } else if (!isPhoneNoValid(fieldValue.trim())) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          mobile: "Please enter a valid mobile number",
+        }));
+        return false;
+      }
+    }
+    setErrors({});
+    return true;
+  }
 
   const renderSteps = () => {
     let uFields = [
@@ -126,26 +166,26 @@ const AddSeller = () => {
         formValues.email.trim() === ""
           ? "Email is required"
           : !isEmailValid(formValues.email)
-          ? "Please enter a valid email address"
-          : "";
+            ? "Please enter a valid email address"
+            : "";
       formErrors.mobile =
         formValues.mobile.trim() === ""
           ? "Mobile Number is required"
           : !isPhoneNoValid(formValues.mobile)
-          ? "Please enter a valid mobile number"
-          : "";
+            ? "Please enter a valid mobile number"
+            : "";
       formErrors.name =
         formValues.name.trim() === ""
           ? "Name is required"
           : !isNameValid(formValues.name)
-          ? "Please enter a valid name"
-          : "";
+            ? "Please enter a valid name"
+            : "";
       formErrors.password =
-        formValues.password.trim() === "" 
-        ? "Password is required" 
-        : formValues.password.length < 6
-        ? "Password should have minimum 6 characters"
-        : "";
+        formValues.password.trim() === ""
+          ? "Password is required"
+          : formValues.password.length < 6
+            ? "Password should have minimum 6 characters"
+            : "";
     }
     setErrors({
       ...formErrors,
@@ -159,12 +199,7 @@ const AddSeller = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (!formSubmitted) return
-  //   validate()
-  // }, [formValues])
 
-  console.log("formValues====>", formValues);
   return (
     <div
       className="mx-auto !p-5 h-screen min-vh-100 overflow-auto bg-[#f0f0f0]"
@@ -173,7 +208,7 @@ const AddSeller = () => {
       <div className="h-full flex fex-row items-center justify-center">
         <div
           className="flex w-full md:w-2/4 bg-white px-4 py-4 rounded-md shadow-xl h-max"
-          // style={{ minHeight: "75%" }}
+        // style={{ minHeight: "75%" }}
         >
           <div className="m-auto w-10/12 md:w-3/4 h-max">
             <form>
@@ -201,7 +236,7 @@ const AddSeller = () => {
                   variant="contained"
                   color="primary"
                   onClick={handleSubmit}
-                  //  disabled={checkDisabled()}
+                //  disabled={checkDisabled()}
                 >
                   SignUp
                 </Button>

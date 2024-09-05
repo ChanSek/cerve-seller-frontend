@@ -9,7 +9,7 @@ const useForm = (initialValues, ) => {
         setFormValues({
             ...formValues,
             [name]: value,
-        })
+        });
     }
 
     const handleReset = () => {

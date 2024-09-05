@@ -148,7 +148,7 @@ export default function Sidebar(props) {
                   className="no-underline text-black"
                 >
                   <ListItemButton sx={{ pl: 4 }}>
-                    <ListItemText primary="Provider Details" />
+                    <ListItemText primary="Seller Details" />
                   </ListItemButton>
                 </NavLink>
                 <NavLink

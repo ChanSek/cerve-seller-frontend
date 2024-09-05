@@ -37,12 +37,23 @@ const ForgotPassword = () => {
   const [otpGenerated, setOtpGenerated] = useState(false);
 
   const checkDisabled = () => {
-    if (otpGenerated === true || email.trim() === '' || !isEmailValid(email)) return true;
+    if (otpGenerated === true || email.trim() === '' || !isEmailValid(email) || error === true) return true;
     return false;
   };
 
   const checkEnableOtp = () => {
     return (otpGenerated === false);
+  };
+
+  const updateEmail = (email) => {
+    if(email.trim() === '' || !isEmailValid(email)){
+      setError(true);
+      setMsg("Please enter a valid email address");
+    }else{
+      setError(false);
+      setMsg("");
+      setEmail(email);
+    }
   };
 
   const user = {
@@ -155,7 +166,7 @@ const ForgotPassword = () => {
         <div className="py-1">
           <label
             htmlFor="email"
-            className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+            className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           >
             Email
             <span className="text-[#FF0000]"> *</span>
@@ -165,17 +176,18 @@ const ForgotPassword = () => {
             size="small"
             name="email"
             type="email"
+            variant="standard"
             placeholder="Enter Email"
             autoComplete="off"
             className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => updateEmail(event.target.value)}
             disabled={!checkEnableOtp()}
           />
         </div>
         <div className="py-1">
           <label
             htmlFor="password"
-            className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+            className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           >
             New Password
             <span className="text-[#FF0000]"> *</span>
@@ -185,6 +197,7 @@ const ForgotPassword = () => {
             size="small"
             name="password_1"
             type="password"
+            variant="standard"
             placeholder="Enter Password(mininum 6 characters)"
             autoComplete="off"
             className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
@@ -195,7 +208,7 @@ const ForgotPassword = () => {
         <div className="py-1">
           <label
             htmlFor="password"
-            className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+            className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           >
             Confirm Password
             <span className="text-[#FF0000]"> *</span>
@@ -205,6 +218,7 @@ const ForgotPassword = () => {
             size="small"
             name="password_2"
             type="password"
+            variant="standard"
             placeholder="Confirm Password"
             autoComplete="off"
             className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
@@ -215,7 +229,7 @@ const ForgotPassword = () => {
         <div className="py-1">
           <label
             htmlFor="password"
-            className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+            className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           >
             Email OTP
             <span className="text-[#FF0000]"> *</span>
@@ -225,6 +239,7 @@ const ForgotPassword = () => {
             size="small"
             name="emailOtp"
             type="text"
+            variant="standard"
             placeholder="Enter OTP Provided Through Email"
             autoComplete="off"
             className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
@@ -249,7 +264,7 @@ const ForgotPassword = () => {
           onClick={handleResetPassword}
           disabled={checkEnableOtp()}
         >
-          Reset Password
+          Submit
         </Button>
       </form>
     </div>
