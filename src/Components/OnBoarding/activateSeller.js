@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@mui/material";
 import RenderInput from "../../utils/RenderInput";
 import { isNumberOnly } from "../../utils/validations";
@@ -21,9 +21,10 @@ export default function ActivateSeller() {
     });
 
     const [isRegenerateDisabled, setIsRegenerateDisabled] = useState(false);
+    const [generateKey, setGenerateKey] = useState(false);
 
     async function logout() {
-        if (window.confirm("Are you sure you want to logout your session?")) {
+        if (window.confirm("Are you sure want to logout your session?")) {
             await postCall(`/api/v1/auth/logout`);
             deleteAllCookies();
             localStorage.clear();
@@ -59,9 +60,7 @@ export default function ActivateSeller() {
 
     const regenerateKey = async () => {
         try {
-            const data = {
-                emailOtp: formValues.email_otp
-            };
+            const data = {};
             const subscriberId = localStorage.getItem("user_id");
             const url = `/api/v1/seller/subscriberId/${subscriberId}/regenerateKey`;
             const res = await postCall(url, data);
@@ -80,6 +79,12 @@ export default function ActivateSeller() {
             cogoToast.error(error.response.data.error);
         }
     };
+    useEffect(() => {
+        if (!generateKey) {
+            handleRegenerate();
+            setGenerateKey(true);
+        }
+    }, [generateKey]);
 
     const renderFormFields = (fields) => {
         return fields.map((item) => (
@@ -136,9 +141,9 @@ export default function ActivateSeller() {
     const signUpForm = (
         <div className="w-10/12 md:w-3/4 mx-auto">
             <div
-            style={{ height: "20%" }}
-            className="overflow-auto flex justify-center"
-          ></div>
+                style={{ height: "20%" }}
+                className="overflow-auto flex justify-center"
+            ></div>
             <form>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                     <Button

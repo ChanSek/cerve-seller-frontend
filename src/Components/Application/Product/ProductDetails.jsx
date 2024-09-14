@@ -19,7 +19,7 @@ import {
   MAX_STRING_LENGTH_8,
   MAX_STRING_LENGTH_12,
 } from "../../../utils/constants";
-import { isAmountValid, isNumberOnly } from "../../../utils/validations";
+import { isAmountValid, isNumberOnly, isValidFSSAI, isDateValid, isMonthYearValid } from "../../../utils/validations";
 import {
   allProductFieldDetails,
   categoryFields,
@@ -235,7 +235,7 @@ const AddGenericProduct = ({
       if (variationOn !== "none") {
         data["variantSpecificDetails"] = variant_data;
         data["variationOn"] = variationOn?.toUpperCase();
-      }else{
+      } else {
         data["variationOn"] = "None";
       }
 
@@ -354,7 +354,7 @@ const AddGenericProduct = ({
   const getProduct = () => {
     getCall(`/api/v1/seller/productId/${state.productId}/product`)
       .then((resp) => {
-        
+
         resp = resp.data;
         resp.commonDetails["uploaded_urls"] =
           resp?.commonDetails.imageUrls?.map((i) => i) || [];
@@ -477,7 +477,7 @@ const AddGenericProduct = ({
           customizations,
         },
       };
-      console.log("variationOn "+variationOn);
+      console.log("variationOn " + variationOn);
       if (variationOn !== "none") {
         data["variantSpecificDetails"] = variant_data;
         data["variationOn"] = variationOn?.toUpperCase();
@@ -729,36 +729,12 @@ const AddGenericProduct = ({
         formValues?.vegNonVeg === ""
         ? "VegNonVeg Option is required"
         : "";
-    // formErrors.UOM =
-    //   formValues?.UOM?.trim() === ""
-    //     ? "UOM is required"
-    //     : formValues?.UOM?.length > MAX_STRING_LENGTH
-    //     ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
-    //     : "";
-    // formErrors.length =
-    //   formValues?.length?.trim() === ""
-    //     ? "Length is required"
-    //     : formValues?.length.length > MAX_STRING_LENGTH_6
-    //     ? `Cannot be more than ${MAX_STRING_LENGTH_6} characters`
-    //     : "";
-    // formErrors.breadth =
-    //   formValues?.breadth?.trim() === ""
-    //     ? "Breadth is required"
-    //     : formValues?.breadth.length > MAX_STRING_LENGTH_6
-    //     ? `Cannot be more than ${MAX_STRING_LENGTH_6} characters`
-    //     : "";
-    // formErrors.height =
-    //   formValues?.height?.trim() === ""
-    //     ? "Height is required"
-    //     : formValues?.height.length > MAX_STRING_LENGTH_6
-    //     ? `Cannot be more than ${MAX_STRING_LENGTH_6} characters`
-    //     : "";
-    // formErrors.weight =
-    //   formValues?.weight?.trim() === ""
-    //     ? "Weight is required"
-    //     : formValues?.weight.length > MAX_STRING_LENGTH_3
-    //     ? `Cannot be more than ${MAX_STRING_LENGTH_3} characters`
-    //     : "";
+    formErrors.UOM =
+      formValues?.UOM?.trim() === ""
+        ? "UOM is required"
+        : formValues?.UOM?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+          : "";
     formErrors.returnWindow =
       formValues?.returnWindow?.trim() === ""
         ? "Return window is required"
@@ -767,38 +743,31 @@ const AddGenericProduct = ({
           : formValues?.returnWindow?.length > MAX_STRING_LENGTH_3
             ? `Cannot be more than ${MAX_STRING_LENGTH_3} characters`
             : "";
-    // formErrors.manufacturerName =
-    //   formValues?.manufacturerName?.trim() === ""
-    //     ? "Manufacturer name is required"
-    //     : formValues?.manufacturerName?.length > MAX_STRING_LENGTH_50
-    //     ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
-    //     : "";
-    // formErrors.manufacturedDate =
-    //   formValues?.manufacturedDate?.trim() === ""
-    //     ? "Manufactured date is required"
-    //     : "";
-    // if (productInfoFields.includes("nutritionalInfo")) {
-    //   formErrors.nutritionalInfo =
-    //     formValues?.nutritionalInfo?.trim() === ""
-    //       ? "Nutritional info is required"
-    //       : formValues?.nutritionalInfo?.length > MAX_STRING_LENGTH
-    //       ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
-    //       : "";
-    // }
-    // if (productInfoFields.includes("additiveInfo")) {
-    //   formErrors.additiveInfo =
-    //     formValues?.additiveInfo?.trim() === ""
-    //       ? "Additive info is required"
-    //       : formValues?.additiveInfo?.length > MAX_STRING_LENGTH
-    //       ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
-    //       : "";
-    // }
-    // formErrors.instructions =
-    //   formValues?.instructions?.trim() === ""
-    //     ? "Instruction is required"
-    //     : formValues?.instructions?.length > MAX_STRING_LENGTH
-    //     ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
-    //     : "";
+    formErrors.manufacturerName =
+      formValues?.manufacturerName?.trim() !== "" && formValues?.manufacturerName?.length > MAX_STRING_LENGTH
+        ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+        : "";
+    formErrors.manufacturedDate =
+      formValues?.manufacturedDate !== "" && !isDateValid(formValues?.manufacturedDate)
+        ? "Pleas provide valide date in DD/MM/YYYY format"
+        : "";
+
+    if (productInfoFields.includes("nutritionalInfo")) {
+      formErrors.nutritionalInfo =
+        formValues?.nutritionalInfo?.trim() !== "" && formValues?.nutritionalInfo?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+          : "";
+    }
+    if (productInfoFields.includes("additiveInfo")) {
+      formErrors.additiveInfo =
+        formValues?.additiveInfo?.trim() !== "" && formValues?.additiveInfo?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+          : "";
+    }
+    formErrors.instructions =
+      formValues?.instructions?.trim() !== "" && formValues?.instructions?.length > MAX_STRING_LENGTH
+        ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+        : "";
     formErrors.longDescription =
       formValues?.longDescription?.trim() === ""
         ? "Long description is required"
@@ -809,61 +778,42 @@ const AddGenericProduct = ({
         : formValues?.description?.length > MAX_STRING_LENGTH
           ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
           : "";
-    // if (productInfoFields.includes("packerName")) {
-    //   formErrors.packerName =
-    //     formValues?.packerName?.trim() === ""
-    //       ? "Manufacturer or packer name is required"
-    //       : formValues?.packerName?.length > MAX_STRING_LENGTH_50
-    //       ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
-    //       : "";
-    // }
-    // if (productInfoFields.includes("packerAddress")) {
-    //   formErrors.packerAddress =
-    //     formValues?.packerAddress?.trim() === ""
-    //       ? "Manufacturer or packer address is required"
-    //       : formValues?.packerAddress?.length >
-    //         MAX_STRING_LENGTH_50
-    //       ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
-    //       : "";
-    // }
-    // if (productInfoFields.includes("genericNameOfCommodity")) {
-    //   formErrors.genericNameOfCommodity =
-    //     formValues?.genericNameOfCommodity?.trim() === ""
-    //       ? "Common or generic name of commodity is required"
-    //       : formValues?.genericNameOfCommodity?.length >
-    //         MAX_STRING_LENGTH_50
-    //       ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
-    //       : "";
-    // }
-    // if (productInfoFields.includes("manufacturePackingImport")) {
-    //   formErrors.manufacturePackingImport =
-    //     formValues?.manufacturePackingImport?.trim() === ""
-    //       ? "Month year of manufacture packing import is required"
-    //       : formValues?.manufacturePackingImport?.length >
-    //         MAX_STRING_LENGTH
-    //       ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
-    //       : "";
-    // }
-    // if (productInfoFields.includes("importerFssaiLicenseNo")) {
-    //   formErrors.importerFssaiLicenseNo =
-    //     formValues?.importerFssaiLicenseNo === ""
-    //       ? "Importer FSSAI license no is required"
-    //       : !isNumberOnly(formValues?.importerFssaiLicenseNo)
-    //       ? "Please enter only digit"
-    //       : formValues?.importerFssaiLicenseNo?.length > MAX_STRING_LENGTH_14
-    //       ? `Cannot be more than ${MAX_STRING_LENGTH_14} characters`
-    //       : "";
-    // }
-    // if (productInfoFields.includes("brandOwnerFssaiLicenseNo")) {
-    //   formErrors.brandOwnerFssaiLicenseNo =
-    //     formValues?.brandOwnerFssaiLicenseNo === ""
-    //       ? "Brand owner FSSAI license no is required"
-    //       : !isNumberOnly(formValues?.brandOwnerFssaiLicenseNo)
-    //       ? "Please enter only digit"
-    //       : formValues?.brandOwnerFssaiLicenseNo?.length > MAX_STRING_LENGTH_14
-    //       ? `Cannot be more than ${MAX_STRING_LENGTH_14} characters`
-    //       : "";
-    // }
+    if (productInfoFields.includes("packerName")) {
+      formErrors.packerName =
+        formValues?.packerName?.trim() !== "" && formValues?.packerName?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+          : "";
+    }
+    if (productInfoFields.includes("packerAddress")) {
+      formErrors.packerAddress =
+        formValues?.packerAddress?.trim() !== "" && formValues?.packerAddress?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+          : "";
+    }
+    if (productInfoFields.includes("genericNameOfCommodity")) {
+      formErrors.genericNameOfCommodity =
+        formValues?.genericNameOfCommodity?.trim() !== "" && formValues?.genericNameOfCommodity?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+          : "";
+    }
+    if (productInfoFields.includes("manufacturePackingImport")) {
+      formErrors.manufacturePackingImport =
+      formValues?.manufacturePackingImport !== "" && !isMonthYearValid(formValues?.manufacturePackingImport)
+        ? "Please provie valid month and year in MM/YYYY"
+        : "";
+    }
+    if (productInfoFields.includes("importerFssaiLicenseNo")) {
+      formErrors.importerFssaiLicenseNo =
+        formValues?.importerFssaiLicenseNo !== "" && String(formValues?.importerFssaiLicenseNo).length !== 14 && !isValidFSSAI(formValues?.importerFssaiLicenseNo)
+          ? "FSSAI should be 14 digit number"
+          : "";
+    }
+    if (productInfoFields.includes("brandOwnerFssaiLicenseNo")) {
+      formErrors.brandOwnerFssaiLicenseNo =
+        formValues?.brandOwnerFssaiLicenseNo !== "" && String(formValues?.brandOwnerFssaiLicenseNo).length !== 14 && !isValidFSSAI(formValues?.brandOwnerFssaiLicenseNo)
+          ? "FSSAI should be 14 digit number"
+          : "";
+    }
     if (variationOn === "none") {
       formErrors.price = !formValues?.price
         ? "Please enter a valid number"
@@ -882,9 +832,9 @@ const AddGenericProduct = ({
           : "";
       formErrors.sku = !formValues?.sku
         ? "Please enter a valid SKU"
-          : formValues?.sku?.length > MAX_STRING_LENGTH_12
-            ? `Cannot be more than ${MAX_STRING_LENGTH_12} characters`
-            : "";
+        : formValues?.sku?.length > MAX_STRING_LENGTH_12
+          ? `Cannot be more than ${MAX_STRING_LENGTH_12} characters`
+          : "";
       formErrors.imageUrls =
         formValues?.productCategory !== "f_and_b" &&
           formValues?.imageUrls.length < 3
@@ -943,7 +893,7 @@ const AddGenericProduct = ({
     if (variationOn === "none") {
       return true;
     } else {
-      console.log("variantForms -->>> "+JSON.stringify(variantForms));
+      console.log("variantForms -->>> " + JSON.stringify(variantForms));
       let forms_errors = variantForms.map((variant_form) =>
         getFormErrors(variantFields, variant_form)
       );

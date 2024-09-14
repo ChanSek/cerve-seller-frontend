@@ -18,7 +18,6 @@ const VarinatForm = ({ formData, fields, index, onFormUpdate, formsErrors, remov
 
   useEffect(() => {
     setErrors(formsErrors[index]);
-    console.log("fields -->>"+fields);
   }, [formsErrors[index]]);
 
   return (

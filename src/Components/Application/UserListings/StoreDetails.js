@@ -46,6 +46,8 @@ let storeFields = [
         required: true,
         maxLength: 10,
         required: true,
+        value: "+91",  
+        prefix: "+91",
     },
     {
         id: "category",

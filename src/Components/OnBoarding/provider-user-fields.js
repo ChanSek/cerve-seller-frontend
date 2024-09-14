@@ -2,7 +2,7 @@ export default [
   {
     id: "email",
     title: "Email",
-    placeholder: "Enter Provider Email Address",
+    placeholder: "Enter Email Address",
     type: "input",
     email: true,
     required: true,
@@ -10,16 +10,21 @@ export default [
   {
     id: "mobile",
     title: "Mobile Number",
-    placeholder: "Enter Provider Mobile Number",
-    type: "input",
+    placeholder: "Enter Mobile Number",
+    type: "number",
+    value: "+91",  
+    prefix: "+91",
     mobile: true,
-    maxLength: 14,
+    maxLength: 10,
     required: true,
+    attributes: {
+      readonlyPrefix: true
+    }
   },
   {
     id: "name",
     title: "Name",
-    placeholder: "Enter Provider Name",
+    placeholder: "Enter Full Name",
     type: "input",
     required: true,
   },

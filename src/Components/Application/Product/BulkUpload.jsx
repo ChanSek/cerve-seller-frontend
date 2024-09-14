@@ -24,11 +24,11 @@ const BulkUpload = () => {
       formData.append("file", selectedFile);
       postCall(`api/v1/seller/upload/bulk/storeId/${storeId}/products?category=${encodeURIComponent(category)}`, formData)
         .then(resp => {
-          if(resp.status == 200){
+          if (resp.status == 200) {
             setError(false);
             setMsg("");
             cogoToast.success("Product added successfully!");
-          }else{
+          } else {
             setError(true);
             setMsg(resp.message);
           }
@@ -82,13 +82,18 @@ const BulkUpload = () => {
               accept=".xlsx"
               type="file"
               onChange={(e) => setSelectedFile(e.target.files[0])}
-              //   key={item?.id}
+            //   key={item?.id}
             />
           </div>
-          {msg && <p className={`text-xs ${error ? 'text-red-600' : 'text-green-600'} mt-2`}>{msg}</p>}
+            { msg && (
+              <p
+                className={`text-xs ${error ? 'text-red-600' : 'text-green-600'} mt-2`}
+                dangerouslySetInnerHTML={{ __html: msg }}
+              />
+            )}
           <div className="mt-6 flex flex-col-1">
             <Button variant="contained" color="primary" onClick={uploadSelectedFile}>
-              {loading ? <>Upload&nbsp;&nbsp;<CircularProgress size={24} sx={{ color: 'white' }} /></>: <span>Upload</span>}
+              {loading ? <>Upload&nbsp;&nbsp;<CircularProgress size={24} sx={{ color: 'white' }} /></> : <span>Upload</span>}
             </Button>
           </div>
         </div>

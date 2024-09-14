@@ -66,8 +66,14 @@ export default function Inventory() {
       format: (value) => value.toLocaleString("en-US"),
     },
     {
-      id: "price",
+      id: "purchasePrice",
       label: "Purchase Price",
+      minWidth: 100,
+      format: (value) => value.toLocaleString("en-US"),
+    },
+    {
+      id: "price",
+      label: "Price",
       minWidth: 100,
       format: (value) => value.toLocaleString("en-US"),
     },

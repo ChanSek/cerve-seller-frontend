@@ -34,7 +34,7 @@ const InviteProvider = () => {
   const [step, setStep] = useState(1);
 
   async function logout() {
-    if (window.confirm("Are you sure you want to logout your session?")) {
+    if (window.confirm("Are you sure want to logout your session?")) {
       await postCall(`/api/v1/auth/logout`);
       deleteAllCookies();
       localStorage.clear();
@@ -606,9 +606,6 @@ const InviteProvider = () => {
         return false;
       }
 
-      if (fieldName === "cancelledCheque"){
-        console.log("Value-----------------> "+fieldValue);
-      }
       if (fieldName === "cancelledCheque" && (fieldValue === undefined || fieldValue.trim() === "")) {
         setErrors((prevErrors) => ({
           ...prevErrors,
@@ -639,7 +636,6 @@ const InviteProvider = () => {
 
 
   const handleSubmit = () => {
-    console.log("step ----------------->" + step);
     if (validate()) {
       if (step === 1) {
         handleContinue();

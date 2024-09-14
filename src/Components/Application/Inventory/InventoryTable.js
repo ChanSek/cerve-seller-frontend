@@ -233,14 +233,15 @@ export default function InventoryTable(props) {
                       <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[1], item.commonDetails.productName)}</TableCell>
                     </>
                   )}
-                  <TableCell>{renderCellContent(props.columns[2], variant.price)}</TableCell>
-                  <TableCell>{renderCellContent(props.columns[3], variant.availableQty)}</TableCell>
+                  <TableCell>{renderCellContent(props.columns[2], variant.availableQty)}</TableCell>
+                  <TableCell>{renderCellContent(props.columns[3], variant.purchasePrice)}</TableCell>
+                  <TableCell>{renderCellContent(props.columns[4], variant.price)}</TableCell>
                   {idx === 0 && (
                     <>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[4], item.commonDetails.cancellable)}</TableCell>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[5], item.commonDetails.returnable)}</TableCell>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[6], item.variationOn)}</TableCell>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[7], item.commonDetails.published)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[5], item.commonDetails.cancellable)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[6], item.commonDetails.returnable)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[7], item.variationOn)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[8], item.commonDetails.published)}</TableCell>
                       <TableCell rowSpan={item.variantSpecificDetails.length}><ThreeDotsMenu row={item} /></TableCell>
                     </>
                   )}

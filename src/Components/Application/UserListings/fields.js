@@ -12,6 +12,8 @@ export const deliveryFulfillmentFields = [
     placeholder: "Enter Delivery Contact Number",
     type: "input",
     required: true,
+    value: "+91",  
+    prefix: "+91",
   },
 ];
 
@@ -29,5 +31,7 @@ export const selfPickupFulfillmentFields = [
     placeholder: "Enter Self Pickup Contact Number",
     type: "input",
     required: true,
+    value: "+91",  
+    prefix: "+91",
   },
 ];

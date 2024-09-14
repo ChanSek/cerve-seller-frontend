@@ -105,11 +105,13 @@ export const allProductFieldDetails = [
   },
   {
     id: "manufacturePackingImport",
-    title: "Month Year Of Manufacture Packing Import",
+    title: "Month Year Of Manufacture Packing Import(MM/YYYY)",
     placeholder: "Month YearOf Manufacture Packing Import",
-    type: "date-picker",
+    type: "custom-date-picker",
     required: false,
     format: "MM/YYYY",
+    maxLength: 7,
+    formatMonthYear: true,
     views: ["year", "month"],
   },
   {
@@ -133,6 +135,7 @@ export const allProductFieldDetails = [
     title: "Quantity",
     placeholder: "Quantity",
     type: "number",
+    maxLength: 10,
     required: true,
   },
   {
@@ -183,6 +186,7 @@ export const allProductFieldDetails = [
     placeholder: "UOM value",
     type: "input",
     required: true,
+    maxLength: 10,
   },
   {
     id: "length",
@@ -234,10 +238,12 @@ export const allProductFieldDetails = [
   },
   {
     id: "manufacturedDate",
-    title: "Manufactured Date",
+    title: "Manufactured Date(DD/MM/YYYY)",
     placeholder: "Manufactured Date",
-    type: "date-picker",
+    type: "custom-date-picker",
     required: false,
+    formatDate: true,
+    maxLength: 10,
   },
   {
     id: "nutritionalInfo",

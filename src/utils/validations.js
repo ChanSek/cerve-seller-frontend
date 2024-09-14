@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const checkEmpty = (obj) => {
   let ans = false;
   for (var key in obj) {
@@ -14,7 +16,7 @@ export const isNumberOnly = (value) => {
 };
 
 export const isAmountValid = (value) => {
-  return /^\d{0,8}(\.\d{1,4})?$/.test(value)
+  return /^\d{1,10}(\.\d{1,2})?$/.test(value);
 };
 
 export const isNameValid = (value) => {
@@ -74,6 +76,51 @@ export const isValidDescription = (value) => {
   const hasNoLongRepeats = !/(.)\1{4,}/.test(value) && !/(\b\w+\b).*\1{2,}/.test(value);
   // Return true if both conditions are met
   return isNotSingleWord && hasNoLongRepeats;
+};
+
+export const isDateValid = (value) => {
+  // Use regex to ensure the input follows the DD/MM/YYYY format
+  const datePattern = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+
+  if (!datePattern.test(value)) {
+    return false; // Return false if the format doesn't match
+  }
+
+  // Use moment to check if the value is a valid date in DD/MM/YYYY format
+  const isValidDate = moment(value, 'DD/MM/YYYY', true).isValid();
+
+  // Optionally check if the year is within a valid range (e.g., 1900-2100)
+  const [day, month, year] = value.split('/');
+  const yearInt = parseInt(year, 10);
+
+  if (!isValidDate || yearInt < 1900 || yearInt > 2100) {
+    return false; // Return false if the date is invalid or the year is out of range
+  }
+
+  return true;
+};
+
+export const isMonthYearValid = (value) => {
+  // First, check if the input matches the MM/YYYY format using a regex
+  const monthYearPattern = /^(0[1-9]|1[0-2])\/\d{4}$/;
+
+  if (!monthYearPattern.test(value)) {
+    return false; // If the format is incorrect, return false
+  }
+
+  // Extract month and year from the value
+  const [month, year] = value.split('/');
+
+  // Validate the date using Moment.js
+  const isValidDate = moment(`${year}-${month}`, 'YYYY-MM', true).isValid();
+
+  // Check if the year is within a reasonable range (e.g., between 1900 and 2100)
+  const yearInt = parseInt(year, 10);
+  if (!isValidDate || yearInt < 1900 || yearInt > 2100) {
+    return false; // Return false if the date is invalid or the year is out of range
+  }
+
+  return true;
 };
 
 export const areObjectsEqual = (firstObj, secondObj) => JSON.stringify(firstObj) === JSON.stringify(secondObj);

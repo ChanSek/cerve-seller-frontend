@@ -100,7 +100,7 @@ const AddSeller = () => {
       if (fieldValue.trim() === "") {
         setErrors((prevErrors) => ({
           ...prevErrors,
-          email: "Support Email is required",
+          email: "Seller Email is required",
         }));
         return false;
       } else if (!isEmailValid(fieldValue.trim())) {
@@ -118,13 +118,13 @@ const AddSeller = () => {
       }
     }
     if (fieldName === "mobile") {
-      if (fieldValue.trim() === "") {
+      if (fieldValue === "") {
         setErrors((prevErrors) => ({
           ...prevErrors,
           mobile: "Mobile Number is required",
         }));
         return false;
-      } else if (!isPhoneNoValid(fieldValue.trim())) {
+      } else if (!isPhoneNoValid(fieldValue)) {
         setErrors((prevErrors) => ({
           ...prevErrors,
           mobile: "Please enter a valid mobile number",
@@ -142,7 +142,7 @@ const AddSeller = () => {
       {
         id: "password",
         title: "Password",
-        placeholder: "Enter your password",
+        placeholder: "Enter Password(mininum 6 characters)",
         type: "input",
         password: true,
         required: true,

@@ -14,7 +14,7 @@ const AddVariants = ({
 }) => {
 
   useEffect(() => {
-    if (variantUpdatedValues != null && variantUpdatedValues.length > 0) {
+    if (variantForms.length == 1 && variantUpdatedValues != null && variantUpdatedValues.length > 0) {
       handleRemoveForm(0);
       // Create a new array that includes all current forms plus the new ones
       const updatedForms = [

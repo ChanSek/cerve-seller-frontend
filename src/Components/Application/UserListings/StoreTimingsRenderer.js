@@ -46,7 +46,6 @@ const StoreTimingsRenderer = (props) => {
   };
 
   const renderDaysDD = (key) => {
-    console.log("------------->>>>>>>>>> temporaryClosedDays "+temporaryClosedDays);
     let days_list = key === "from" ? days : toDays;
     return (
       <div style={{ marginLeft: "10px" }}>
