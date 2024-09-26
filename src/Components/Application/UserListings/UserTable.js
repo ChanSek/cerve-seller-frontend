@@ -29,7 +29,6 @@ const ThreeDotsMenu = (props) => {
   const { row, isProvider, getAdmins, getProviders, view } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-
   const openActionMenu = (e) => {
     e.stopPropagation();
     setAnchorEl(e.currentTarget);
@@ -44,10 +43,17 @@ const ThreeDotsMenu = (props) => {
     try {
       switch (action) {
         case "enable":
-          await putCall(`/api/v1/users/${row?._id}/enable`, { enabled: true });
+          console.log("isProvider "+isProvider);
+          {isProvider 
+            ? (await putCall(`/api/v1/seller/merchantId/${row?.merchantId}/review`, { "updatedField": "isActive", "isActive": true })) 
+            : (await putCall(`/api/v1/seller/subscriberId/${row?.subscriberId}/enable`, { "active": true }))
+          };
           break;
         case "disable":
-          await putCall(`/api/v1/users/${row?._id}/enable`, { enabled: false });
+          {isProvider 
+            ? (await putCall(`/api/v1/seller/merchantId/${row?.merchantId}/review`, { "updatedField": "isActive", "isActive": false })) 
+            : (await putCall(`/api/v1/seller/subscriberId/${row?.subscriberId}/enable`, { "active": false }))
+          };
           break;
         case "unlock":
           await putCall(`/api/v1/auth/grantAccess/${row?._id}`);
@@ -91,7 +97,7 @@ const ThreeDotsMenu = (props) => {
         }}
       >
         {isProvider && (
-          <MenuItem onClick={() => navigate(`/user-listings/provider-details/${row?.organization?._id}`)}>
+          <MenuItem onClick={() => navigate(`/user-listings/provider-details/${row?.merchantId}`)}>
             View
           </MenuItem>
         )}
@@ -206,7 +212,7 @@ const UserTable = (props) => {
                       );
                     }
                     return (
-                      <TableCell key={column.id} align={column.align}>
+                      <TableCell style={styles.tableCell} key={column.id} align={column.align}>
                         {value}
                       </TableCell>
                     );
@@ -231,3 +237,13 @@ const UserTable = (props) => {
 };
 
 export default UserTable;
+
+const styles = {
+  tableCell: {
+    padding: '6px',
+    whiteSpace: 'nowrap', // Prevent line breaks
+    //overflow: 'hidden', // Hide overflowed text
+    //textOverflow: 'ellipsis', // Add ellipsis (...) for overflowed text
+    minWidth: '150px', // Optional: Adjust based on the available space
+  }
+}

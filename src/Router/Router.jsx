@@ -7,14 +7,12 @@ import AddProduct from "../Components/Application/Product/AddProduct";
 import PageNotFound from "../Components/PageNotFound/PageNotFound";
 import Login from "../Components/Auth/Login/Login";
 import PrivateRoute from "./PrivateRoutes";
-import PrivateInitRoute from "./PrivateInitRoutes";
 import OrderDetails from "../Components/Application/Order/OrderDetails";
 import UserListings from "../Components/Application/UserListings/UserListings";
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
 import ProviderDetails from "../Components/Application/UserListings/ProviderDetails";
 import StoreDetails from "../Components/Application/UserListings/StoreDetails";
 import InviteAdmin from "../Components/OnBoarding/InviteAdmin";
-import InviteProvider from "../Components/OnBoarding/inviteProvider";
 import AddProvider from "../Components/OnBoarding/addProvider";
 import ForgotPassword from "../Components/Auth/ForgotPassword/ForgotPassword";
 import BulkUpload from "../Components/Application/Product/BulkUpload";
@@ -30,6 +28,7 @@ import Offer from "../Components/Application/Offer/Offer";
 import AddOffer from "../Components/Application/Offer/AddOffer";
 import NewSeller from "../Components/OnBoarding/new-seller-account";
 import ActivateSeller from "../Components/OnBoarding/activateSeller";
+import SellerVerification from "../Components/Application/UserListings/SellerVerification.js";
 
 export default function OndcRoutes() {
   return (
@@ -172,31 +171,23 @@ export default function OndcRoutes() {
           path="/user-listings/provider-details/:id"
           element={
             <PrivateRoute>
-              <ProviderDetails isFromUserListing={true} />
+              <SellerVerification/>
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/user-listings/provider-details/:id"
           element={
             <PrivateRoute>
               <ProviderDetails isFromUserListing={true} />
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route
           path="/invite-admin"
           element={
             <PrivateRoute>
               <InviteAdmin />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/invite-provider"
-          element={
-            <PrivateRoute>
-              <InviteProvider />
             </PrivateRoute>
           }
         />
@@ -215,9 +206,9 @@ export default function OndcRoutes() {
         <Route
           path="/add-provider-info"
           element={
-            <PrivateInitRoute>
+            <PrivateRoute>
               <AddProvider />
-            </PrivateInitRoute>
+            </PrivateRoute>
           }
         />
         <Route

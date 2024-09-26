@@ -12,6 +12,7 @@ import StoreTimingsRenderer from "./StoreTimingsRenderer";
 import Fulfillments from "./Fulfillments";
 import { PRODUCT_CATEGORY, DELIVERY_TYPE_LIST } from "../../../utils/constants";
 import PolygonMap from "../../PolygonMap/PolygonMap";
+import { useTheme } from "@mui/material/styles";
 
 const categoriesList = Object.entries(PRODUCT_CATEGORY).map(([key, value]) => {
     return { key: value, value: key };
@@ -45,8 +46,7 @@ let storeFields = [
         type: "input",
         required: true,
         maxLength: 10,
-        required: true,
-        value: "+91",  
+        value: "+91",
         prefix: "+91",
     },
     {
@@ -134,7 +134,6 @@ let storeFields = [
         id: "locality",
         title: "Locality",
         placeholder: "Locality",
-        placeholder: "Locality",
         type: "input",
         required: true,
     },
@@ -156,6 +155,7 @@ const defaultStoreTimings = [
 ];
 
 const StoreDetails = ({ isFromUserListing = false }) => {
+    const theme = useTheme();
     const navigate = useNavigate();
     const params = useParams();
 
@@ -415,7 +415,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
     useEffect(() => {
         let provider_id = params?.id;
         getOrgDetails(provider_id);
-    }, [params.id]);
+    }, []);
 
     useEffect(() => {
         if (openPolygonMap) {
@@ -564,7 +564,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
 
         if (storeDetails.location_availability === "custom_area") {
             formErrors.customArea =
-                storeDetails?.location_availability === "custom_area" && polygonPoints.length == 0
+                storeDetails?.location_availability === "custom_area" && polygonPoints.length === 0
                     ? "Please mark the polygon"
                     : "";
             formErrors.radius = "";
@@ -640,7 +640,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
 
         setErrors(formErrors);
         if (Object.values(formErrors).some((val) => val !== "")) {
-            if (formErrors.customArea && formErrors.customArea != "") {
+            if (formErrors.customArea && formErrors.customArea !== "") {
                 cogoToast.error(formErrors.customArea);
             } else {
                 cogoToast.error("Please fill in all required data!");
@@ -726,8 +726,6 @@ const StoreDetails = ({ isFromUserListing = false }) => {
             const url = `/api/v1/seller/merchantId/${provider_id}/store`;
             const {
                 category,
-                logo,
-                logo_path,
                 location_availability,
                 default_cancellable,
                 default_returnable,
@@ -954,8 +952,14 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                                     : navigate("/application/inventory");
                             }}
                         />
-                        <p className="text-2xl font-semibold mb-4 mt-14">Store Details</p>
-
+                        <div className="mb-4 flex flex-col md:flex-row justify-between items-left">
+                            <label
+                                style={{ color: theme.palette.primary.main }}
+                                className="font-semibold text-2xl"
+                            >
+                                Store Details
+                            </label>
+                        </div>
                         {storeDetailFields.map((item) => (
                             <RenderInput
                                 key={item.id} // Ensure unique key for list items

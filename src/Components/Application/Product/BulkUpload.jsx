@@ -33,9 +33,13 @@ const BulkUpload = () => {
             setMsg(resp.message);
           }
         }).catch(error => {
-          console.log(error);
-          cogoToast.error(error.response.data.error);
-        }).finally(() => setLoading(false));
+          if (error.response)
+            cogoToast.error(error.response.data.error);
+        }).finally(() => {
+          setLoading(false);
+          setSelectedFile(null);
+          document.getElementById('contained-button-file').value = null;
+        });
     } else {
       alert("Please select the file to upload");
     }
@@ -73,7 +77,7 @@ const BulkUpload = () => {
           </label>
           <div className="mt-6 flex flex-col">
             <label className="ml-2 md:mb-4 md:mt-3 mt-2 font text-xm">
-              Please select an excel file. To download sample template, click <Link href={`https://cdn.cerve.in/assets/template/Grocery.xlsx`} target="_blank" style={{}}>here</Link>
+             To add or update products please download the latest excel file from Inventory by clicking in Download Product Button.
             </label>
             <input
               className="ml-2"
@@ -85,12 +89,12 @@ const BulkUpload = () => {
             //   key={item?.id}
             />
           </div>
-            { msg && (
-              <p
-                className={`text-xs ${error ? 'text-red-600' : 'text-green-600'} mt-2`}
-                dangerouslySetInnerHTML={{ __html: msg }}
-              />
-            )}
+          {msg && (
+            <p
+              className={`text-xs ${error ? 'text-red-600' : 'text-green-600'} mt-2`}
+              dangerouslySetInnerHTML={{ __html: msg }}
+            />
+          )}
           <div className="mt-6 flex flex-col-1">
             <Button variant="contained" color="primary" onClick={uploadSelectedFile}>
               {loading ? <>Upload&nbsp;&nbsp;<CircularProgress size={24} sx={{ color: 'white' }} /></> : <span>Upload</span>}

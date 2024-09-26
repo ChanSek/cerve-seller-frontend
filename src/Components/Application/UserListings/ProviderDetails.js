@@ -220,7 +220,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
     return [...array.slice(0, index), newItem, ...array.slice(index)];
   }
 
-  let userRole = 'Organization Admin';//JSON.parse(localStorage.getItem("user"))?.role?.name;
+  let userRole = JSON.parse(localStorage.getItem("user"))?.role?.name;
 
   return (
     <div>
@@ -232,11 +232,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
           >
             <div className="m-auto w-10/12 md:w-3/4 h-max">
               <BackNavigationButton
-                onClick={() => {
-                  userRole == "Super Admin"
-                    ? navigate("/application/user-listings?view=provider")
-                    : navigate("/application/inventory");
-                }}
+                onClick={() => navigate("/application/inventory")}
               />
               <p className="text-2xl font-semibold mb-4">Seller Details</p>
               {providerFields.map((item) => (

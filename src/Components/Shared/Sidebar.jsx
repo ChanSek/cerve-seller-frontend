@@ -143,7 +143,7 @@ export default function Sidebar(props) {
                 </NavLink> */}
                 <NavLink
                   to={{
-                    pathname: `/application/seller-details/${user?.organization?._id}`,
+                    pathname: `/user-listings/provider-details/${user?.organization?._id}`,
                   }}
                   className="no-underline text-black"
                 >

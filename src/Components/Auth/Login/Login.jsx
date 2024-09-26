@@ -80,9 +80,11 @@ export default function Login() {
         if (res.data.emailExist) {
           handleRedirect(res.data.access_token, res.data.user);
         } else {
-          cogoToast.error("Email id not registered!");
+          cogoToast.error("Email not registered!");
         }
-      } else {
+      } else if (res.status == 401) {
+        cogoToast.error(res.message, { hideAfter: 5 });
+      }else {
         cogoToast.error("Authentication failed!");
       }
     } catch (error) {
@@ -95,13 +97,19 @@ export default function Login() {
   function handleRedirect(token, user) {
     const { _id } = user;
     AddCookie("token", token);
-    AddCookie("organization", user.organization);
-    AddCookie("enabled", user.enabled);
+    AddCookie("organization", user?.organization);
+    AddCookie("enabled", user?.enabled);
+    AddCookie("sellerActive", user?.organization?.active);
+    AddCookie("isSuperAdmin", user?.role?.name === "Super Admin");
     localStorage.setItem("user_id", _id);
     if (!user.enabled) {
       navigate("/activate");
     } else if (!isObjEmpty(user.organization)) {
-      navigate("/application/inventory")
+      if(user?.organization?.active){
+        navigate("/application/inventory")
+      }else{
+        navigate(`/user-listings/provider-details/${user?.organization?._id}`);
+      }
     } else {
       navigate("/add-provider-info")
     };

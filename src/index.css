@@ -47,6 +47,11 @@ code {
   font-weight: 400 !important;
 }
 
+.container {
+  max-width: 90%;
+  overflow-x: hidden;
+}
+
 .previewContainer {
   position: relative;
   transition: all 0.2s;
@@ -115,4 +120,26 @@ code {
 
 .mmi_search_dv {
   border-top: 0px solid transparent !important;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.document-review-message {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 20px 0;
+  font-family: Arial, sans-serif;
+  color: #343a40;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.document-review-message p {
+  margin: 0;
+  font-size: 16px;
 }

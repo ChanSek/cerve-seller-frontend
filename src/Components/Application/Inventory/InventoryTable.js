@@ -83,7 +83,7 @@ export default function InventoryTable(props) {
     const { row } = props;
 
     const handlePublishState = (product_id, published) => {
-      const url = `/api/v1/products/${product_id}/publish`;
+      const url = `/api/v1/seller/productId/${product_id}/publish`;
       putCall(url, { published: !published })
         .then((resp) => {
           cogoToast.success("Product state updated successfully");
@@ -131,8 +131,8 @@ export default function InventoryTable(props) {
             Edit
           </MenuItem>
           {/* </Link> */}
-          <MenuItem onClick={() => handlePublishState(row?.productId, row?.published)}>
-            {row?.published ? "Unpublish" : "Publish"}
+          <MenuItem onClick={() => handlePublishState(row?.commonDetails?.productId, row?.commonDetails?.published)}>
+            {row?.commonDetails?.published ? "Unpublish" : "Publish"}
           </MenuItem>
           {row.type != "customization" && (
             <MenuItem
@@ -229,19 +229,20 @@ export default function InventoryTable(props) {
                   {/* Display common details only in the first row of each product */}
                   {idx === 0 && (
                     <>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[0], item.commonDetails.subCategory)}</TableCell>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[1], item.commonDetails.productName)}</TableCell>
+                      <TableCell style={styles.tableCell} rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[0], item.commonDetails.subCategory)}</TableCell>
+                      <TableCell style={styles.tableCell} rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[1], item.commonDetails.productName)}</TableCell>
                     </>
                   )}
                   <TableCell>{renderCellContent(props.columns[2], variant.availableQty)}</TableCell>
                   <TableCell>{renderCellContent(props.columns[3], variant.purchasePrice)}</TableCell>
                   <TableCell>{renderCellContent(props.columns[4], variant.price)}</TableCell>
+                  <TableCell>{renderCellContent(props.columns[5], variant.uomValue+" "+item.commonDetails.uom )}</TableCell>
                   {idx === 0 && (
                     <>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[5], item.commonDetails.cancellable)}</TableCell>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[6], item.commonDetails.returnable)}</TableCell>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[7], item.variationOn)}</TableCell>
-                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[8], item.commonDetails.published)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[6], item.commonDetails.cancellable)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[7], item.commonDetails.returnable)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[8], item.variationOn)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[9], item.commonDetails.published)}</TableCell>
                       <TableCell rowSpan={item.variantSpecificDetails.length}><ThreeDotsMenu row={item} /></TableCell>
                     </>
                   )}
@@ -311,4 +312,14 @@ export default function InventoryTable(props) {
       </Modal>
     </Paper>
   );
+}
+
+const styles = {
+  tableCell: {
+    padding: '6px',
+    whiteSpace: 'nowrap', // Prevent line breaks
+    //overflow: 'hidden', // Hide overflowed text
+    //textOverflow: 'ellipsis', // Add ellipsis (...) for overflowed text
+    minWidth: '150px', // Optional: Adjust based on the available space
+  }
 }

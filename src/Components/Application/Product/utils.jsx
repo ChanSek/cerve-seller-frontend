@@ -11,7 +11,7 @@ export const getFormErrors = (fields, formValues) => {
       if (!field.required) {
         error = "";
       } else if (field.type === "number") {
-        error = !field_value
+        error = (field_value === null || field_value === undefined)
           ? "Please enter a valid number"
           : !isAmountValid(field_value)
           ? "Please enter only digit"

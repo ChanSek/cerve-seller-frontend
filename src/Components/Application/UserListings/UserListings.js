@@ -2,9 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import cogoToast from "cogo-toast";
 import UserTable from "./UserTable";
-import { Button, Tab, Tabs } from "@mui/material";
-import { Link } from "react-router-dom";
-import Navbar from "../../Shared/Navbar";
+import { Tab, Tabs } from "@mui/material";
 import { getCall } from "../../../Api/axios";
 import useNavigation from "../../../hooks/useNavigation";
 import useQueryParams from "../../../hooks/useQueryParams";
@@ -37,19 +35,15 @@ const superAdminCols = [
 
 const providerCols = [
   {
-    id: "email",
+    id: "contactEmail",
     label: "Email",
   },
   {
-    id: "mobile",
+    id: "contactMobile",
     label: "Mobile Number",
   },
   {
-    id: "name",
-    label: "Provider Name",
-  },
-  {
-    id: "providerName",
+    id: "storeName",
     label: "Provider Store Name",
   },
   {
@@ -118,30 +112,30 @@ const UserListings = () => {
   };
 
   const getAdmins = async () => {
-    const url = `/api/v1/users?limit=${rowsPerPage}&offset=${page}&role=Super Admin`;
+    const url = `/api/v1/seller/subscribers?pageSize=${rowsPerPage}&fromIndex=${page}`;
     try {
       const res = await getCall(url);
-      let data = res.data;
+      let data = res.content;
       data.forEach((d) => {
-        d["formatted_status"] = d?.enabled ? "Active" : "Inactive";
+        d["formatted_status"] = d?.active ? "Active" : "Inactive";
       });
-      setAdmins(data);
-      setTotalRecords(res.count);
+      setAdmins(res.content);
+      setTotalRecords(res.totalElements);
     } catch (error) {
       cogoToast.error(error.response.data.error);
     }
   };
 
   const getProviders = async () => {
-    const url = `/api/v1/users?limit=${rowsPerPage}&offset=${page}&role=Organization Admin`;
+    const url = `/api/v1/seller/merchants?pageSize=${rowsPerPage}&fromIndex=${page}`;
     try {
       const res = await getCall(url);
-      let data = res.data;
+      let data = res.content;
       data.forEach((d) => {
-        d["formatted_status"] = d?.enabled ? "Active" : "Inactive";
+        d["formatted_status"] = d?.active ? "Active" : "Inactive";
       });
-      setProviders(data);
-      setTotalRecords(res.count);
+      setProviders(res.content);
+      setTotalRecords(res.totalElements);
     } catch (error) {
       cogoToast.error(error.response.data.error);
     }
@@ -207,9 +201,9 @@ const UserListings = () => {
             textColor="primary"
           >
             <Tab value="admin" label="ADMINS" />
-            <Tab value="provider" label="Providers" />
+            <Tab value="provider" label="SELLERS" />
           </Tabs>
-          <Button
+          {/* <Button
             sx={{ height: 30, textTransform: "none" }}
             size="small"
             variant="contained"
@@ -217,7 +211,7 @@ const UserListings = () => {
             onClick={""}
           >
             <Link to={isAdmin ? "/invite-admin" : "/invite-provider"}>Invite {isAdmin ? "Admin" : "Provider"}</Link>
-          </Button>
+          </Button> */}
         </div>
 
         <div>

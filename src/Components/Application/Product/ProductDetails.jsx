@@ -477,15 +477,22 @@ const AddGenericProduct = ({
           customizations,
         },
       };
-      console.log("variationOn " + variationOn);
       if (variationOn !== "none") {
         data["variantSpecificDetails"] = variant_data;
         data["variationOn"] = variationOn?.toUpperCase();
       }
 
-      await putCall(`/api/v1/seller/productId/${state.productId}/product`, data);
-      cogoToast.success("Product updated successfully!");
-      navigate("/application/inventory");
+      const res = await putCall(`/api/v1/seller/productId/${state.productId}/product`, data);
+      if (res.status) {
+        if (res.status !== 200) {
+          cogoToast.error(res.message, { hideAfter: 10 });
+        } else if (res.status === 200) {
+          cogoToast.success("Product updated successfully!");
+          navigate("/application/inventory");
+        }
+      } else {
+        cogoToast.success("Something went wrong!", { hideAfter: 10 });
+      }
     } catch (error) {
       cogoToast.error("Something went wrong!");
       console.log(error);
@@ -748,7 +755,7 @@ const AddGenericProduct = ({
         ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
         : "";
     formErrors.manufacturedDate =
-      formValues?.manufacturedDate !== "" && !isDateValid(formValues?.manufacturedDate)
+      formValues?.manufacturedDate !== "" && formValues?.manufacturedDate !== null && !isDateValid(formValues?.manufacturedDate)
         ? "Pleas provide valide date in DD/MM/YYYY format"
         : "";
 
@@ -798,19 +805,19 @@ const AddGenericProduct = ({
     }
     if (productInfoFields.includes("manufacturePackingImport")) {
       formErrors.manufacturePackingImport =
-      formValues?.manufacturePackingImport !== "" && !isMonthYearValid(formValues?.manufacturePackingImport)
-        ? "Please provie valid month and year in MM/YYYY"
-        : "";
+        formValues?.manufacturePackingImport !== "" && !isMonthYearValid(formValues?.manufacturePackingImport)
+          ? "Please provie valid month and year in MM/YYYY"
+          : "";
     }
     if (productInfoFields.includes("importerFssaiLicenseNo")) {
       formErrors.importerFssaiLicenseNo =
-        formValues?.importerFssaiLicenseNo !== "" && String(formValues?.importerFssaiLicenseNo).length !== 14 && !isValidFSSAI(formValues?.importerFssaiLicenseNo)
+        formValues?.importerFssaiLicenseNo !== "" && formValues?.importerFssaiLicenseNo !== null && String(formValues?.importerFssaiLicenseNo).length !== 14 && !isValidFSSAI(formValues?.importerFssaiLicenseNo)
           ? "FSSAI should be 14 digit number"
           : "";
     }
     if (productInfoFields.includes("brandOwnerFssaiLicenseNo")) {
       formErrors.brandOwnerFssaiLicenseNo =
-        formValues?.brandOwnerFssaiLicenseNo !== "" && String(formValues?.brandOwnerFssaiLicenseNo).length !== 14 && !isValidFSSAI(formValues?.brandOwnerFssaiLicenseNo)
+        formValues?.brandOwnerFssaiLicenseNo !== "" && formValues?.brandOwnerFssaiLicenseNo !== null && String(formValues?.brandOwnerFssaiLicenseNo).length !== 14 && !isValidFSSAI(formValues?.brandOwnerFssaiLicenseNo)
           ? "FSSAI should be 14 digit number"
           : "";
     }
@@ -869,8 +876,6 @@ const AddGenericProduct = ({
       ...formErrors,
     });
 
-    console.log("Product Info errors", formErrors);
-
     let valid_form = !Object.values(formErrors).some((val) => val !== "");
 
     return valid_form;
@@ -893,7 +898,6 @@ const AddGenericProduct = ({
     if (variationOn === "none") {
       return true;
     } else {
-      console.log("variantForms -->>> " + JSON.stringify(variantForms));
       let forms_errors = variantForms.map((variant_form) =>
         getFormErrors(variantFields, variant_form)
       );

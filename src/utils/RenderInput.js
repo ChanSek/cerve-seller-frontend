@@ -203,7 +203,7 @@ const RenderInput = (props) => {
           required={item.required}
           size="small"
           InputProps={{
-            inputProps: { min: item.min || 0, max: item.max || 100000 },
+            //inputProps: { min: item.min || 0, max: item.max || 100000 },
             startAdornment: item.prefix ? (
               <InputAdornment position="start">
                 {item.prefix}

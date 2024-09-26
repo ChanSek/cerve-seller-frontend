@@ -31,8 +31,11 @@ export const AuthProvider = ({ children }) => {
         if (u?.role?.name === "Organization Admin") {
           if (u?.organization) {
             getOrgDetails(u?.organization?._id).then((org) => {
-              let category = org?.providerDetail?.storeDetails?.category;
-              if (!category) navigate(`/application/store-details/${u.organization._id}`);
+              var isActive = u?.organization?.active;
+              if (isActive) {
+                let category = org?.providerDetail?.storeDetails?.category;
+                if (!category) navigate(`/application/store-details/${u.organization._id}`);
+              }
             });
           }
         }
