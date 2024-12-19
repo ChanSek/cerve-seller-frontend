@@ -58,7 +58,7 @@ export default function ComplaintTable(props) {
   };
 
   const ThreeDotsMenu = ({ row }) => {
-    const issue = row.message.issue;
+    const issue = row.issue;
     const context = row.context;
     const user = props.user;
     const [anchorEl, setAnchorEl] = useState(null);
@@ -164,7 +164,8 @@ export default function ComplaintTable(props) {
   };
 
   const renderColumn = (row, column) => {
-    const issue = row.message.issue;
+    console.log("row ++++++++++++++++++ "+JSON.stringify(row));
+    const issue = row.issue;
     const value = issue[column.id];
     const short_description = issue.description.short_desc;
     switch (column.id) {
@@ -273,7 +274,7 @@ export default function ComplaintTable(props) {
                         onClick={() => {
                           column.id !== "action" &&
                             navigate(
-                              `/application/complaints/${row.message.issue?.id}`
+                              `/application/complaints/${row.issue?.id}`
                             );
                         }}
                         key={column.id}

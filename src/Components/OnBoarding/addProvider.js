@@ -137,7 +137,6 @@ const InviteProvider = () => {
       setFormSubmited(true);
     }
     try {
-      console.log("formValues ==========>>>>>>>>> " + JSON.stringify(formValues));
       const data = {
         storeName: formValues.providerStoreName.trim(),
         shortDescription: formValues.shortDescription.trim(),

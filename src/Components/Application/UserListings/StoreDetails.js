@@ -124,6 +124,13 @@ let storeFields = [
         required: true,
     },
     {
+        id: "street",
+        title: "Street",
+        placeholder: "Street",
+        type: "input",
+        required: true,
+    },
+    {
         id: "area_code",
         title: "PIN Code",
         placeholder: "PIN code",
@@ -142,7 +149,7 @@ let storeFields = [
         file_type: "logo",
         title: "Logo",
         type: "upload",
-        required: false,
+        required: true,
         fontColor: "#ffffff",
     }
 ];
@@ -160,7 +167,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
     const params = useParams();
 
     const [supportedFulfillments, setSupportedFulfillments] = useState({
-        delivery: false,
+        delivery: true,
         selfPickup: false,
         deliveryAndSelfPickup: false,
     });
@@ -204,7 +211,6 @@ const StoreDetails = ({ isFromUserListing = false }) => {
         country: "",
         state: "",
         city: "",
-        address_city: "",
         building: "",
         area_code: "",
         locality: "",
@@ -235,7 +241,6 @@ const StoreDetails = ({ isFromUserListing = false }) => {
         country: "",
         state: "",
         city: "",
-        address_city: "",
         building: "",
         area_code: "",
         locality: "",
@@ -344,56 +349,68 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 const hours = duration.asHours();
                 res.providerDetail.storeDetails.deliveryTime = String(hours);
             }
+            let storeData = {};
+            if (!res.providerDetail.storeDetails) {
+                storeData = {
+                    storeName: res.providerDetail.storeName || "",
+                    "default_returnable": "false",
+                    "default_cancellable": "false",
+                    "location_availability": "radius",
+                    "onNetworkLogistics": "false",
+                    "cities":[],
+                };
+            } else {
+                storeData = {
+                    storeName: res.providerDetail.storeName || "",
+                    email: res.providerDetail.storeDetails?.supportEmail || "",
+                    mobile: res.providerDetail.storeDetails?.supportMobile || "",
+                    category: res?.providerDetail?.storeDetails?.category || "",
+                    location: res?.providerDetail?.storeDetails?.location || "",
+                    location_availability: res?.providerDetail?.storeDetails?.storeAvailability,
+                    cities: res?.providerDetail?.storeDetails?.city || [],
+                    default_cancellable: res?.providerDetail?.storeDetails?.defaultCancellable + "" || "",
+                    default_returnable: res?.providerDetail?.storeDetails?.defaultReturnable + "" || "",
+                    country: res.providerDetail?.storeDetails?.address?.country || "",
+                    state: res.providerDetail?.storeDetails?.address?.state || "",
+                    city: res.providerDetail?.storeDetails?.address.city || "",
+                    building: res.providerDetail?.storeDetails?.address?.building || "",
+                    area_code: res.providerDetail?.storeDetails?.address?.area_code || "",
+                    locality: res.providerDetail?.storeDetails?.address?.locality || "",
+                    street: res.providerDetail?.storeDetails?.address?.street || "",
+                    logo: res?.providerDetail?.storeDetails?.logoUrl || "",
+                    //logo_path: res?.providerDetail?.storeDetails?.logo?.path || "",
 
-            let storeData = {
-                storeName: res.providerDetail.storeName || "",
-                email: res.providerDetail.storeDetails?.supportEmail || "",
-                mobile: res.providerDetail.storeDetails?.supportMobile || "",
-                category: res?.providerDetail?.storeDetails?.category || "",
-                location: res?.providerDetail?.storeDetails?.location || "",
-                location_availability: res?.providerDetail?.storeDetails?.storeAvailability,
-                cities: res?.providerDetail?.storeDetails?.city || [],
-                default_cancellable: res?.providerDetail?.storeDetails?.defaultCancellable + "" || "",
-                default_returnable: res?.providerDetail?.storeDetails?.defaultReturnable + "" || "",
-                country: res.providerDetail?.storeDetails?.address?.country || "",
-                state: res.providerDetail?.storeDetails?.address?.state || "",
-                city: res.providerDetail?.storeDetails?.address.city || "",
-                address_city: res.providerDetail?.storeDetails?.address.city || "",
-                building: res.providerDetail?.storeDetails?.address?.building || "",
-                area_code: res.providerDetail?.storeDetails?.address?.area_code || "",
-                locality: res.providerDetail?.storeDetails?.address?.locality || "",
-                logo: res?.providerDetail?.storeDetails?.logoUrl || "",
-                //logo_path: res?.providerDetail?.storeDetails?.logo?.path || "",
+                    holidays: res?.providerDetail?.storeDetails?.storeTimes?.holidays || [],
+                    radius: res?.providerDetail?.storeDetails?.radius || "",
+                    logisticsBppId: res?.providerDetail?.storeDetails?.logisticsBppId || "",
+                    logisticsDeliveryType: res?.providerDetail?.storeDetails?.logisticsDeliveryType || "",
+                    deliveryTime: res?.providerDetail?.storeDetails?.deliveryTime || "",
+                    onNetworkLogistics: JSON.stringify(res?.providerDetail?.storeDetails?.useNetworkLogistics) || "true",
+                };
 
-                holidays: res?.providerDetail?.storeDetails?.storeTimes?.holidays || [],
-                radius: res?.providerDetail?.storeDetails?.radius || "",
-                logisticsBppId: res?.providerDetail?.storeDetails?.logisticsBppId || "",
-                logisticsDeliveryType: res?.providerDetail?.storeDetails?.logisticsDeliveryType || "",
-                deliveryTime: res?.providerDetail?.storeDetails?.deliveryTime || "",
-                onNetworkLogistics: JSON.stringify(res?.providerDetail?.storeDetails?.useNetworkLogistics) || "true",
-            };
+                const polygonPoints = res?.providerDetail?.storeDetails?.custom_area
+                    ? res?.providerDetail?.storeDetails?.custom_area
+                    : [];
+                setPolygonPoints(polygonPoints);
 
-            const polygonPoints = res?.providerDetail?.storeDetails?.custom_area
-                ? res?.providerDetail?.storeDetails?.custom_area
-                : [];
-            setPolygonPoints(polygonPoints);
+                const fulfillments = res?.providerDetail?.storeDetails?.fulfillments;
+                const { supportedFulfillments, fulfillmentDetails } = getAvailableFulfillments(fulfillments);
 
-            const fulfillments = res?.providerDetail?.storeDetails?.fulfillments;
-            const { supportedFulfillments, fulfillmentDetails } = getAvailableFulfillments(fulfillments);
+                setSupportedFulfillments(supportedFulfillments);
+                setFulfillmentDetails((prevDetails) => ({
+                    ...prevDetails,
+                    ...fulfillmentDetails,
+                }));
 
-            setSupportedFulfillments(supportedFulfillments);
-            setFulfillmentDetails((prevDetails) => ({
-                ...prevDetails,
-                ...fulfillmentDetails,
-            }));
+                const storeTimingDetails = res?.providerDetail?.storeDetails?.storeTimes;
 
-            const storeTimingDetails = res?.providerDetail?.storeDetails?.storeTimes;
+                setStoreStatus(storeTimingDetails?.status);
+                if (storeTimingDetails?.closed !== undefined)
+                    setTemporaryClosedTimings(storeTimingDetails?.closed);
+                if (storeTimingDetails?.closedDays !== undefined)
+                    setTemporaryClosedDays(storeTimingDetails?.closedDays);
 
-            setStoreStatus(storeTimingDetails?.status);
-            if (storeTimingDetails?.closed !== undefined)
-                setTemporaryClosedTimings(storeTimingDetails?.closed);
-            if (storeTimingDetails?.closedDays !== undefined)
-                setTemporaryClosedDays(storeTimingDetails?.closedDays);
+            }
             setStoreDetails(Object.assign({}, JSON.parse(JSON.stringify(storeData))));
             setDefaultStoreDetails(Object.assign({}, JSON.parse(JSON.stringify(storeData))));
             setStoreTimings(res?.providerDetail?.storeDetails?.storeTimes?.enabled || defaultStoreTimings);
@@ -403,7 +420,6 @@ const StoreDetails = ({ isFromUserListing = false }) => {
         }
     };
 
-    //   console.log("storeDetails=====>", storeDetails);
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -457,7 +473,6 @@ const StoreDetails = ({ isFromUserListing = false }) => {
 
     const getTimingErrors = (storeTimings) => {
         let values = storeTimings?.reduce((acc, storeTiming) => {
-            console.log("storeTiming " + JSON.stringify(storeTiming));
             acc.push(storeTiming.daysRange.from);
             acc.push(storeTiming.daysRange.to);
             storeTiming.timings.forEach((element) => {
@@ -484,18 +499,20 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                     ? "Please enter a valid mobile number"
                     : "";
 
-        formErrors.category = storeDetails.category?.trim() === "" ? "Supported Product Category is required" : "";
-        formErrors.location = storeDetails.location === '' ? 'Location is required' : ''
+        formErrors.category = storeDetails.category === undefined || storeDetails.category.trim() === "" ? "Supported Product Category is required" : "";
+        formErrors.location = storeDetails.location === undefined || storeDetails.location === '' ? 'Location is required' : ''
         if (storeDetails.location_availability === "city") {
             formErrors.cities = storeDetails.cities.length === 0 ? "City is required" : "";
         } else {
         }
-        formErrors.country = storeDetails.country?.trim() === "" ? "Country is required" : "";
-        formErrors.state = storeDetails.state?.trim() === "" ? "State is required" : "";
-        formErrors.address_city = storeDetails.address_city?.trim() === "" ? "City is required" : "";
-        formErrors.building = storeDetails.building?.trim() === "" ? "Building is required" : "";
-        formErrors.area_code = storeDetails.area_code?.trim() === "" ? "PIN Code is required" : "";
-        formErrors.logo = storeDetails.logo?.trim() === "" ? "Logo is required" : "";
+        formErrors.country = storeDetails.country === undefined || storeDetails.country.trim() === "" ? "Country is required" : "";
+        formErrors.state = storeDetails.state === undefined || storeDetails.state.trim() === "" ? "State is required" : "";
+        formErrors.street = storeDetails.street === undefined || storeDetails.street.trim() === "" ? "Steet is required" : "";
+        formErrors.city = storeDetails.city === undefined || storeDetails.city.trim() === "" ? "City is required" : "";
+        formErrors.building = storeDetails.building === undefined || storeDetails.building.trim() === "" ? "Building is required" : "";
+        formErrors.area_code = storeDetails.area_code === undefined || storeDetails.area_code.trim() === "" ? "PIN Code is required" : "";
+        formErrors.locality = storeDetails.locality === undefined || storeDetails.locality.trim() === "" ? "Locality is required" : "";
+        formErrors.logo = storeDetails.logo === undefined || storeDetails.logo.trim() === "" ? "Logo is required" : "";
 
         if (!isFromUserListing) {
             if (storeStatus === "enabled") {
@@ -510,8 +527,14 @@ const StoreDetails = ({ isFromUserListing = false }) => {
         }
 
         formErrors.logisticsBppId = storeDetails.onNetworkLogistics === "true" ? storeDetails.logisticsBppId.trim() === "" ? "Logistics Bpp Id is required" : "" : "";
-        formErrors.logisticsDeliveryType = storeDetails.logisticsDeliveryType.trim() === "" ? "Logistics Delivery Type is required" : "";
-        formErrors.deliveryTime = storeDetails.onNetworkLogistics === "false" ? storeDetails.deliveryTime === "" ? "Delivery Time is required" : "" : "";
+        formErrors.logisticsDeliveryType = storeDetails.logisticsDeliveryType === undefined || storeDetails.logisticsDeliveryType.trim() === "" ? "Logistics Delivery Type is required" : "";
+        formErrors.deliveryTime = storeDetails.onNetworkLogistics === "false"
+            ? (storeDetails.deliveryTime === ""
+                ? "Delivery Time is required"
+                : storeDetails.deliveryTime === "0"
+                    ? "Delivery Time must be greater than 0"
+                    : "")
+            : "";
         // formErrors.logisticsBppId = "";
         // formErrors.logisticsDeliveryType = "";
 
@@ -646,6 +669,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 cogoToast.error("Please fill in all required data!");
             }
         }
+        console.log("formErrors --------->>>>>> "+JSON.stringify(formErrors));
         return !Object.values(formErrors).some((val) => val !== "");
     };
 
@@ -701,7 +725,6 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 },
                 storeTimings: fulfillmentDetails.deliveryAndSelfPickupDetails.storeTimings,
             };
-            console.log("FULFILLMENT FOR D AND S", deliveryAndSelfPickupDetails);
             fulfillments.push(deliveryAndSelfPickupDetails);
         }
 
@@ -732,9 +755,10 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 mobile,
                 email,
                 cities,
+                street,
                 building,
                 state,
-                address_city,
+                city,
                 country,
                 area_code,
                 location,
@@ -743,8 +767,9 @@ const StoreDetails = ({ isFromUserListing = false }) => {
 
             const locationAvailability = location_availability === "pan_india" ? true : false;
             const addressDetails = {
+                street: street,
                 building: building,
-                city: address_city,
+                city: city,
                 state: state,
                 country: country,
                 area_code: area_code,
@@ -793,7 +818,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 delete payload.location._id;
             } else {
             }
-            if (locationAvailability == false) {
+            if (locationAvailability === false) {
                 payload["city"] = cities;
             } else {
             }
@@ -859,7 +884,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 if (!citiesFieldExists) {
                     const cityOptions = [];
                     cityInfo?.forEach((ci) => {
-                        if (ci.city !== "" && ci.city != "null") {
+                        if (ci.city !== "" && ci.city !== "null") {
                             let city = { "key": ci.city, "value": ci.cityCode };
                             cityOptions.push(city);
                         }

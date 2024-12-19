@@ -1,3 +1,5 @@
+import { kMaxLength } from "buffer";
+
 export const deliveryFulfillmentFields = [
   {
     id: "deliveryEmail",
@@ -14,6 +16,7 @@ export const deliveryFulfillmentFields = [
     required: true,
     value: "+91",  
     prefix: "+91",
+    maxLength: 10,
   },
 ];
 
@@ -33,5 +36,6 @@ export const selfPickupFulfillmentFields = [
     required: true,
     value: "+91",  
     prefix: "+91",
+    maxLength: 10,
   },
 ];

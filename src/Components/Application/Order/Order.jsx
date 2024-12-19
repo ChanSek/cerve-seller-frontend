@@ -87,7 +87,6 @@ export default function Orders() {
     getUser(user_id).then((user) => {
       getOrders(user?.organization?._id);
       if(user && user?.role?.name === "Organization Admin"){
-        console.log("matched========= ");
         const data = columns.filter((item) => item.id !== "provider_name")
         setColumnList(data);
       }

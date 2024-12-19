@@ -38,9 +38,6 @@ const UserDetailsCard = ({ selectedTab, details }) => {
   };
   const params = useParams();
   const handleEditClick = (key, value, _id) => {
-    if (typeof value === 'boolean') {
-      value = value + "";
-    }
     const matchedField = getFieldById(key);
     setFormValues({
       [key]: value,
@@ -168,7 +165,9 @@ const UserDetailsCard = ({ selectedTab, details }) => {
         break;
 
       case "accountNumber":
-        if (value && isValidBankAccountNumber(value)) {
+        if (value && value.toString().length < 9 || value.toString().length > 18) {
+          errors[field.id] = "Invliad Account Number";
+        }else if (value && isValidBankAccountNumber(value)) {
           errors[field.id] = "Invliad Account Number";
         }
         break;

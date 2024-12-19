@@ -432,12 +432,11 @@ const RenderInput = (props) => {
                   lat: lat,
                   long: lng,
                 },
-                address_city: city !== "" ? city : district,
+                city: city !== "" ? city : district,
                 state: stateVal,
                 country,
                 area_code,
                 locality,
-                // city: city != "" ? city : district,
               });
             }}
           />

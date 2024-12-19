@@ -16,7 +16,7 @@ export default [
     { id: "branchName", title: "Branch Name", placeholder: "Enter Branch Name", type: "input", required: true },
     { id: "ifscCode", title: "IFSC Code", placeholder: "Enter IFSC Code", type: "input", required: true },
     { id: "accountHolderName", title: "Account Holder Name", placeholder: "Enter Account Holder Name", type: "input", required: true },
-    { id: "accountNumber", title: "Account Number", placeholder: "Enter Account Number", type: "input", required: true,minLength:9,maxLength: 18 },
+    { id: "accountNumber", title: "Account Number", placeholder: "Enter Account Number", type: "number", required: true,minLength:9,maxLength: 18 },
     { id: "cancelledChequeUrl", title: "Cancelled Cheque", type: "upload", fontColor: "#ffffff", file_type: "cancelled_check", required: true },
     { id: "addressStatus", title: "Address", options: [{ key: "Pending", value: "Review Pending" }, { key: "InProgress", value: "Review In Progress" },{ key: "Approve", value: "Approved" }, { key: "Reject", value: "Rejected" }], type: "select", required: true },
     { id: "panStatus", title: "PAN", options: [{ key: "Pending", value: "Review Pending" }, { key: "InProgress", value: "Review In Progress" },{ key: "Approve", value: "Approved" }, { key: "Reject", value: "Rejected" }], type: "select", required: true },

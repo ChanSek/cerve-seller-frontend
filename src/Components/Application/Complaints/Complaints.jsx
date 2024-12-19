@@ -76,34 +76,40 @@ export default function Complaints() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [user, setUser] = useState();
   const [columnList, setColumnList] = useState(columns);
+  const [merchantId, setMerchantId] = useState(null);
 
   const getUser = async (id) => {
-    const url = `/api/v1/users/${id}`;
+    const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
     const res = await getCall(url);
     setUser(res[0]);
     return res[0];
   };
 
   useEffect(() => {
-    const user_id = localStorage.getItem("user_id");
-    getUser(user_id);
+    if (!merchantId) {
+      const user_id = localStorage.getItem("user_id");
+      getUser(user_id).then((user) => {
+        getOrders(user?.organization?._id);
+        setMerchantId(user?.organization?._id);
+      });
+    }
   }, []);
 
-  const getOrders = () => {
-    const url = `/api/client/all-issue?limit=${rowsPerPage}&offset=${page}`;
+  const getOrders = (merchantId) => {
+    const url = `/api/v1/seller/${merchantId}/all-issue?limit=${rowsPerPage}&offset=${page}`;
     getCall(url)
       .then((resp) => {
-        setComplaints(resp.issues);
-        setTotalRecords(resp.count);
+        setComplaints(resp.content);
+        setTotalRecords(resp.totalElements);
       })
       .catch((error) => {
         console.log(error.response);
       })
   };
 
-  useEffect(() => {
-    getOrders();
-  }, [page, rowsPerPage]);
+  // useEffect(() => {
+  //   getOrders();
+  // }, [page, rowsPerPage]);
 
   useEffect(() => {
     if (user && user?.role?.name === "Organization Admin") {

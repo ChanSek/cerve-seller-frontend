@@ -25,11 +25,11 @@ const AddProductInfo = ({ allFields, fields, state, form, setFocusedField }) => 
       }
     } else {
     }
-    if (returnElement) {
+    if (returnElement && item && item.id) {
       return (
         <RenderInput
           key={item.id}
-          previewOnly={state?.productId && item.id === "productCode" ? true : false}
+          previewOnly={state?.productId && item?.id === "productCode" ? true : false}
           item={{
             ...item,
             error: errors?.[item.id] ? true : false,

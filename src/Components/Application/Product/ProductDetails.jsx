@@ -511,6 +511,31 @@ const AddGenericProduct = ({
     } catch (error) { }
   };
 
+  const updateCancellable = (storeDetails) => {
+    let updatedFields = [...allFields];
+    const cancellableIndex = allFields.findIndex(
+      (field) => field.id === "cancellable"
+    );
+    if (cancellableIndex !== -1) {
+      updatedFields[cancellableIndex].isDisabled = !storeDetails.defaultCancellable;
+      setAllFields(updatedFields);
+    }
+  }
+
+  const removeFields = (fieldsToRemove) => {
+    let updatedFields = [...allFields];
+
+    fieldsToRemove.forEach((fieldId) => {
+      const fieldIndex = updatedFields.findIndex((field) => field.id === fieldId);
+
+      if (fieldIndex !== -1) {
+        updatedFields.splice(fieldIndex, 1); // Remove the field from the array
+      }
+    });
+
+    setAllFields(updatedFields); // Update the state once after all removals
+  };
+
   const getFulfillmentOptions = (fulfillments) => {
     const availableOptions = [];
     fulfillments.forEach((fulfillment) => {
@@ -551,6 +576,11 @@ const AddGenericProduct = ({
       const fulfillments = org.providerDetail.storeDetails.fulfillments;
       setStoreId(org.providerDetail.storeDetails.storeId);
       getFulfillmentOptions(fulfillments);
+
+      removeFields([
+        org.providerDetail.storeDetails.defaultCancellable ? null : "cancellable",
+        org.providerDetail.storeDetails.defaultReturnable ? null : "returnable"
+      ].filter(Boolean));
     });
   }, []);
 

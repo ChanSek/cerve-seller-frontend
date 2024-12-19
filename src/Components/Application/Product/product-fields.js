@@ -304,6 +304,7 @@ export const allProductFieldDetails = [
       { key: "No", value: "false" },
     ],
     required: true,
+    isDisabled: false
   },
   {
     id: "returnable",
@@ -314,6 +315,7 @@ export const allProductFieldDetails = [
       { key: "No", value: "false" },
     ],
     required: true,
+    isDisabled: false
   },
   {
     id: "availableOnCod",
@@ -380,7 +382,7 @@ export const productDetailsFields = [
   "vegNonVeg",
   "returnable",
   "cancellable",
-  "availableOnCod",
+  //"availableOnCod",
   "packerName",
   "packerAddress",
   "genericNameOfCommodity",

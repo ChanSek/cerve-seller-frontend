@@ -8,32 +8,32 @@ export const PICKUP_REJECT_REASONS = [
         value: "Seller phone no not contactable",
     },
     {
-        key: "03",
+        key: "003",
         value: "Address incorrect",
     },
     {
-        key: "04",
+        key: "004",
         value: "Shipment not ready",
         isApplicableForCancellation: true,
     },
     {
-        key: "05",
+        key: "005",
         value: "Pickup request cancelled by Seller",
     },
     {
-        key: "06",
+        key: "006",
         value: "Pick failed due to dangerous goods",
     },
     {
-        key: "07",
+        key: "007",
         value: "Product packaging issue",
     },
     {
-        key: "08",
+        key: "008",
         value: "Bar Code issue",
     },
     {
-        key: "09",
+        key: "009",
         value: "Vehicle issue e.g. malfunctioning vehicle, space constraint in vehicle, etc",
     },
     {

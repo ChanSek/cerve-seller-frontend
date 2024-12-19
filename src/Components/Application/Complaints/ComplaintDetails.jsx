@@ -28,7 +28,7 @@ const ComplaintDetails = () => {
   const [loading, setLoading] = useState(false);
   const [supportActionDetails, setSupportActionDetails] = useState();
   const [toggleActionModal, setToggleActionModal] = useState(false);
-  const issue = complaint?.message?.issue
+  const issue = complaint?.issue
   const [isCascaded, setIsCascaded] = useState(false);
   const [processed, setProcessed] = useState(false);
   const [isResolved, setIsResolved] = useState(false)
@@ -48,11 +48,11 @@ const ComplaintDetails = () => {
 }).flat();
 
   const getComplaint = async () => {
-    const url = `/api/client/getissue/${params?.id}`;
+    const url = `/api/v1/seller/${params?.id}/getIssueDetails`;
     getCall(url).then((resp) => {
       if (resp.success) {
-        const issue_actions = resp.issue.message?.issue?.issue_actions
-        setComplaint(resp.issue);
+        const issue_actions = resp.issue?.issue_actions;
+        setComplaint(resp);
         mergeRespondantArrays(issue_actions)
       }
     });
@@ -63,7 +63,7 @@ const ComplaintDetails = () => {
   }, [params]);
 
   const getUser = async (id) => {
-    const url = `/api/v1/users/${id}`;
+    const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
     const res = await getCall(url);
     setUser(res[0]);
     return res[0];
@@ -113,12 +113,11 @@ const ComplaintDetails = () => {
  const handleAction=()=> {
   setLoading(true)
   const body = {
-    "transaction_id": complaint.context.transaction_id,
     "respondent_action": "PROCESSING",
     "short_desc": "We are investigating your concern.",
     "updated_by": {
       "org": {
-        "name": user.organization
+        "name": complaint.bppDomain
       },
       "contact": {
         "phone": user.mobile,
@@ -129,10 +128,10 @@ const ComplaintDetails = () => {
       }
     }
   }
-  postCall(`/api/client/issue_response`, body)
+  postCall(`/api/v1/seller/${complaint._id}/issue_response`, body)
     .then((resp) => {
       setLoading(false)
-      if(resp.message?.ack?.status === "ACK") {
+      if(resp?.status === 200) {
       cogoToast.success("Action taken successfully");
       setProcessed(true)
       getComplaint()
@@ -160,7 +159,7 @@ const ComplaintDetails = () => {
 }
 
  function checkResolveDisable(){
-  if(expanded === supportActionDetails?.context.transaction_id){
+  if(expanded === supportActionDetails?.transactionId){
     return true
   }
 
@@ -218,7 +217,7 @@ const ComplaintDetails = () => {
         <Button
         className="!capitalize"
         variant="contained"
-        onClick={() => navigate(`/application/orders/${issue?.order_details?.orderDetailsId}`)}
+        onClick={() => navigate(`/application/orders/${issue?.order_details?.id}`)}
       >
         Order Detail
         </Button>
@@ -250,7 +249,7 @@ const ComplaintDetails = () => {
           </div>
           <div className="flex justify-between mt-3">
             <p className="text-base font-normal">Issue Id</p>
-            <p className="text-base font-normal">{issue?.id}</p>
+            <p className="text-base font-normal">{complaint?.issue?.id}</p>
           </div>
           <div className="flex justify-between mt-3">
             <p className="text-base font-normal">Issue Type</p>

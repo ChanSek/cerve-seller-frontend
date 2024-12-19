@@ -15,31 +15,26 @@ import cogoToast from "cogo-toast";
 
 
 const AddCustomizationGroup = (props) => {
-  const { showModal, handleCloseModal, data, setOrder } = props;
+  const { showModal, handleCloseModal, data, onOrderUpdate } = props;
   const [quantity, setQuantity] = useState(0);
   const [reason, setReason] = useState();
 
   useEffect(() => {
     setQuantity(data?.item?.quantity);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.data]);
 
-  const cancelOrder = () => {
-    postCall(`/api/v1/orders/${data?.order_id}/item/cancel`, {
+  const cancelOrder = async (order_uuid) => {
+    const url = `/api/v1/seller/order/${order_uuid}/item/cancel`;
+    const resp = await postCall(`/api/v1/seller/${data?.order_id}/item/cancel`, {
       cancellation_reason_id: reason,
       id: data?.item.id,
       quantity: quantity,
-    })
-      .then((resp) => {
-        setOrder(resp);
-        cogoToast.success("Product cancelled successfully!");
-        handleCloseModal();
-      })
-      .catch((error) => {
-        console.log(error);
-        cogoToast.error(error.response.data.error);
-      });
+    });
     handleCloseModal();
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    onOrderUpdate();
+    cogoToast.success("Product cancelled successfully!");
   };
 
   return (

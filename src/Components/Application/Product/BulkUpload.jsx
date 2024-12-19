@@ -73,12 +73,19 @@ const BulkUpload = () => {
         <BackNavigationButton onClick={() => navigate("/application/inventory")} />
         <div className="w-full !h-full">
           <label className="ml-2 md:mb-4 md:mt-3 mt-2 font-semibold text-xl">
-            Bulk Upload
+          <span class="highlight">Bulk Upload</span>
           </label>
           <div className="mt-6 flex flex-col">
-            <label className="ml-2 md:mb-4 md:mt-3 mt-2 font text-xm">
-             To add or update products please download the latest excel file from Inventory by clicking in Download Product Button.
-            </label>
+            <div class="note-container">
+              <p class="note-title">Notes:</p>
+              <p class="note-text">
+                1. If <span class="highlight">Default Non-Cancellable</span> and <span class="highlight">Default Non-Returnable</span> are selected from the store, the system will prioritize these settings, irrespective of the product.
+              </p>
+              <p class="note-text">
+              2. To add or update products please download the latest excel file from Inventory by clicking on <span class="highlight">Download Products</span> Button.
+              </p>
+            </div>
+            <br/>
             <input
               className="ml-2"
               id="contained-button-file"

@@ -99,14 +99,13 @@ export default function CustomerActionCard({
     }
 
     const body = {
-      "transaction_id": context.transaction_id,
       "respondent_action": selectedCancelType === ACTION_TYPES.cascadeIssue ? "CASCADED" : "RESOLVED",
       "action_triggered" : getAction(),
       "short_desc": shortDescription,
       "long_desc": longDescription,
       "updated_by": {
         "org": {
-          "name": user?.organization
+          "name": supportActionDetails.bppDomain
         },
         "contact": {
           "phone": user?.mobile,
@@ -120,11 +119,11 @@ export default function CustomerActionCard({
     if(selectedCancelType === ACTION_TYPES.refundIssue){
       body.refund_amount = refundAmount
     }
-    postCall(`/api/client/issue_response`, body)
+    postCall(`/api/v1/seller/${supportActionDetails._id}/issue_response`, body)
       .then((resp) => {
         setLoading(false)
-        if (resp.message?.ack?.status === "ACK") {
-          onSuccess(context.transaction_id)
+        if (resp?.status === 200) {
+          onSuccess(supportActionDetails.transactionId)
         } else {
           cogoToast.error(resp.message);
         }

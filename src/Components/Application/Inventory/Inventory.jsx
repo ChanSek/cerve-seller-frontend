@@ -288,8 +288,8 @@ export default function Inventory() {
     }
   }, [page, rowsPerPage, storeId]);
 
-  const handleRefresh = (data) => {
-    getProducts();
+  const handleRefresh = () => {
+    getProducts(storeId);
   };
 
   const onReset = () => {
