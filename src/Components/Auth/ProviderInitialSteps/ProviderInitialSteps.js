@@ -389,7 +389,7 @@ const ProviderInitialSteps = () => {
               if (isObjEmpty(org.storeDetails)) setStep(2);
               else navigate("/application/inventory");
             });
-          } else navigate("/application/user-listings");
+          }
         }
       });
     } catch (error) {

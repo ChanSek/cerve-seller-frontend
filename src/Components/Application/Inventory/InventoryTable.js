@@ -39,7 +39,6 @@ export default function InventoryTable(props) {
     fetchCustomizationItem,
     customizationGroups = [],
   } = props;
-
   const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
@@ -84,7 +83,7 @@ export default function InventoryTable(props) {
     const { row } = props;
 
     const handlePublishState = (product_id, published) => {
-      const url = `/api/v1/products/${product_id}/publish`;
+      const url = `/api/v1/seller/productId/${product_id}/publish`;
       putCall(url, { published: !published })
         .then((resp) => {
           cogoToast.success("Product state updated successfully");
@@ -120,9 +119,10 @@ export default function InventoryTable(props) {
               } else {
                 navigate("/application/add-products", {
                   state: {
-                    productId: row.productId,
-                    productCategory: row.category,
-                    productSubCategory: row.subCategory,
+                    productId: row.commonDetails.productId,
+                    productCategory: row.commonDetails.category,
+                    productSubCategory: row.commonDetails.subCategory,
+                    productVariationOn: row.variationOn,
                   },
                 });
               }
@@ -131,8 +131,8 @@ export default function InventoryTable(props) {
             Edit
           </MenuItem>
           {/* </Link> */}
-          <MenuItem onClick={() => handlePublishState(row?.productId, row?.published)}>
-            {row?.published ? "Unpublish" : "Publish"}
+          <MenuItem onClick={() => handlePublishState(row?.commonDetails?.productId, row?.commonDetails?.published)}>
+            {row?.commonDetails?.published ? "Unpublish" : "Publish"}
           </MenuItem>
           {row.type != "customization" && (
             <MenuItem
@@ -223,23 +223,32 @@ export default function InventoryTable(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.data.map((row, index) => {
-              return (
-                <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                  {props.columns.map((column) => {
-                    const value = row[column.id] === undefined ? " - " : row[column.id];
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {renderCellContent(column, value)}
-                      </TableCell>
-                    );
-                  })}
-                  <TableCell component="th" scope="row">
-                    <ThreeDotsMenu row={row} />
-                  </TableCell>
+            {props.data.map((item, index) => (
+              item.variantSpecificDetails.map((variant, idx) => (
+                <TableRow key={`${index}-${idx}`}>
+                  {/* Display common details only in the first row of each product */}
+                  {idx === 0 && (
+                    <>
+                      <TableCell style={styles.tableCell} rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[0], item.commonDetails.subCategory)}</TableCell>
+                      <TableCell style={styles.tableCell} rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[1], item.commonDetails.productName)}</TableCell>
+                    </>
+                  )}
+                  <TableCell>{renderCellContent(props.columns[2], variant.availableQty)}</TableCell>
+                  <TableCell>{renderCellContent(props.columns[3], variant.purchasePrice)}</TableCell>
+                  <TableCell>{renderCellContent(props.columns[4], variant.price)}</TableCell>
+                  <TableCell>{renderCellContent(props.columns[5], variant.uomValue+" "+item.commonDetails.uom )}</TableCell>
+                  {idx === 0 && (
+                    <>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[6], item.commonDetails.cancellable)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[7], item.commonDetails.returnable)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[8], item.variationOn)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}>{renderCellContent(props.columns[9], item.commonDetails.published)}</TableCell>
+                      <TableCell rowSpan={item.variantSpecificDetails.length}><ThreeDotsMenu row={item} /></TableCell>
+                    </>
+                  )}
                 </TableRow>
-              );
-            })}
+              ))
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -303,4 +312,14 @@ export default function InventoryTable(props) {
       </Modal>
     </Paper>
   );
+}
+
+const styles = {
+  tableCell: {
+    padding: '6px',
+    whiteSpace: 'nowrap', // Prevent line breaks
+    //overflow: 'hidden', // Hide overflowed text
+    //textOverflow: 'ellipsis', // Add ellipsis (...) for overflowed text
+    minWidth: '150px', // Optional: Adjust based on the available space
+  }
 }

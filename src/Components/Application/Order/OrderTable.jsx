@@ -26,6 +26,8 @@ const StyledTableCell = styled(TableCell)({
 export default function InventoryTable(props) {
   const {
     page,
+    columns,
+    data,
     rowsPerPage,
     totalRecords,
     handlePageChange,

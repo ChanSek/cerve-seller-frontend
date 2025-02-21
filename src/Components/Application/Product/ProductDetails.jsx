@@ -19,7 +19,7 @@ import {
   MAX_STRING_LENGTH_8,
   MAX_STRING_LENGTH_12,
 } from "../../../utils/constants";
-import { isAmountValid, isNumberOnly } from "../../../utils/validations";
+import { isAmountValid, isNumberOnly, isValidFSSAI, isDateValid, isMonthYearValid } from "../../../utils/validations";
 import {
   allProductFieldDetails,
   categoryFields,
@@ -61,6 +61,7 @@ const AddGenericProduct = ({
 
   const [variantFields, setVariantFields] = useState([]);
   const [variantInitialValues, setVariantInitialValues] = useState({});
+  const [variantUpdatedValues, setVariantUpdatedValues] = useState({});
   const [variantForms, setVariantForms] = useState([]);
   const [variantFormsErrors, setVariantFormsErrors] = useState([]);
 
@@ -131,7 +132,7 @@ const AddGenericProduct = ({
   const formatAttributesToFieldsDataFormat = (variants, required = false) => {
     return variants.map((variant) => {
       return {
-        id: variant.name.replace(/ /g,"_").toLowerCase(),
+        id: variant.name.replace(/ /g, "_").toLowerCase(),
         title: variant.name,
         placeholder: variant.example,
         type: variant.type || "input",
@@ -166,13 +167,15 @@ const AddGenericProduct = ({
   const addProduct = async () => {
     try {
       let product_data = Object.assign({}, formValues);
+      product_data.category = categoryForm.formValues.productCategory;
       product_data.subCategory = categoryForm.formValues.productSubcategory1;
+      product_data.sku = formValues.sku;
       let vital_data = Object.assign({}, vitalForm);
       let variant_data = formattedVariantDataForAddProduct();
       let api_url =
         variationOn === "none"
           ? `/api/v1/seller/storeId/${storeId}/product`
-          : "/api/v1/productWithVariant";
+          : `/api/v1/seller/storeId/${storeId}/product`;
 
       // const subCatList =
       //   PRODUCT_SUBCATEGORY[categoryForm.formValues?.productCategory];
@@ -232,14 +235,16 @@ const AddGenericProduct = ({
       if (variationOn !== "none") {
         data["variantSpecificDetails"] = variant_data;
         data["variationOn"] = variationOn?.toUpperCase();
+      } else {
+        data["variationOn"] = "None";
       }
 
       //await cancellablePromise(postCall(api_url, data));
       const res = await postCall(api_url, data)
-      if(res.status && res.status !== 200){
+      if (res.status && res.status !== 200) {
         cogoToast.error(res.message, { hideAfter: 5 });
       }
-      if(res.status && res.status === 200){
+      if (res.status && res.status === 200) {
         cogoToast.success("Product added successfully!", { hideAfter: 5 });
         navigate("/application/inventory");
       }
@@ -251,7 +256,7 @@ const AddGenericProduct = ({
 
   const getSignedUrlsForPublicUrls = async (urls) => {
     if (urls.length === 0) return [];
-    return postCall(`/api/v1/product/upload/publicUrl`, {urls: urls})
+    return postCall(`/api/v1/product/upload/publicUrl`, { urls: urls })
       .then((resp) => {
         return resp;
       })
@@ -326,8 +331,8 @@ const AddGenericProduct = ({
             returnable: "false",
             cancellable: "false",
             availableOnCod: "false",
-            imageUrls: images_data.map((i) => i?.path),
-            uploaded_urls: images_data.map((i) => i?.url),
+            imageUrls: images_data.map((i) => i?.urls),
+            uploaded_urls: images_data.map((i) => i?.urls),
             packerAddress: "",
             genericNameOfCommodity: "",
             manufacturePackingImport: "",
@@ -349,11 +354,12 @@ const AddGenericProduct = ({
   const getProduct = () => {
     getCall(`/api/v1/seller/productId/${state.productId}/product`)
       .then((resp) => {
+
         resp = resp.data;
         resp.commonDetails["uploaded_urls"] =
-          resp?.commonDetails.imageUrls?.map((i) => i?.url) || [];
+          resp?.commonDetails.imageUrls?.map((i) => i) || [];
         resp.commonDetails["imageUrls"] =
-          resp?.commonDetails.imageUrls?.map((i) => i?.path) || [];
+          resp?.commonDetails.imageUrls?.map((i) => i) || [];
 
         resp.commonDetails.cancellable = resp.commonDetails.cancellable
           ? "true"
@@ -385,7 +391,8 @@ const AddGenericProduct = ({
         //}
         setFormValues({ ...resp.commonDetails });
         setVitalForm({ ...resp.commonAttributesValues });
-
+        const variantDetails = Array.isArray(resp.variantSpecificDetails) ? resp.variantSpecificDetails : [resp.variantSpecificDetails];
+        setVariantUpdatedValues([...variantDetails]);
         let category = resp.commonDetails["category"];
         let sub_category = resp.commonDetails["subCategory"];
         let customization_groups =
@@ -396,10 +403,10 @@ const AddGenericProduct = ({
         // setCustomizationGroups(customization_groups);
         // setCustomizations(resp.customizationDetails.customizations);
 
-        //let attributes =
-         // allProperties[category][sub_category] ||
-         // allProperties[category]["default"];
-       // setVitalFields(formatAttributesToFieldsDataFormat(attributes));
+        // let attributes =
+        //  allProperties[category][sub_category] ||
+        //  allProperties[category]["default"];
+        //  setVitalFields(formatAttributesToFieldsDataFormat(attributes));
       })
       .catch((error) => {
         cogoToast.error("Something went wrong!");
@@ -411,10 +418,10 @@ const AddGenericProduct = ({
     // id will be dynamic after schema changes
     try {
       let product_data = Object.assign({}, formValues);
-      console.log("product_data "+product_data);
       product_data.category = state.productCategory;
       product_data.subCategory = state.productSubCategory;
       let vital_data = Object.assign({}, vitalForm);
+      let variant_data = formattedVariantDataForAddProduct();
       // const subCatList = PRODUCT_SUBCATEGORY[formValues?.productCategory];
       // const selectedSubCatObject = subCatList.find(
       //   (subitem) => subitem.value === formValues?.productSubcategory1
@@ -458,9 +465,9 @@ const AddGenericProduct = ({
       });
 
       delete vital_data["tempURL"];
-      if (backImagePath && product_data["backImage"].startsWith("https:")) {
-        product_data["backImage"] = backImagePath;
-      }
+      //if (backImagePath && product_data["backImage"].startsWith("https:")) {
+      //  product_data["backImage"] = product_data["backImage"];
+      //}
 
       let data = {
         commonDetails: product_data,
@@ -470,10 +477,22 @@ const AddGenericProduct = ({
           customizations,
         },
       };
+      if (variationOn !== "none") {
+        data["variantSpecificDetails"] = variant_data;
+        data["variationOn"] = variationOn?.toUpperCase();
+      }
 
-      await putCall(`/api/v1/seller/productId/${state.productId}/product`, data);
-      cogoToast.success("Product updated successfully!");
-      navigate("/application/inventory");
+      const res = await putCall(`/api/v1/seller/productId/${state.productId}/product`, data);
+      if (res.status) {
+        if (res.status !== 200) {
+          cogoToast.error(res.message, { hideAfter: 10 });
+        } else if (res.status === 200) {
+          cogoToast.success("Product updated successfully!");
+          navigate("/application/inventory");
+        }
+      } else {
+        cogoToast.success("Something went wrong!", { hideAfter: 10 });
+      }
     } catch (error) {
       cogoToast.error("Something went wrong!");
       console.log(error);
@@ -486,10 +505,35 @@ const AddGenericProduct = ({
 
   const getOrgDetails = async (id) => {
     try {
-      const url = `/api/v1/seller/merchantId/${id}/merchant`;
+      const url = `/api/v1/seller/merchantId/${id}/store`;
       const res = await getCall(url);
       return res.data;
-    } catch (error) {}
+    } catch (error) { }
+  };
+
+  const updateCancellable = (storeDetails) => {
+    let updatedFields = [...allFields];
+    const cancellableIndex = allFields.findIndex(
+      (field) => field.id === "cancellable"
+    );
+    if (cancellableIndex !== -1) {
+      updatedFields[cancellableIndex].isDisabled = !storeDetails.defaultCancellable;
+      setAllFields(updatedFields);
+    }
+  }
+
+  const removeFields = (fieldsToRemove) => {
+    let updatedFields = [...allFields];
+
+    fieldsToRemove.forEach((fieldId) => {
+      const fieldIndex = updatedFields.findIndex((field) => field.id === fieldId);
+
+      if (fieldIndex !== -1) {
+        updatedFields.splice(fieldIndex, 1); // Remove the field from the array
+      }
+    });
+
+    setAllFields(updatedFields); // Update the state once after all removals
   };
 
   const getFulfillmentOptions = (fulfillments) => {
@@ -528,10 +572,15 @@ const AddGenericProduct = ({
       fetchProductFromCatalogue();
     }
     const user = JSON.parse(localStorage.getItem("user"));
-    getOrgDetails(user.organization._id).then((org)=>{
-      const fulfillments = org.providerDetail.storeDetails.fulfillments;
-      setStoreId(org.providerDetail.storeDetails.storeId);
+    getOrgDetails(user.organization._id).then((store) => {
+      const fulfillments = store.fulfillments;
+      setStoreId(store.storeId);
       getFulfillmentOptions(fulfillments);
+
+      removeFields([
+        store.defaultCancellable ? null : "cancellable",
+        store.defaultReturnable ? null : "returnable"
+      ].filter(Boolean));
     });
   }, []);
 
@@ -681,199 +730,153 @@ const AddGenericProduct = ({
     formErrors.productCode =
       formValues?.productCode?.trim() === ""
         ? "Product code is not allowed to be empty"
-        : !isNumberOnly(formValues?.productCode)
-        ? "Please enter only digit"
-        : formValues?.productCode?.length > MAX_STRING_LENGTH_13
-        ? `Cannot be more than ${MAX_STRING_LENGTH_13} characters`
-        : "";
+        : !/^1:(\d{8}|\d{13})$/.test(formValues?.productCode?.trim())
+          ? "Product code must be in the format '1:EMA' where EMA is a number of either 8 or 13 digits"
+          : "";
     formErrors.productName =
       formValues?.productName?.trim() === ""
         ? "Product name is not allowed to be empty"
         : formValues?.productName?.length > MAX_STRING_LENGTH
-        ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
-        : "";
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+          : "";
     formErrors.countryOfOrigin =
       formValues?.countryOfOrigin?.trim() === ""
         ? "Country of origin is not allowed to be empty"
         : "";
     formErrors.gstPercentage =
       formValues?.gstPercentage === "" ? "GST percentage is required" : "";
+    formErrors.minAllowedQty = !formValues?.minAllowedQty
+      ? "Please enter a valid Min. Allowed Quantity"
+      : "";
     formErrors.maxAllowedQty = !formValues?.maxAllowedQty
       ? "Please enter a valid Max. Allowed Quantity"
       : formValues?.maxAllowedQty?.length > MAX_STRING_LENGTH_10
-      ? `Cannot be more than ${MAX_STRING_LENGTH_10} characters`
-      : parseInt(formValues?.maxAllowedQty) > parseInt(formValues?.quantity)
-      ? "Cannot be more than quantity"
-      : "";
+        ? `Cannot be more than ${MAX_STRING_LENGTH_10} characters`
+        : parseInt(formValues?.maxAllowedQty) > parseInt(formValues?.quantity)
+          ? "Cannot be more than quantity"
+          : "";
     formErrors.uom = formValues?.uom === "" ? "UOM unit is required" : "";
     formErrors.fulfillmentOption =
       formValues?.fulfillmentOption === undefined ||
-      formValues?.fulfillmentOption === ""
+        formValues?.fulfillmentOption === ""
         ? "Fulfillment Option is required"
         : "";
-    // formErrors.UOM =
-    //   formValues?.UOM?.trim() === ""
-    //     ? "UOM is required"
-    //     : formValues?.UOM?.length > MAX_STRING_LENGTH
-    //     ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
-    //     : "";
-    formErrors.length =
-      formValues?.length?.trim() === ""
-        ? "Length is required"
-        : formValues?.length.length > MAX_STRING_LENGTH_6
-        ? `Cannot be more than ${MAX_STRING_LENGTH_6} characters`
+    formErrors.vegNonVeg =
+      formValues?.vegNonVeg === undefined ||
+        formValues?.vegNonVeg === ""
+        ? "VegNonVeg Option is required"
         : "";
-    formErrors.breadth =
-      formValues?.breadth?.trim() === ""
-        ? "Breadth is required"
-        : formValues?.breadth.length > MAX_STRING_LENGTH_6
-        ? `Cannot be more than ${MAX_STRING_LENGTH_6} characters`
-        : "";
-    formErrors.height =
-      formValues?.height?.trim() === ""
-        ? "Height is required"
-        : formValues?.height.length > MAX_STRING_LENGTH_6
-        ? `Cannot be more than ${MAX_STRING_LENGTH_6} characters`
-        : "";
-    formErrors.weight =
-      formValues?.weight?.trim() === ""
-        ? "Weight is required"
-        : formValues?.weight.length > MAX_STRING_LENGTH_3
-        ? `Cannot be more than ${MAX_STRING_LENGTH_3} characters`
-        : "";
+    formErrors.UOM =
+      formValues?.UOM?.trim() === ""
+        ? "UOM is required"
+        : formValues?.UOM?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+          : "";
     formErrors.returnWindow =
       formValues?.returnWindow?.trim() === ""
         ? "Return window is required"
         : !isNumberOnly(formValues?.returnWindow)
-        ? "Please enter only digit"
-        : formValues?.returnWindow?.length > MAX_STRING_LENGTH_3
-        ? `Cannot be more than ${MAX_STRING_LENGTH_3} characters`
-        : "";
+          ? "Please enter only digit"
+          : formValues?.returnWindow?.length > MAX_STRING_LENGTH_3
+            ? `Cannot be more than ${MAX_STRING_LENGTH_3} characters`
+            : "";
     formErrors.manufacturerName =
-      formValues?.manufacturerName?.trim() === ""
-        ? "Manufacturer name is required"
-        : formValues?.manufacturerName?.length > MAX_STRING_LENGTH_50
-        ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
+      formValues?.manufacturerName?.trim() !== "" && formValues?.manufacturerName?.length > MAX_STRING_LENGTH
+        ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
         : "";
     formErrors.manufacturedDate =
-      formValues?.manufacturedDate?.trim() === ""
-        ? "Manufactured date is required"
+      formValues?.manufacturedDate !== "" && formValues?.manufacturedDate !== null && !isDateValid(formValues?.manufacturedDate)
+        ? "Pleas provide valide date in DD/MM/YYYY format"
         : "";
+
     if (productInfoFields.includes("nutritionalInfo")) {
       formErrors.nutritionalInfo =
-        formValues?.nutritionalInfo?.trim() === ""
-          ? "Nutritional info is required"
-          : formValues?.nutritionalInfo?.length > MAX_STRING_LENGTH
+        formValues?.nutritionalInfo?.trim() !== "" && formValues?.nutritionalInfo?.length > MAX_STRING_LENGTH
           ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
           : "";
     }
     if (productInfoFields.includes("additiveInfo")) {
       formErrors.additiveInfo =
-        formValues?.additiveInfo?.trim() === ""
-          ? "Additive info is required"
-          : formValues?.additiveInfo?.length > MAX_STRING_LENGTH
+        formValues?.additiveInfo?.trim() !== "" && formValues?.additiveInfo?.length > MAX_STRING_LENGTH
           ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
           : "";
     }
     formErrors.instructions =
-      formValues?.instructions?.trim() === ""
-        ? "Instruction is required"
-        : formValues?.instructions?.length > MAX_STRING_LENGTH
+      formValues?.instructions?.trim() !== "" && formValues?.instructions?.length > MAX_STRING_LENGTH
         ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
         : "";
     formErrors.longDescription =
       formValues?.longDescription?.trim() === ""
         ? "Long description is required"
-        : formValues?.longDescription?.length > MAX_STRING_LENGTH
-        ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
         : "";
     formErrors.description =
       formValues?.description?.trim() === ""
         ? "Short description is required"
         : formValues?.description?.length > MAX_STRING_LENGTH
-        ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
-        : "";
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+          : "";
     if (productInfoFields.includes("packerName")) {
       formErrors.packerName =
-        formValues?.packerName?.trim() === ""
-          ? "Manufacturer or packer name is required"
-          : formValues?.packerName?.length > MAX_STRING_LENGTH_50
-          ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
+        formValues?.packerName?.trim() !== "" && formValues?.packerName?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
           : "";
     }
     if (productInfoFields.includes("packerAddress")) {
       formErrors.packerAddress =
-        formValues?.packerAddress?.trim() === ""
-          ? "Manufacturer or packer address is required"
-          : formValues?.packerAddress?.length >
-            MAX_STRING_LENGTH_50
-          ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
+        formValues?.packerAddress?.trim() !== "" && formValues?.packerAddress?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
           : "";
     }
     if (productInfoFields.includes("genericNameOfCommodity")) {
       formErrors.genericNameOfCommodity =
-        formValues?.genericNameOfCommodity?.trim() === ""
-          ? "Common or generic name of commodity is required"
-          : formValues?.genericNameOfCommodity?.length >
-            MAX_STRING_LENGTH_50
-          ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
+        formValues?.genericNameOfCommodity?.trim() !== "" && formValues?.genericNameOfCommodity?.length > MAX_STRING_LENGTH
+          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
           : "";
     }
     if (productInfoFields.includes("manufacturePackingImport")) {
       formErrors.manufacturePackingImport =
-        formValues?.manufacturePackingImport?.trim() === ""
-          ? "Month year of manufacture packing import is required"
-          : formValues?.manufacturePackingImport?.length >
-            MAX_STRING_LENGTH
-          ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+        formValues?.manufacturePackingImport !== "" && !isMonthYearValid(formValues?.manufacturePackingImport)
+          ? "Please provie valid month and year in MM/YYYY"
           : "";
     }
     if (productInfoFields.includes("importerFssaiLicenseNo")) {
       formErrors.importerFssaiLicenseNo =
-        formValues?.importerFssaiLicenseNo === ""
-          ? "Importer FSSAI license no is required"
-          : !isNumberOnly(formValues?.importerFssaiLicenseNo)
-          ? "Please enter only digit"
-          : formValues?.importerFssaiLicenseNo?.length > MAX_STRING_LENGTH_14
-          ? `Cannot be more than ${MAX_STRING_LENGTH_14} characters`
+        formValues?.importerFssaiLicenseNo !== "" && formValues?.importerFssaiLicenseNo !== null && String(formValues?.importerFssaiLicenseNo).length !== 14 && !isValidFSSAI(formValues?.importerFssaiLicenseNo)
+          ? "FSSAI should be 14 digit number"
           : "";
     }
     if (productInfoFields.includes("brandOwnerFssaiLicenseNo")) {
       formErrors.brandOwnerFssaiLicenseNo =
-        formValues?.brandOwnerFssaiLicenseNo === ""
-          ? "Brand owner FSSAI license no is required"
-          : !isNumberOnly(formValues?.brandOwnerFssaiLicenseNo)
-          ? "Please enter only digit"
-          : formValues?.brandOwnerFssaiLicenseNo?.length > MAX_STRING_LENGTH_14
-          ? `Cannot be more than ${MAX_STRING_LENGTH_14} characters`
+        formValues?.brandOwnerFssaiLicenseNo !== "" && formValues?.brandOwnerFssaiLicenseNo !== null && String(formValues?.brandOwnerFssaiLicenseNo).length !== 14 && !isValidFSSAI(formValues?.brandOwnerFssaiLicenseNo)
+          ? "FSSAI should be 14 digit number"
           : "";
     }
     if (variationOn === "none") {
       formErrors.price = !formValues?.price
         ? "Please enter a valid number"
         : !isAmountValid(formValues?.price)
-        ? "Please enter only digit"
-        : "";
+          ? "Please enter only digit"
+          : "";
       formErrors.purchasePrice = !formValues?.purchasePrice
         ? "Please enter a valid number"
         : !isAmountValid(formValues?.purchasePrice)
-        ? "Please enter only digit"
-        : "";
+          ? "Please enter only digit"
+          : formValues?.price && parseFloat(formValues.purchasePrice) > parseFloat(formValues.price)
+            ? "Pruchase price cannot be greater than the actual price"
+            : "";
       formErrors.availableQty = !formValues?.availableQty
         ? "Please enter a valid Quantity"
         : !isNumberOnly(formValues?.availableQty)
-        ? "Please enter only digit"
-        : "";
-      formErrors.barcode = !formValues?.barcode
-        ? "Please enter a valid Barcode"
-        : !isNumberOnly(formValues?.barcode)
-        ? "Please enter only digit"
-        : formValues?.barcode?.length > MAX_STRING_LENGTH_12
-        ? `Cannot be more than ${MAX_STRING_LENGTH_12} characters`
-        : "";
+          ? "Please enter only digit"
+          : "";
+      formErrors.sku = !formValues?.sku
+        ? "Please enter a valid SKU"
+        : formValues?.sku?.length > MAX_STRING_LENGTH_12
+          ? `Cannot be more than ${MAX_STRING_LENGTH_12} characters`
+          : "";
       formErrors.imageUrls =
         formValues?.productCategory !== "f_and_b" &&
-        formValues?.imageUrls.length < 3
+          formValues?.imageUrls.length < 3
           ? "Minimum 3 images are required"
           : "";
 
@@ -891,7 +894,7 @@ const AddGenericProduct = ({
       if (selectedSubCatObject && selectedSubCatObject.protocolKey) {
         const hiddenFields =
           FIELD_NOT_ALLOWED_BASED_ON_PROTOCOL_KEY[
-            selectedSubCatObject.protocolKey
+          selectedSubCatObject.protocolKey
           ];
         hiddenFields?.forEach((field) => {
           formErrors[field] = "";
@@ -904,8 +907,6 @@ const AddGenericProduct = ({
     setErrors({
       ...formErrors,
     });
-
-    console.log("Product Info errors", formErrors);
 
     let valid_form = !Object.values(formErrors).some((val) => val !== "");
 
@@ -1040,6 +1041,7 @@ const AddGenericProduct = ({
       <AddVariants
         variantFields={variantFields}
         variantInitialValues={variantInitialValues}
+        variantUpdatedValues={variantUpdatedValues}
         variantForms={variantForms}
         setVariantForms={setVariantForms}
         variantFormsErrors={variantFormsErrors}
@@ -1096,8 +1098,8 @@ const AddGenericProduct = ({
           formValues?.packerName?.trim() === ""
             ? "Manufacturer or packer name is required"
             : formValues?.packerName.length > MAX_STRING_LENGTH_50
-            ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
-            : "";
+              ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
+              : "";
       } else if (
         focusFieldValue !== "" &&
         focusedField === "packerAddress"
@@ -1107,8 +1109,8 @@ const AddGenericProduct = ({
             ? "Manufacturer or packer address is required"
             : formValues?.packerAddress.length >
               MAX_STRING_LENGTH_50
-            ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
-            : "";
+              ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
+              : "";
       } else if (
         focusFieldValue !== "" &&
         focusedField === "genericNameOfCommodity"
@@ -1118,15 +1120,15 @@ const AddGenericProduct = ({
             ? "Short description cannot be empty"
             : formValues?.genericNameOfCommodity.length >
               MAX_STRING_LENGTH_50
-            ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
-            : "";
+              ? `Cannot be more than ${MAX_STRING_LENGTH_50} characters`
+              : "";
       } else if (focusFieldValue !== "" && focusedField === "description") {
         formErrors.description =
           formValues?.description?.trim() === ""
             ? "Short description is required"
             : formValues?.description?.length > MAX_STRING_LENGTH
-            ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
-            : "";
+              ? `Cannot be more than ${MAX_STRING_LENGTH} characters`
+              : "";
       }
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -1158,8 +1160,8 @@ const AddGenericProduct = ({
                 }}
                 label="Product Info"
                 value="1"
-                // textColor={tabErrors[0] ? "error" : "none"}
-                // indicatorColor="secondary"
+              // textColor={tabErrors[0] ? "error" : "none"}
+              // indicatorColor="secondary"
               />
               {Object.keys(vitalFields).length > 0 && (
                 <Tab

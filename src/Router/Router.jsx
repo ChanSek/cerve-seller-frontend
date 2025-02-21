@@ -7,13 +7,14 @@ import AddProduct from "../Components/Application/Product/AddProduct";
 import PageNotFound from "../Components/PageNotFound/PageNotFound";
 import Login from "../Components/Auth/Login/Login";
 import PrivateRoute from "./PrivateRoutes";
-import PrivateInitRoute from "./PrivateInitRoutes";
 import OrderDetails from "../Components/Application/Order/OrderDetails";
 import UserListings from "../Components/Application/UserListings/UserListings";
+import Settlement from "../Components/Application/Settlement/Settlement";
+import Activity from "../Components/Application/GatewayActivity/Activity";
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
 import ProviderDetails from "../Components/Application/UserListings/ProviderDetails";
+import StoreDetails from "../Components/Application/UserListings/StoreDetails";
 import InviteAdmin from "../Components/OnBoarding/InviteAdmin";
-import InviteProvider from "../Components/OnBoarding/inviteProvider";
 import AddProvider from "../Components/OnBoarding/addProvider";
 import ForgotPassword from "../Components/Auth/ForgotPassword/ForgotPassword";
 import BulkUpload from "../Components/Application/Product/BulkUpload";
@@ -27,7 +28,9 @@ import CustomizationGroups from "../Components/Application/Customizations/Custom
 import CustomizationGroupDetails from "../Components/Application/Customizations/CustomizationGroupDetails.js";
 import Offer from "../Components/Application/Offer/Offer";
 import AddOffer from "../Components/Application/Offer/AddOffer";
-import AddSeller from "../Components/OnBoarding/addSeller";
+import NewSeller from "../Components/OnBoarding/new-seller-account";
+import ActivateSeller from "../Components/OnBoarding/activateSeller";
+import SellerVerification from "../Components/Application/UserListings/SellerVerification.js";
 
 export default function OndcRoutes() {
   return (
@@ -167,13 +170,37 @@ export default function OndcRoutes() {
           }
         />
         <Route
+          path="/application/settlement"
+          element={
+            <PrivateRoute>
+              <Settlement />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/gateway-activity"
+          element={
+            <PrivateRoute>
+              <Activity />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/user-listings/provider-details/:id"
+          element={
+            <PrivateRoute>
+              <SellerVerification/>
+            </PrivateRoute>
+          }
+        />
+        {/* <Route
           path="/user-listings/provider-details/:id"
           element={
             <PrivateRoute>
               <ProviderDetails isFromUserListing={true} />
             </PrivateRoute>
           }
-        />
+        /> */}
         <Route
           path="/invite-admin"
           element={
@@ -183,33 +210,38 @@ export default function OndcRoutes() {
           }
         />
         <Route
-          path="/invite-provider"
+          path="/sign-up"
           element={
-            <PrivateRoute>
-              <InviteProvider />
-            </PrivateRoute>
+            <NewSeller />
           }
         />
         <Route
-          path="/sign-up"
+          path="/activate"
           element={
-            <AddSeller />
+            <ActivateSeller />
           }
         />
         <Route
           path="/add-provider-info"
           element={
-            <PrivateInitRoute>
+            <PrivateRoute>
               <AddProvider />
-            </PrivateInitRoute>
-
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/seller-details/:id"
+          element={
+            <PrivateRoute>
+              <ProviderDetails />
+            </PrivateRoute>
           }
         />
         <Route
           path="/application/store-details/:id"
           element={
             <PrivateRoute>
-              <ProviderDetails />
+              <StoreDetails />
             </PrivateRoute>
           }
         />

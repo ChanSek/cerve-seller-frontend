@@ -13,7 +13,9 @@ const BulkUpload = () => {
   const [selectedFile, setSelectedFile] = React.useState(null);
   const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(false);
-  const [storeId, setStoreId] = useState("")
+  const [storeId, setStoreId] = useState("");
+  const [msg, setMsg] = useState('');
+  const [error, setError] = useState(false);
 
   const uploadSelectedFile = () => {
     if (selectedFile) {
@@ -22,11 +24,22 @@ const BulkUpload = () => {
       formData.append("file", selectedFile);
       postCall(`api/v1/seller/upload/bulk/storeId/${storeId}/products?category=${encodeURIComponent(category)}`, formData)
         .then(resp => {
-          cogoToast.success("Product added successfully!");
+          if (resp.status == 200) {
+            setError(false);
+            setMsg("");
+            cogoToast.success("Product added successfully!");
+          } else {
+            setError(true);
+            setMsg(resp.message);
+          }
         }).catch(error => {
-          console.log(error);
-          cogoToast.error(error.response.data.error);
-        }).finally(() => setLoading(false));
+          if (error.response)
+            cogoToast.error(error.response.data.error);
+        }).finally(() => {
+          setLoading(false);
+          setSelectedFile(null);
+          document.getElementById('contained-button-file').value = null;
+        });
     } else {
       alert("Please select the file to upload");
     }
@@ -60,12 +73,19 @@ const BulkUpload = () => {
         <BackNavigationButton onClick={() => navigate("/application/inventory")} />
         <div className="w-full !h-full">
           <label className="ml-2 md:mb-4 md:mt-3 mt-2 font-semibold text-xl">
-            Bulk Upload
+          <span class="highlight">Bulk Upload</span>
           </label>
           <div className="mt-6 flex flex-col">
-            <label className="ml-2 md:mb-4 md:mt-3 mt-2 font text-xm">
-              Please select an excel file. To download sample template, click <Link href={`${process.env.REACT_APP_SELLER_BACKEND_URL}api/v1/products//template?category=${encodeURIComponent(category)}`} target="_blank" style={{}}>here</Link>
-            </label>
+            <div class="note-container">
+              <p class="note-title">Notes:</p>
+              <p class="note-text">
+                1. If <span class="highlight">Default Non-Cancellable</span> and <span class="highlight">Default Non-Returnable</span> are selected from the store, the system will prioritize these settings, irrespective of the product.
+              </p>
+              <p class="note-text">
+              2. To add or update products please download the latest excel file from Inventory by clicking on <span class="highlight">Download Products</span> Button.
+              </p>
+            </div>
+            <br/>
             <input
               className="ml-2"
               id="contained-button-file"
@@ -73,12 +93,18 @@ const BulkUpload = () => {
               accept=".xlsx"
               type="file"
               onChange={(e) => setSelectedFile(e.target.files[0])}
-              //   key={item?.id}
+            //   key={item?.id}
             />
           </div>
+          {msg && (
+            <p
+              className={`text-xs ${error ? 'text-red-600' : 'text-green-600'} mt-2`}
+              dangerouslySetInnerHTML={{ __html: msg }}
+            />
+          )}
           <div className="mt-6 flex flex-col-1">
             <Button variant="contained" color="primary" onClick={uploadSelectedFile}>
-              {loading ? <>Upload&nbsp;&nbsp;<CircularProgress size={24} sx={{ color: 'white' }} /></>: <span>Upload</span>}
+              {loading ? <>Upload&nbsp;&nbsp;<CircularProgress size={24} sx={{ color: 'white' }} /></> : <span>Upload</span>}
             </Button>
           </div>
         </div>

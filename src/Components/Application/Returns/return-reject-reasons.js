@@ -11,32 +11,32 @@ export const RETURN_REJECT_REASONS = [
     isApplicableForCancellation: false,
   },
   {
-    key: "03",
+    key: "003",
     value: "Product has been used and / or tags have been removed",
     isApplicableForCancellation: false,
   },
   {
-    key: "04",
+    key: "004",
     value: "Product is not the same as what was ordered and / or is not complete, i.e. without accessories which were included",
     isApplicableForCancellation: true,
   },
   {
-    key: "05",
+    key: "005",
     value: "Product delivered is different from what was shown and ordered",
     isApplicableForCancellation: false,
   },
   {
-    key: "06",
+    key: "006",
     value: "Return beyond return window",
     isApplicableForCancellation: false,
   },
   {
-    key: "07",
+    key: "007",
     value: "Final sale",
     isApplicableForCancellation: false,
   },
   {
-    key: "08",
+    key: "008",
     value: "Duplicate return request",
     isApplicableForCancellation: false,
   },

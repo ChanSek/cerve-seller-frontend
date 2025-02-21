@@ -5,11 +5,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import ErrorMessage from "../../Shared/ErrorMessage";
 import TextField from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
+import { isEmailValid } from "../../../utils/validations";
 import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
 import { AddCookie, getValueFromCookie } from "../../../utils/cookies";
 import { postCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
 import { isObjEmpty } from "../../../utils/validations";
+import { v4 as uuidv4 } from "uuid";
+
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
@@ -48,6 +51,12 @@ export default function Login() {
         username_error: "Email cannot be empty",
       }));
       return false;
+    } else if (!isEmailValid(login.username)) {
+      setInlineError((inlineError) => ({
+        ...inlineError,
+        username_error: "Email is not Valid",
+      }));
+      return false;
     }
     return true;
   }
@@ -66,37 +75,61 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (enableCaptcha && !validateCaptcha(captchaVal)) {
-      setInlineError((inlineError) => ({
-        ...inlineError,
-        captcha_error: "Captcha does not match",
-      }));
-      return
-    }
     const url = "/api/v1/auth/login";
     try {
       const res = await postCall(url, login);
-      handleRedirect(res.data.access_token, res.data.user);
+      if (res.status == 200) {
+        if (res.data.emailExist) {
+          handleRedirect(res.data.user);
+        } else {
+          cogoToast.error("Email not registered!");
+        }
+      } else if (res.status == 401) {
+        cogoToast.error(res.message, { hideAfter: 5 });
+      } else {
+        cogoToast.error("Authentication failed!");
+      }
     } catch (error) {
-      cogoToast.error(error.response.data.error);
-      setEnableCaptcha(true)
-      loadCaptchaEnginge(6)
+      cogoToast.error("Authentication failed!");
+      //setEnableCaptcha(true)
+      //loadCaptchaEnginge(6)
     }
   };
 
-  function handleRedirect(token, user) {
+  function handleRedirect(user) {
     const { _id } = user;
-    AddCookie("token", token);
-    AddCookie("organization", user.organization);
+    AddCookie("signed", true);
+    AddCookie("organization", user?.organization);
+    AddCookie("enabled", user?.enabled);
+    AddCookie("sellerActive", user?.organization?.active);
+    AddCookie("isSuperAdmin", user?.role?.name === "Super Admin");
     localStorage.setItem("user_id", _id);
-    if (!isObjEmpty(user.organization)) { navigate("/application/inventory") }
-    else { navigate("/add-provider-info") };
+    if (!user.enabled) {
+      navigate("/activate");
+    } else if (!isObjEmpty(user.organization)) {
+      if (user?.organization?.active) {
+        navigate("/application/inventory")
+      } else {
+        navigate(`/user-listings/provider-details/${user?.organization?._id}`);
+      }
+    } else {
+      navigate("/add-provider-info")
+    };
   }
 
   useEffect(() => {
-    if (getValueFromCookie("token")) {
-      if (!isObjEmpty(getValueFromCookie("organization"))) { navigate("/application/inventory") }
-      else { navigate("/add-provider-info") };
+    if (getValueFromCookie("signed")) {
+      const enabled = getValueFromCookie("enabled");
+      if (enabled == "true") {
+        const cookieValue = getValueFromCookie("organization");
+        if (cookieValue !== null && cookieValue !== "null" && !isObjEmpty(cookieValue)) {
+          navigate("/application/inventory")
+        } else {
+          navigate("/add-provider-info")
+        }
+      } else {
+        navigate("/activate");
+      }      
     }
   }, []);
 
@@ -109,35 +142,33 @@ export default function Login() {
       <div className="py-1">
         <label
           htmlFor="username"
-          className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+          className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
         >
           Email
           <span className="text-[#FF0000]"> *</span>
         </label>
-        <CssTextField
-          id={
-            inlineError.username_error
-              ? "outlined-error"
-              : "demo-helper-text-aligned"
-          }
-          name="username"
-          type="email"
-          placeholder="Enter Email"
-          autoComplete="off"
-          className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
-          onChange={(event) => {
-            setLogin({ ...login, username: event.target.value });
-            setInlineError((inlineError) => ({
-              ...inlineError,
-              username_error: "",
-            }));
-          }}
-          size="small"
-          onBlur={checkEmail}
-          error={inlineError.username_error ? true : false}
-          // helperText={inlineError.email_error && inlineError.email_error}
-          required
-        />
+
+<CssTextField
+  id={`username-${inlineError.username_error ? "error" : "helper"}-${uuidv4()}`}
+  variant="standard"
+  name="username"
+  type="email"
+  placeholder="Enter Email"
+  autoComplete="off"
+  className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
+  onChange={(event) => {
+    setLogin({ ...login, username: event.target.value });
+    setInlineError((inlineError) => ({
+      ...inlineError,
+      username_error: "",
+    }));
+  }}
+  size="small"
+  onBlur={checkEmail}
+  error={inlineError.username_error ? true : false}
+  required
+/>
+
       </div>
       {inlineError.username_error && (
         <ErrorMessage>{inlineError.username_error}</ErrorMessage>
@@ -145,7 +176,7 @@ export default function Login() {
       <div className="py-1">
         <label
           htmlFor="password"
-          className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+          className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
         >
           Password
           <span className="text-[#FF0000]"> *</span>
@@ -156,6 +187,7 @@ export default function Login() {
               ? "outlined-error"
               : "demo-helper-text-aligned"
           }
+          variant="standard"
           name="password"
           type="password"
           placeholder="Enter Password"

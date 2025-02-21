@@ -7,6 +7,20 @@ export default [
     required: true,
   },
   {
+    id: "shortDescription",
+    title: "Short Description",
+    placeholder: "Enter Provider Store Description In Short",
+    type: "input",
+    required: true,
+  },
+  {
+    id: "longDescription",
+    title: "Long Description",
+    placeholder: "Enter Provider Store Description In Detail",
+    type: "input",
+    required: true,
+  },
+  {
     id: "address",
     title: "Registered Address",
     placeholder: "Enter Provider Registered Address",
@@ -15,7 +29,7 @@ export default [
   },
   {
     id: "contactEmail",
-    title: "Email",
+    title: "Contact Email",
     placeholder: "Enter Provider Email Address",
     type: "input",
     email: true,
@@ -23,11 +37,11 @@ export default [
   },
   {
     id: "contactMobile",
-    title: "Mobile Number",
+    title: "Contact Mobile Number",
     placeholder: "Enter Provider Mobile Number",
     type: "input",
     mobile: true,
-    maxLength: 10,
+    maxLength: 14,
     required: true,
   },
   {

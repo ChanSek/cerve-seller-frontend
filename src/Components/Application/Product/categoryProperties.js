@@ -1819,7 +1819,7 @@ const propertyEnums = {
 };
 
 export const allProperties = {
-    Fashion: {
+    RET12: {
         "Shirts": [
             {
                 "name": "Gender",

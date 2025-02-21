@@ -15,11 +15,20 @@ export default [
     required: true,
   },
   {
+    id: "IFSC",
+    title: "IFSC Code",
+    placeholder: "Enter IFSC Code",
+    type: "input",
+    maxLength: 11,
+    required: true,
+  },
+  {
     id: "bankName",
     title: "Bank Name",
     placeholder: "Enter Bank Name",
     type: "input",
     required: true,
+    isDisabled: true,
   },
   {
     id: "branchName",
@@ -27,14 +36,7 @@ export default [
     placeholder: "Enter Branch Name",
     type: "input",
     required: true,
-  },
-  {
-    id: "IFSC",
-    title: "IFSC Code",
-    placeholder: "Enter IFSC Code",
-    type: "input",
-    maxLength: 11,
-    required: true,
+    isDisabled: true,
   },
   {
     id: "cancelledCheque",

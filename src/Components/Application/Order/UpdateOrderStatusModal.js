@@ -69,11 +69,11 @@ const FulfillmentRow = ({ data, type, highlightedOptions, selectedStatus, setSel
 
 
 const UpdateOrderStatus = (props) => {
-  const { showModal, handleCloseModal, rtoData, deliveryData, setloading, loading, setOrder, order } = props;
+  const { showModal, handleCloseModal, rtoData, deliveryData, setloading, loading, onOrderUpdate, order } = props;
   const [highlightedOptions, setHighlightedOptions] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedReason, setSelectedReason] = useState("");
-  const updateStatus = () => {
+  const updateStatus = async () => {
     if (!selectedStatus.fulfillmentStatus) {
       // Show validation error message
       cogoToast.error("Please select a status before updating.");
@@ -84,25 +84,18 @@ const UpdateOrderStatus = (props) => {
       cogoToast.error("Please select a reason to Initiate the RTO.");
       return;
     }
-    postCall(`/api/v1/orders/${order?.orderId}/fulfillment/status`, {
+    const url = `/api/v1/seller/fulfillment/${order?.orderId}/state`;
+    await postCall(url, {
       fulfillmentId: (selectedStatus.fulfillmentType === 'Delivery' || selectedStatus.fulfillmentStatus === 'RTO-Initiated') ? deliveryData?.id : rtoData?.id,
       fulfillmentType: selectedStatus.fulfillmentType,
       newState: selectedStatus.fulfillmentStatus,
       reasonId: selectedReason
-    })
-      .then((resp) => {
-        let orderData = JSON.parse(JSON.stringify(order));
-        orderData.state = selectedStatus.orderStatus;
-        setOrder(orderData);
-        cogoToast.success("Order Status Successfully Updated!");
-        setloading({ ...loading, update_order_loading: false });
-        handleCloseModal();
-      })
-      .catch((error) => {
-        console.log(error);
-        setloading({ ...loading, update_order_loading: false });
-        cogoToast.error(error.response.data.error);
-      });
+    });
+    cogoToast.success("Order Status Successfully Updated!");
+    setloading({ ...loading, update_order_loading: false });
+    handleCloseModal();
+    await new Promise(resolve => setTimeout(resolve, 500));
+    onOrderUpdate();
     setSelectedStatus("");
     setSelectedReason("");
     handleCloseModal();

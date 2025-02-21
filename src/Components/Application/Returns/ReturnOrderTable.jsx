@@ -29,6 +29,7 @@ import { PICKUP_REJECT_REASONS } from "./pickup-failed-reason.js";
 
 const RETURN_ORDER_STATUS = {
   Return_Initiated: "Return Initiated",
+  Return_Rejected: "Return Rejected",
   Liquidated: "Liquidated",
   Reject: "Rejected",
   Rejected: "Rejected",
@@ -48,7 +49,7 @@ const StyledTableCell = styled(TableCell)({
 const ActionMenu = ({ row, handleRefresh }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [orderStatus, setOrderStatus] = useState(null);
-  const [reason, setReason] = useState(null);
+  const [reasonId, setReasonId] = useState(null);
   // STATES
   const [inlineError, setInlineError] = useState({
     selected_status_error: "",
@@ -79,7 +80,7 @@ const ActionMenu = ({ row, handleRefresh }) => {
 
   // use this function to check if any reason is selected
   function checkReason() {
-    if (!reason) {
+    if (!reasonId) {
       setInlineError((error) => ({
         ...error,
         reason_error: "Please select reason",
@@ -90,13 +91,13 @@ const ActionMenu = ({ row, handleRefresh }) => {
   }
 
   const updateReturnState = () => {
-    const url = `/api/v1/orders/${row.orderId}/item/return`;
+    const url = `/api/v1/seller/${row.orderId}/item/return`;
     let data = {
       id: row._id,
-      state: orderStatus,
+      returnState: orderStatus,
     };
     if (orderStatus === RETURN_ORDER_STATUS.Reject || orderStatus === RETURN_ORDER_STATUS.Return_Pick_Failed || orderStatus === RETURN_ORDER_STATUS.Return_Failed) {
-      data.reason = reason;
+      data.reasonId = reasonId;
     } else { }
     postCall(url, data)
       .then((resp) => {
@@ -189,14 +190,14 @@ const ActionMenu = ({ row, handleRefresh }) => {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={reason}
+                    value={reasonId}
                     label="Select Status"
                     onChange={(e) => {
                       setInlineError((error) => ({
                         ...error,
                         reason_error: "",
                       }));
-                      setReason(e.target.value);
+                      setReasonId(e.target.value);
                     }}
                   >
                     {orderStatus === RETURN_ORDER_STATUS.Return_Pick_Failed ?
@@ -274,6 +275,14 @@ export default function InventoryTable(props) {
             {value === false || value === null ? "No" : "Yes"}
           </span>
         </div>
+      );
+    } else if (typeof value === "string" && /<\/?[a-z][\s\S]*>/i.test(value)) {
+      // Check if the value is an HTML string
+      return (
+        <div
+          className="html-content"
+          dangerouslySetInnerHTML={{ __html: value }}
+        />
       );
     } else {
       return column.format ? column.format(value) : value;

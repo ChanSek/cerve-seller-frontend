@@ -14,6 +14,7 @@ import {
   Stack,
   Chip,
   Switch,
+  InputAdornment,
 } from "@mui/material";
 import { DeleteOutlined } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -84,6 +85,31 @@ const RenderInput = (props) => {
     }
   };
 
+  const formatDecimal = (value) => {
+    if (value === undefined || value === '') return '';
+    const cleanValue = value.toString().replace(/[^0-9.]/g, '');
+    const [integerPart, decimalPart] = cleanValue.split('.');
+    const formattedIntegerPart = integerPart.slice(0, 10);
+    const formattedDecimalPart = decimalPart ? decimalPart.slice(0, 2) : '';
+    const result = formattedDecimalPart ? `${formattedIntegerPart}.${formattedDecimalPart}` : formattedIntegerPart;
+    const numValue = parseFloat(result);
+    if (isNaN(numValue)) return '';
+    return numValue;
+  };
+
+  const formatDate = (value) => {
+    if (value === undefined) return value;
+    if (value.length == 2) return value + "/";
+    if (value.length == 5) return value + "/";
+    return value;
+  };
+
+  const formatMonthYear = (value) => {
+    if (value === undefined) return value;
+    if (value.length == 2) return value + "/";
+    return value;
+  };
+
   useEffect(() => {
     if (item.type !== "upload") return;
     if (isImageChanged === false && state[item.id] !== "") {
@@ -101,14 +127,14 @@ const RenderInput = (props) => {
           className={
             props.labelClasses
               ? props.labelClasses
-              : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           }
         >
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
         <CssTextField
-          variant={item.variant ? item.variant : "outlined"}
+          variant={item.variant ? item.variant : "standard"}
           type={item.password ? "password" : "input"}
           className={
             props.inputClasses
@@ -140,6 +166,13 @@ const RenderInput = (props) => {
             maxLength: item.maxLength || undefined,
             minLength: item.minLength || undefined,
           }}
+          InputProps={{
+            startAdornment: item.prefix ? (
+              <InputAdornment position="start">
+                {item.prefix}
+              </InputAdornment>
+            ) : null,
+          }}
           onFocus={() => handleFocus(item.id)}
           onBlur={handleBlur}
         />
@@ -152,14 +185,14 @@ const RenderInput = (props) => {
           className={
             props.labelClasses
               ? props.labelClasses
-              : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           }
         >
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
         <CssTextField
-          variant={item.variant ? item.variant : "outlined"}
+          variant={item.variant ? item.variant : "standard"}
           type="number"
           className={
             props.inputClasses
@@ -170,22 +203,29 @@ const RenderInput = (props) => {
           required={item.required}
           size="small"
           InputProps={{
-            inputProps: { min: item.min || 0, max: item.max || 100000 },
+            //inputProps: { min: item.min || 0, max: item.max || 100000 },
+            startAdornment: item.prefix ? (
+              <InputAdornment position="start">
+                {item.prefix}
+              </InputAdornment>
+            ) : null,
+            // inputProps: {
+            //   step: "0.01"  // Allows up to 2 decimal places
+            // }
           }}
           placeholder={item.placeholder}
           error={item.error || false}
           disabled={item?.isDisabled || props.isDisabled || previewOnly || false}
           helperText={item.error && item.helperText}
-          value={state[item.id]}
+          value={item.valueInDecimal ? formatDecimal(state[item.id]) : state[item.id]}
           onChange={(e) => {
-            const value = item.valueInDecimal ? parseFloat(e.target.value).toFixed(2) : e.target.value;
-
+            const value = item.valueInDecimal ? formatDecimal(e.target.value) : e.target.value;
             // Enforce maximum length
             const maxLength = item.maxLength || undefined;
             if (maxLength && value.length > maxLength) {
               return;
             }
-
+            // const formattedValue = item.formatInDecimal? formatDecimal(value, true) : value;
             stateHandler({
               ...state,
               [item.id]: value,
@@ -214,7 +254,7 @@ const RenderInput = (props) => {
               className={
                 props.labelClasses
                   ? props.labelClasses
-                  : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+                  : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
               }
             >
               {item.title}
@@ -278,7 +318,7 @@ const RenderInput = (props) => {
     };
     return (
       <div className="py-1 flex flex-col">
-        <label className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block">
+        <label className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block">
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
@@ -314,7 +354,7 @@ const RenderInput = (props) => {
           className={
             props.labelClasses !== undefined
               ? `${props.labelClasses}`
-              : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           }
         >
           {item.title}
@@ -356,7 +396,7 @@ const RenderInput = (props) => {
               <TextField
                 {...params}
                 placeholder={!previewOnly && !state[item.id] ? item.placeholder : ""}
-                variant={item.variant ? item.variant : "outlined"}
+                variant={item.variant ? item.variant : "standard"}
                 error={item.error || false}
                 helperText={item.error && item.helperText}
               />
@@ -368,7 +408,7 @@ const RenderInput = (props) => {
   } else if (item.type === "location-picker") {
     return (
       <div className="py-1 flex flex-col">
-        <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+        <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
@@ -392,12 +432,11 @@ const RenderInput = (props) => {
                   lat: lat,
                   long: lng,
                 },
-                address_city: city !== "" ? city : district,
+                city: city !== "" ? city : district,
                 state: stateVal,
                 country,
                 area_code,
                 locality,
-                // city: city != "" ? city : district,
               });
             }}
           />
@@ -418,7 +457,7 @@ const RenderInput = (props) => {
     );
     return (
       <div className="py-1 flex flex-col">
-        <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+        <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
@@ -444,7 +483,7 @@ const RenderInput = (props) => {
               TextField: (params) => (
                 <TextField
                   {...params}
-                  variant="outlined"
+                  variant="standard"
                   error={item.error || false}
                   helperText={item.error && item.helperText}
                 />
@@ -469,7 +508,7 @@ const RenderInput = (props) => {
     return (
       <div className="py-1 flex flex-col" style={{ position: "relative" }}>
         {item.title && (
-          <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+          <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
             {item.title}
             {item.required && <span className="text-[#FF0000]"> *</span>}
           </label>
@@ -503,7 +542,7 @@ const RenderInput = (props) => {
               TextField: (params) => (
                 <TextField
                   {...params}
-                  variant="outlined"
+                  variant="standard"
                   error={item.error || false}
                   helperText={item.error && item.helperText}
                 />
@@ -529,7 +568,7 @@ const RenderInput = (props) => {
 
     return (
       <div className="py-1 flex flex-col">
-        <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+        <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
         </label>
@@ -563,7 +602,7 @@ const RenderInput = (props) => {
                 readOnly
                 getOptionLabel={(option) => option}
                 renderTags={(value, getTagProps) =>
-                  value.map((option, index) => <Chip label={option} {...getTagProps({ index })} onClick={() => {}} />)
+                  value.map((option, index) => <Chip label={option} {...getTagProps({ index })} onClick={() => { }} />)
                 }
                 renderInput={(params) => (
                   <TextField
@@ -571,8 +610,8 @@ const RenderInput = (props) => {
                     //   placeholder={!previewOnly && !state[item.id] ? item.placeholder : ""}
                     placeholder={
                       (!previewOnly && !state[item.id]) ||
-                      (typeof state[item.id] === "string" && state[item.id].trim() === "") ||
-                      (Array.isArray(state[item.id]) && state[item.id].length === 0)
+                        (typeof state[item.id] === "string" && state[item.id].trim() === "") ||
+                        (Array.isArray(state[item.id]) && state[item.id].length === 0)
                         ? item.placeholder
                         : ""
                     }
@@ -586,11 +625,61 @@ const RenderInput = (props) => {
         />
       </div>
     );
+  } else if (item.type === "custom-date-picker") {
+    return (
+      <div className={props.containerClasses !== undefined ? `${props.containerClasses}` : "py-1 flex flex-col"}>
+        <label
+          className={
+            props.labelClasses
+              ? props.labelClasses
+              : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
+          }
+        >
+          {item.title}
+          {item.required && <span className="text-[#FF0000]"> *</span>}
+        </label>
+        <CssTextField
+          variant={item.variant ? item.variant : "standard"}
+          type="input"
+          className={
+            props.inputClasses
+              ? props.inputClasses
+              : "w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
+          }
+          sx={props.inputStyles && props.inputStyles}
+          required={item.required}
+          size="small"
+          multiline={item.multiline || false}
+          maxRows={item.multiline ? 5 : 1}
+          autoComplete="off"
+          placeholder={item.placeholder}
+          error={item.error || false}
+          disabled={item?.isDisabled || props.isDisabled || previewOnly || false}
+          helperText={item.error && item.helperText}
+          value={state[item.id]}
+          onChange={(e) => {
+            let value = e.target.value;
+            // Enforce maximum length
+            const maxLength = item.maxLength || undefined;
+            if (maxLength && value.length > maxLength) {
+              return;
+            }
+            const formattedValue = item.formatDate ? formatDate(value) : item.formatMonthYear ? formatMonthYear(value) : value;
+            stateHandler({
+              ...state,
+              [item.id]: formattedValue,
+            });
+          }}
+          onFocus={() => handleFocus(item.id)}
+          onBlur={handleBlur}
+        />
+      </div>
+    );
   } else if (item.type === "multi-select") {
     return (
       <div className="py-1 flex flex-col">
         {item.title && (
-          <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-[#606161] inline-block">
+          <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-[#606161] inline-block">
             {item.title}
             {item.required && <span className="text-[#FF0000]"> *</span>}
           </label>
@@ -617,7 +706,7 @@ const RenderInput = (props) => {
               <TextField
                 {...params}
                 placeholder={state[item.id].length === 0 ? item.placeholder : ""}
-                variant={item.variant ? item.variant : "outlined"}
+                variant={item.variant ? item.variant : "standard"}
                 error={item.error || false}
                 helperText={item.error && item.helperText}
               />
@@ -643,7 +732,7 @@ const RenderInput = (props) => {
       if (item?.multiple) {
         if (state?.uploaded_urls) {
           return state?.uploaded_urls?.map((url) => {
-            return <img src={url} height={50} width={50} style={{ margin: "10px" }} alt=""/>;
+            return <img src={url} height={50} width={50} style={{ margin: "10px" }} alt="" />;
           });
         }
       } else {
@@ -668,20 +757,20 @@ const RenderInput = (props) => {
         return (
           <div style={{ height: 100, width: 100, marginBottom: 40, marginTop: 10 }}>
             <label
-              className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
               style={{ width: 200 }}
             >
               {item?.title}
             </label>
-            <img className="ml-1 h-full w-full" src={state[item?.id]} alt=""/>
+            <img className="ml-0 h-full w-full" src={state[item?.id]} alt="" />
           </div>
         );
       } else {
         return (
           <div style={{ height: 100, width: 100, marginBottom: 40, marginTop: 10 }} className="flex">
-            <label className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block">{item.title}</label>
+            <label className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block">{item.title}</label>
             {state[item.id]?.map((img_url) => (
-              <img className="ml-1 h-full w-full" key={img_url} src={img_url} alt=""/>
+              <img className="ml-0 h-full w-full" key={img_url} src={img_url} alt="" />
             ))}
           </div>
         );
@@ -753,7 +842,7 @@ const RenderInput = (props) => {
       <div className="py-1 flex flex-col">
         <label
           for="contained-button-file"
-          className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+          className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
         >
           {item.title}
           {item.required && <span className="text-[#FF0000]"> *</span>}
@@ -798,43 +887,44 @@ const RenderInput = (props) => {
                 const formData = new FormData();
                 formData.append("file", file);
                 //getSignUrl(file).then((d) => {
-                  const url = `/api/v1/seller/upload/${item?.file_type}`;
-                  axios(url, {
-                    method: "POST",
-                    data: formData,
-                    headers: {
-                      ...(token && { Authorization: `Bearer ${token}` }),
-                    },
-                  })
-                    .then((response) => {
-                      setIsImageChanged(true);
-                      if (item.multiple) {
-                        stateHandler((prevState) => {
-                          const newState = {
-                            ...prevState,
-                            [item.id]: [...prevState[item.id], response.data.urls],
-                            uploaded_urls: [],
-                          };
-                          return newState;
-                        });
-                      } else {
-                        let reader = new FileReader();
-                        let tempUrl = "";
-                        reader.onload = function (e) {
-                          tempUrl = e.target.result;
-                          stateHandler({
-                            ...state,
-                            [item.id]: response.data.urls,
-                            tempURL: {
-                              ...state.tempURL,
-                              [item.id]: tempUrl,
-                            },
-                          });
+                const url = `/api/v1/seller/upload/${item?.file_type}`;
+                axios(url, {
+                  method: "POST",
+                  data: formData,
+                  headers: {
+                    ...(token && { Authorization: `Bearer ${token}` }),
+                  },
+                })
+                  .then((response) => {
+                    setIsImageChanged(true);
+                    if (item.multiple) {
+                      stateHandler((prevState) => {
+                        const newState = {
+                          ...prevState,
+                          [item.id]: [...prevState[item.id], response.data.urls],
+                          uploaded_urls: [],
                         };
-                        reader.readAsDataURL(file);
-                      }
-                    })
-                    .then((json) => {});
+                        return newState;
+                      });
+                    } else {
+                      let reader = new FileReader();
+                      let tempUrl = "";
+                      reader.onload = function (e) {
+                        tempUrl = e.target.result;
+                        stateHandler({
+                          ...state,
+                          [item.id]: (response.data?.endPoint ? response.data.endPoint : response.data.urls),
+                          tempURL: {
+                            ...state.tempURL,
+                            [item.id]: tempUrl,
+                          },
+                        });
+                      };
+
+                      reader.readAsDataURL(file);
+                    }
+                  })
+                  .then((json) => { });
                 //});
               }
             }}
@@ -859,7 +949,7 @@ const RenderInput = (props) => {
           className={
             props.labelClasses
               ? props.labelClasses
-              : "text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+              : "text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           }
         >
           {item.title}

@@ -106,6 +106,7 @@ const StoreTimingsRenderer = (props) => {
             storeTiming={storeTiming}
             setStoreTiming={(data) => handleStoreTiming(data, index)}
             handleRemoveDaysAndTimings={() => handleRemoveDaysAndTimings(index)}
+            key={index}
           />
         ))}
         <div style={{ marginTop: "7px", marginBottom: "10px" }}>
@@ -154,8 +155,8 @@ const StoreTimingsRenderer = (props) => {
         {renderDaysDDs()}
         <div style={{ display: "flex" }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            {renderTimePicker("from")}
-            {renderTimePicker("to")}
+            {renderTimePicker("start")}
+            {renderTimePicker("end")}
           </LocalizationProvider>
         </div>
         <p style={{ marginBottom: 20, marginTop: -10, marginLeft: 12, color: "rgb(211, 47, 47)", fontSize: "0.75rem" }}>

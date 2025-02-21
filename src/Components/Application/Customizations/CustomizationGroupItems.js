@@ -79,8 +79,6 @@ const CustomizationGroupItems = (props) => {
       return addedItem;
     });
 
-    console.log({ updatedAddedItems });
-
     setAddedItems(updatedAddedItems);
   };
 

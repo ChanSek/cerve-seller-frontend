@@ -4,9 +4,13 @@ import { styled } from "@mui/material/styles";
 import AuthActionCard from "../AuthActionCard/AuthActionCard";
 import { NavLink } from "react-router-dom";
 import { Button } from "@mui/material";
-import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
 import { isEmailValid } from "../../../utils/validations";
 import { postCall } from "../../../Api/axios";
+import { useNavigate } from "react-router-dom";
+import cogoToast from "cogo-toast";
+import {
+  isNumberOnly
+} from "../../../utils/validations";
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
@@ -23,40 +27,137 @@ const CssTextField = styled(TextField)({
 });
 
 const ForgotPassword = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [captchaVal, setCaptchaVal] = useState('');
+  const [password1, setPassword1] = useState('');
+  const [password2, setPassword2] = useState('');
   const [error, setError] = useState(false);
   const [msg, setMsg] = useState('');
-
-  useEffect(() => {
-    loadCaptchaEnginge(6)
-  }, []);
+  const [emailOtp, setEmailOtp] = useState('');
+  const [otpGenerated, setOtpGenerated] = useState(false);
 
   const checkDisabled = () => {
-    if (email.trim() === '' || !isEmailValid(email) || captchaVal.trim() === '') return true;
+    if (otpGenerated === true || email.trim() === '' || !isEmailValid(email) || error === true) return true;
     return false;
+  };
+
+  const checkEnableOtp = () => {
+    return (otpGenerated === false);
+  };
+
+  const updateEmail = (email) => {
+    if(email.trim() === '' || !isEmailValid(email)){
+      setError(true);
+      setMsg("Please enter a valid email address");
+    }else{
+      setError(false);
+      setMsg("");
+      setEmail(email);
+    }
+  };
+
+  const user = {
+    email: "",
+    password_1: "",
+    password_2: "",
+    emailOtp
   };
 
   const forgotPassword = async () => {
     const url = `/api/v1/auth/forgotPassword`;
     try {
-      await postCall(url, { email });
-      setError(false);
-      setMsg('OTP sent to your email')
-      loadCaptchaEnginge(6)
+      const res = await postCall(url, { email });
+      if (res.status && res.status === 200) {
+        setOtpGenerated(res.data.status);
+        if (res.data.status) {
+          setError(false);
+          setMsg(res.data.message)
+        } else {
+          setError(true);
+          setMsg(res.data.message)
+        }
+      }
     } catch (error) {
       setError(true);
       setMsg(error.response.data.error);
     }
   };
 
-  const handleSubmit = async () => {
-    if (validateCaptcha(captchaVal) === true) {
-      await forgotPassword()
-    } else {
-      setError(true)
-      setMsg('Captcha does not match');
+  const updatePassword = async () => {
+    try {
+      const data = {
+        email: email,
+        password: password1,
+        emailOtp: emailOtp
+      };
+      const url = `/api/v1/auth/resetPassword`;
+      const res = await postCall(url, data);
+      if (res.status && res.status !== 200) {
+        setError(true);
+        setMsg(res.message);
+      }
+      if (res.status && res.status === 200) {
+        if (res.data.status) {
+          navigate("/");
+          cogoToast.success(res.data.message, { hideAfter: 5 });
+        } else {
+          setError(true);
+          setMsg(res.data.message);
+        }
+      }
+    } catch (error) {
+      console.log("error.response", error.response);
+      cogoToast.error(error.response.data.error);
     }
+  };
+
+  const handleSendOtp = async () => {
+    if (true) {
+      await forgotPassword()
+    }
+  };
+
+  const handleResetPassword = () => {
+    if (validate()) {
+      updatePassword();
+    }
+  };
+
+  const validate = () => {
+    if (password1 === "") {
+      setError(true);
+      setMsg("Password is required");
+      return false;
+    }
+    if (password1.length < 6) {
+      setError(true);
+      setMsg("Password should have minimum 6 characters");
+      return false;
+    }
+    if (password2 === "") {
+      setError(true);
+      setMsg("Confirm Password is required");
+      return false;
+    }
+    if (password1 !== password2) {
+      setError(true);
+      setMsg("Passwords don't match");
+      return false;
+    }
+    if (emailOtp === "") {
+      setError(true);
+      setMsg("Email OTP is required");
+      return false;
+    }
+    if (!isNumberOnly(emailOtp)) {
+      setError(true);
+      setMsg("Please enter a valid OTP");
+      return false;
+    }
+    setError(false);
+
+    setMsg("");
+    return true;
   };
 
   const forgot_password_form = (
@@ -65,7 +166,7 @@ const ForgotPassword = () => {
         <div className="py-1">
           <label
             htmlFor="email"
-            className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block"
+            className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
           >
             Email
             <span className="text-[#FF0000]"> *</span>
@@ -75,35 +176,95 @@ const ForgotPassword = () => {
             size="small"
             name="email"
             type="email"
+            variant="standard"
             placeholder="Enter Email"
             autoComplete="off"
             className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) => updateEmail(event.target.value)}
+            disabled={!checkEnableOtp()}
           />
         </div>
-        <br />
-        <LoadCanvasTemplate />
         <div className="py-1">
+          <label
+            htmlFor="password"
+            className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
+          >
+            New Password
+            <span className="text-[#FF0000]"> *</span>
+          </label>
           <CssTextField
             required
             size="small"
-            name="captchaVal"
-            type="text"
-            placeholder="Enter Captcha Value"
+            name="password_1"
+            type="password"
+            variant="standard"
+            placeholder="Enter Password(mininum 6 characters)"
             autoComplete="off"
             className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
-            onChange={(event) => setCaptchaVal(event.target.value)}
+            onChange={(event) => setPassword1(event.target.value)}
+            disabled={checkEnableOtp()}
+          />
+        </div>
+        <div className="py-1">
+          <label
+            htmlFor="password"
+            className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
+          >
+            Confirm Password
+            <span className="text-[#FF0000]"> *</span>
+          </label>
+          <CssTextField
+            required
+            size="small"
+            name="password_2"
+            type="password"
+            variant="standard"
+            placeholder="Confirm Password"
+            autoComplete="off"
+            className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
+            onChange={(event) => setPassword2(event.target.value)}
+            disabled={checkEnableOtp()}
+          />
+        </div>
+        <div className="py-1">
+          <label
+            htmlFor="password"
+            className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
+          >
+            Email OTP
+            <span className="text-[#FF0000]"> *</span>
+          </label>
+          <CssTextField
+            required
+            size="small"
+            name="emailOtp"
+            type="text"
+            variant="standard"
+            placeholder="Enter OTP Provided Through Email"
+            autoComplete="off"
+            className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
+            onChange={(event) => setEmailOtp(event.target.value)}
+            disabled={checkEnableOtp()}
           />
         </div>
         {msg && <p className={`text-xs ${error ? 'text-red-600' : 'text-green-600'} mt-2`}>{msg}</p>}
         <br />
         <Button
           variant="contained"
+          style={{ marginRight: 10 }}
           primary
-          onClick={handleSubmit}
+          onClick={handleSendOtp}
           disabled={checkDisabled()}
         >
           Get OTP
+        </Button>
+        <Button
+          variant="contained"
+          primary
+          onClick={handleResetPassword}
+          disabled={checkEnableOtp()}
+        >
+          Submit
         </Button>
       </form>
     </div>

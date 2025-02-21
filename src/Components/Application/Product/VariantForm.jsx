@@ -24,13 +24,21 @@ const VarinatForm = ({ formData, fields, index, onFormUpdate, formsErrors, remov
     <div className="mt-5">
       <div className="flex" style={{ justifyContent: "space-between" }}>
         <Typography sx={{ fontWeight: "bold" }}> {"Variation " + (index + 1)}</Typography>
-        <button type="button" className="close" aria-label="Close" onClick={() => removeForm(index)}>
-          <span aria-hidden="true">&times;</span>
-        </button>
+        {(formData._id == null && index != 0) && (
+          <button
+            type="button"
+            className="close"
+            aria-label="Close"
+            onClick={() => removeForm(index)}
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        )}
       </div>
       {fields.map((field) => {
         return (
           <RenderInput
+            previewOnly={formData._id != null && field.id === "sku" ? true : false}
             item={{
               ...field,
               error: errors?.[field?.id] ? true : false,

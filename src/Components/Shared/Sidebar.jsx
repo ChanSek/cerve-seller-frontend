@@ -40,18 +40,13 @@ export default function Sidebar(props) {
     return res[0];
   };
 
-  const getOrgDetails = async (org_id) => {
-    const url = `/api/v1/seller/merchantId/${org_id}/merchant`;
-    const res = await getCall(url);
-    return res.data;
-  };
-
   React.useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     getUser(user_id).then((userData) => {
-      getOrgDetails(userData.organization._id).then((org) => {
-        setCategory(org?.storeDetails?.category);
-      });
+      const orgId = userData?.organization?._id;
+      if (orgId) {
+        setCategory(userData?.category);
+      }
     });
   }, []);
 
@@ -84,7 +79,7 @@ export default function Sidebar(props) {
     <Box sx={{ width: anchor === "top" || anchor === "bottom" ? "auto" : 250 }} role="presentation">
       <Stack direction="row" alignItems="center" style={{ padding: "8px 16px" }}>
         <img src={logo} alt="logo" style={{ height: "45px" }} />
-        <Typography>SELLER APP</Typography>
+        <Typography>CERVE SELLER</Typography>
       </Stack>
       <Divider />
       <List
@@ -104,7 +99,7 @@ export default function Sidebar(props) {
           onKeyDown={toggleDrawer(anchor, false)}
         >
           <List component="div" disablePadding>
-            {user?.role?.name === "Organization Admin" && (
+            {user?.role?.name === "Organization Admin" && user?.organization?._id !== null && (
               <div>
                 <NavLink to="/application/inventory" className="no-underline text-black">
                   <ListItemButton sx={{ pl: 4 }}>
@@ -143,7 +138,17 @@ export default function Sidebar(props) {
                 </NavLink> */}
                 <NavLink
                   to={{
-                    pathname: `/application/store-details/${user?.organization._id}`,
+                    pathname: `/user-listings/provider-details/${user?.organization?._id}`,
+                  }}
+                  className="no-underline text-black"
+                >
+                  <ListItemButton sx={{ pl: 4 }}>
+                    <ListItemText primary="Seller Details" />
+                  </ListItemButton>
+                </NavLink>
+                <NavLink
+                  to={{
+                    pathname: `/application/store-details/${user?.organization?._id}`,
                   }}
                   className="no-underline text-black"
                 >
@@ -151,11 +156,11 @@ export default function Sidebar(props) {
                     <ListItemText primary="Store Details" />
                   </ListItemButton>
                 </NavLink>
-                {/* <NavLink to="/application/returns" className="no-underline	text-black">
+                <NavLink to="/application/returns" className="no-underline	text-black">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Returns" />
                   </ListItemButton>
-                </NavLink> */}
+                </NavLink>
               </div>
             )}
             <NavLink to="/application/orders" className="no-underline	text-black">
@@ -163,15 +168,29 @@ export default function Sidebar(props) {
                 <ListItemText primary="Orders" />
               </ListItemButton>
             </NavLink>
-            {/* <NavLink to="/application/complaints" className="no-underline text-black">
+            { <NavLink to="/application/complaints" className="no-underline text-black">
               <ListItemButton sx={{ pl: 4 }}>
                 <ListItemText primary="Complaints" />
               </ListItemButton>
-            </NavLink> */}
+            </NavLink>}
             {user?.role?.name === "Super Admin" && (
               <NavLink to="/application/user-listings" className="no-underline	text-black">
                 <ListItemButton sx={{ pl: 4 }}>
                   <ListItemText primary="User Listings" />
+                </ListItemButton>
+              </NavLink>
+            )}
+            {user?.role?.name === "Super Admin" && (
+              <NavLink to="/application/settlement" className="no-underline	text-black">
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemText primary="Order Settlement" />
+                </ListItemButton>
+              </NavLink>
+            )}
+            {user?.role?.name === "Super Admin" && (
+              <NavLink to="/application/gateway-activity" className="no-underline	text-black">
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemText primary="Gateway Activity" />
                 </ListItemButton>
               </NavLink>
             )}

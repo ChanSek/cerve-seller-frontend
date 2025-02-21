@@ -7,7 +7,7 @@ export const allProductFieldDetails = [
     title: "Product Code (EAN / ISBN / GTIN / HSN / Others)",
     placeholder: "Product Code",
     type: "input",
-    required: false,
+    required: true,
   },
   {
     id: "productName",
@@ -87,29 +87,31 @@ export const allProductFieldDetails = [
     title: "Manufacturer Or Packer Name",
     placeholder: "Manufacturer Or Packer Name",
     type: "input",
-    required: true,
+    required: false,
   },
   {
     id: "packerAddress",
     title: "Manufacturer Or Packer Address",
     placeholder: "Manufacturer Or Packer Address",
     type: "input",
-    required: true,
+    required: false,
   },
   {
     id: "genericNameOfCommodity",
     title: "Common Or Generic Name Of Commodity",
     placeholder: "Common Or Generic Name Of Commodity",
     type: "input",
-    required: true,
+    required: false,
   },
   {
     id: "manufacturePackingImport",
-    title: "Month Year Of Manufacture Packing Import",
+    title: "Month Year Of Manufacture Packing Import(MM/YYYY)",
     placeholder: "Month YearOf Manufacture Packing Import",
-    type: "date-picker",
-    required: true,
+    type: "custom-date-picker",
+    required: false,
     format: "MM/YYYY",
+    maxLength: 7,
+    formatMonthYear: true,
     views: ["year", "month"],
   },
   {
@@ -118,7 +120,7 @@ export const allProductFieldDetails = [
     placeholder: "Importer FSSAI License No",
     type: "number",
     maxLength: 14,
-    required: true,
+    required: false,
   },
   {
     id: "brandOwnerFssaiLicenseNo",
@@ -126,23 +128,32 @@ export const allProductFieldDetails = [
     placeholder: "Brand Owner FSSAI License No",
     type: "number",
     maxLength: 14,
-    required: true,
+    required: false,
   },
-
   {
     id: "availableQty",
     title: "Quantity",
     placeholder: "Quantity",
     type: "number",
+    maxLength: 10,
     required: true,
   },
   {
-    id: "barcode",
+    id: "sku",
     title: "SKU",
     placeholder: "SKU",
-    type: "number",
+    type: "input",
     maxLength: 12,
     required: true,
+  },
+  {
+    id: "minAllowedQty",
+    title: "Min Allowed Quantity",
+    placeholder: "Min Allowed Quantity",
+    type: "number",
+    required: true,
+    min: 1,
+    maxLength: 10,
   },
   {
     id: "maxAllowedQty",
@@ -175,6 +186,7 @@ export const allProductFieldDetails = [
     placeholder: "UOM value",
     type: "input",
     required: true,
+    maxLength: 10,
   },
   {
     id: "length",
@@ -222,35 +234,37 @@ export const allProductFieldDetails = [
     placeholder: "Manufacturer Name",
     type: "input",
     maxLength: 50,
-    required: true,
+    required: false,
   },
   {
     id: "manufacturedDate",
-    title: "Manufactured Date",
+    title: "Manufactured Date(DD/MM/YYYY)",
     placeholder: "Manufactured Date",
-    type: "date-picker",
-    required: true,
+    type: "custom-date-picker",
+    required: false,
+    formatDate: true,
+    maxLength: 10,
   },
   {
     id: "nutritionalInfo",
     title: "Nutritional Info",
     placeholder: "Nutritional Info",
     type: "input",
-    required: true,
+    required: false,
   },
   {
     id: "additiveInfo",
     title: "Additive Info",
     placeholder: "Additive Info",
     type: "input",
-    required: true,
+    required: false,
   },
   {
     id: "instructions",
     title: "Instructions",
     placeholder: "Instructions",
     type: "input",
-    required: true,
+    required: false,
   },
   {
     id: "longDescription",
@@ -290,6 +304,7 @@ export const allProductFieldDetails = [
       { key: "No", value: "false" },
     ],
     required: true,
+    isDisabled: false
   },
   {
     id: "returnable",
@@ -300,6 +315,7 @@ export const allProductFieldDetails = [
       { key: "No", value: "false" },
     ],
     required: true,
+    isDisabled: false
   },
   {
     id: "availableOnCod",
@@ -355,11 +371,8 @@ export const productDetailsFields = [
   "longDescription",
   "countryOfOrigin",
   "gstPercentage",
+  "minAllowedQty",
   "maxAllowedQty",
-  "length",
-  "breadth",
-  "height",
-  "weight",
   "returnWindow",
   "manufacturerName",
   "manufacturedDate",
@@ -369,7 +382,7 @@ export const productDetailsFields = [
   "vegNonVeg",
   "returnable",
   "cancellable",
-  "availableOnCod",
+  //"availableOnCod",
   "packerName",
   "packerAddress",
   "genericNameOfCommodity",
@@ -380,6 +393,6 @@ export const productDetailsFields = [
   "uom",
 ];
 
-export const variationCommonFields = ["price", "purchasePrice", "availableQty", "barcode", "imageUrls", "backImage"];
+export const variationCommonFields = ["price", "purchasePrice", "availableQty", "sku", "imageUrls", "backImage"];
 
 export const UOMVariationFields = ["uomValue"];

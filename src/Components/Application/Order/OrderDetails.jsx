@@ -32,18 +32,20 @@ import { convertDateInStandardFormat } from "../../../utils/formatting/date";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
 import { Tooltip } from "@material-ui/core";
 import useStyles from "./style";
-import CancelOrderModal from "./cancelOrderModal.jsx";
+import CancelItemModal from "./cancelItemModal";
+import CancelOrderModal from "./cancelOrderModal";
 import UpdateOrderStatus from "./UpdateOrderStatusModal.js";
 
 const OrderDetails = () => {
   const [order, setOrder] = useState();
-  const [user, setUser] = React.useState();
-  const [organizationId, setOrganizationId] = React.useState();
-  const [orgOnNetwork, setOrgOnNetwork] = React.useState(true);
-  const [deliveryFulfillmentData, setDeliveryFulfillmentData] = React.useState();
-  const [rtoFulfillmentData, setRtoFulfillmentData] = React.useState();
-  const [isUpdateOrderModalOpen, setIsUpdateOrderModalOpen] = React.useState();
+  const [user, setUser] = useState();
+  const [organizationId, setOrganizationId] = useState();
+  const [orgOnNetwork, setOrgOnNetwork] = useState(true);
+  const [deliveryFulfillmentData, setDeliveryFulfillmentData] = useState();
+  const [rtoFulfillmentData, setRtoFulfillmentData] = useState();
+  const [isUpdateOrderModalOpen, setIsUpdateOrderModalOpen] = useState();
   const { cancellablePromise } = useCancellablePromise();
+  const [orderToCancel, setOrderToCancel] = useState(null);
   const params = useParams();
   const navigate = useNavigate();
   const [loading, setloading] = useState({
@@ -53,25 +55,37 @@ const OrderDetails = () => {
   });
 
   const getOrder = async () => {
-    const url = `/api/v1/orders/${params?.id}`;
+    const url = `/api/v1/seller/${params?.id}/order`;
     getCall(url).then((resp) => {
-      setOrder(resp);
-      setOrganizationId(resp.organization)
+      setOrder(resp.data);
+      getOrgDetails(resp.data.merchantId)
     });
   };
 
-  const getOrgDetails = async () => {
-    const orgUrl = `/api/v1/organizations/${order.organization}`;
-    const res = await getCall(orgUrl);
-    const onLogistic = res.providerDetail.storeDetails?.onNetworkLogistics ?? true;
+  const getOrgDetails = async (org_id) => {
+    const url = `/api/v1/seller/merchantId/${org_id}/store`;
+    const res = await getCall(url);
+    const onLogistic = res.data?.useNetworkLogistics ?? true;
     setOrgOnNetwork(onLogistic);
+    return res;
   };
 
-  useEffect(() => {
-    if (organizationId) {
-      getOrgDetails();
-    }
-  }, [organizationId]);
+  const handleOrderCancel = (data) => {
+    setOrderToCancel(data)
+  };
+
+  // const getOrgDetails = async () => {
+  //   const orgUrl = `/api/v1/organizations/${order.organization}`;
+  //   const res = await getCall(orgUrl);
+  //   const onLogistic = res.providerDetail.storeDetails?.onNetworkLogistics ?? true;
+  //   setOrgOnNetwork(onLogistic);
+  // };
+
+  // useEffect(() => {
+  //   if (organizationId) {
+  //     getOrgDetails();
+  //   }
+  // }, [organizationId]);
 
   useEffect(() => {
     if (params.id) {
@@ -80,13 +94,13 @@ const OrderDetails = () => {
   }, [params]);
 
   const getUser = async (id) => {
-    const url = `/api/v1/users/${id}`;
+    const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
     const res = await getCall(url);
     setUser(res[0]);
     return res[0];
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     getUser(user_id);
   }, []);
@@ -129,28 +143,12 @@ const OrderDetails = () => {
 
   }
 
-  const handleCompleteOrderCancel = (order_uuid) => {
-    setloading({ ...loading, cancel_order_loading: true });
-    postCall(`/api/v1/orders/${order_uuid}/cancel`, {
-      cancellation_reason_id: "004",
-    })
-      .then((resp) => {
-        cogoToast.success("Order cancelled successfully!");
-        setInterval(function () {
-          // getOrder();
-          let orderData = JSON.parse(JSON.stringify(order));
-          orderData.state = resp.state;
-          setOrder(orderData);
-          setloading({ ...loading, cancel_order_loading: false });
-        }, 3000);
-      })
-      .catch((error) => {
-        console.log(error);
-        cogoToast.error(error.response.data.error);
-        setInterval(function () {
-          setloading({ ...loading, cancel_order_loading: false });
-        }, 3000);
-      });
+  const handleCompleteOrderCancel = async (order_uuid) => {
+    const url = `/api/v1/seller/order/${order_uuid}/cancel`;
+    const resp = await postCall(url, { cancellation_reason_id: "004" });
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await getOrder();
+    cogoToast.success("Order cancelled successfully!");
   };
 
   const handleCompleteOrderUpdate = (order_details) => {
@@ -167,30 +165,11 @@ const OrderDetails = () => {
     setIsUpdateOrderModalOpen(true);
   };
 
-  const handleCompleteOrderAccept = (order_uuid) => {
-    setloading({ ...loading, accept_order_loading: true });
-    const url = `/api/v1/orders/${order_uuid}/status`;
-    postCall(url, {
-      status: "Accepted",
-    })
-      .then((resp) => {
-        cogoToast.success("Order accepted successfully!");
-
-        setInterval(function () {
-          // getOrder();
-          let orderData = JSON.parse(JSON.stringify(order));
-          orderData.state = resp.state;
-          setOrder(orderData);
-          setloading({ ...loading, accept_order_loading: false });
-        }, 3000);
-      })
-      .catch((error) => {
-        console.log(error);
-        cogoToast.error(error.response.data.error);
-        setInterval(function () {
-          setloading({ ...loading, accept_order_loading: false });
-        }, 3000);
-      });
+  const handleCompleteOrderAccept = async (order_uuid) => {
+    const url = `/api/v1/seller/order/${order_uuid}/status`;
+    const resp = await postCall(url, { status: "Accepted" });
+    await getOrder();
+    cogoToast.success("Order accepted successfully!");
   };
 
 
@@ -201,7 +180,7 @@ const OrderDetails = () => {
     ) {
       return (
         <div style={{ display: "flex", direction: "row", gap: "8px" }}>
-          {orgOnNetwork ? (
+          {!orgOnNetwork ? (
             <Button
               className="!capitalize"
               variant="contained"
@@ -268,7 +247,7 @@ const OrderDetails = () => {
             rtoData={rtoFulfillmentData}
             setloading={setloading}
             loading={loading}
-            setOrder={setOrder}
+            onOrderUpdate={getOrder}
             order={order}
           />
         </div>
@@ -276,32 +255,53 @@ const OrderDetails = () => {
     } else {
       return (
         <div style={{ display: "flex", direction: "row", gap: "8px" }}>
-          <span className="bg-slate-100 p-2 rounded-lg">
-            <p className="text-sm font-normal text-amber-400">
+          {/* <span className="bg-slate-100 p-2 rounded-lg">
+            <p className="text-sm font-normal text-amber-500">
               {order_details?.state}
             </p>
-          </span>
-          {!orgOnNetwork && (
+          </span> */}
+          {!orgOnNetwork && (order_details?.state !== "Completed") && (
             <div>
-              <Button
-                className="!capitalize"
+              {(order_details?.state !== "Cancelled"
+                || order_details?.fulfillments[order_details.fulfillments.length - 1].state.descriptor.code === 'RTO-Initiated') 
+                && <Button
+                  className="!capitalize"
+                  variant="contained"
+                  onClick={() => handleCompleteOrderUpdate(order_details)}
+                  disabled={
+                    loading.accept_order_loading ||
+                    loading.cancel_order_loading ||
+                    loading.update_order_loading
+                  }
+                >
+                  {loading.update_order_loading ? (
+                    <>
+                      Update Status&nbsp;&nbsp;
+                      <CircularProgress size={18} sx={{ color: "white" }} />
+                    </>
+                  ) : (
+                    <span>Update Status</span>
+                  )}
+                </Button>}&nbsp;&nbsp;
+              {order_details?.state !== "Cancelled" && <Button
                 variant="contained"
-                onClick={() => handleCompleteOrderUpdate(order_details)}
+                className="!capitalize"
+                onClick={() => handleOrderCancel({ order_id: order_details?._id })}
                 disabled={
-                  loading.accept_order_loading ||
                   loading.cancel_order_loading ||
+                  loading.accept_order_loading ||
                   loading.update_order_loading
                 }
               >
-                {loading.update_order_loading ? (
+                {loading.cancel_order_loading ? (
                   <>
-                    Update Status&nbsp;&nbsp;
+                    Cancel Order
                     <CircularProgress size={18} sx={{ color: "white" }} />
                   </>
                 ) : (
-                  <span>Update Status</span>
+                  <span>Cancel Order</span>
                 )}
-              </Button>
+              </Button>}
               <UpdateOrderStatus
                 showModal={isUpdateOrderModalOpen}
                 handleCloseModal={() => handleCloseStatusModal()}
@@ -349,6 +349,10 @@ const OrderDetails = () => {
             <p className="text-base font-normal">{order?.state}</p>
           </div>
           <div className="flex justify-between mt-3">
+            <p className="text-base font-normal">Fulfilment Status</p>
+            <p className="text-base font-normal">{order?.fulfillments[order.fulfillments.length - 1].state.descriptor.code}</p>
+          </div>
+          <div className="flex justify-between mt-3">
             <p className="text-base font-normal">Payment Method</p>
             <p className="text-base font-normal">{order?.payment.type}</p>
           </div>
@@ -387,6 +391,7 @@ const OrderDetails = () => {
             getOrder={getOrder}
             isSuperAdmin={user?.role?.name === "Super Admin" || false}
             orderItems={order?.items}
+            onPartialOrderCancel={getOrder}
             order={order}
           />
         </div>
@@ -441,12 +446,23 @@ const OrderDetails = () => {
           </div>
         </div>
       </div>
+      <CancelOrderModal
+        showModal={orderToCancel ? true : false}
+        onOrderCancel={getOrder}
+        handleCloseModal={() => setOrderToCancel(null)}
+        data={orderToCancel} />
     </div>
   );
 };
 
-const isOrderCancellable = (order_state) => {
-  return order_state != "Completed" || order_state != "Cancelled";
+const isOrderCancellable = (order) => {
+  const fulfilmentState = order?.fulfillments?.[order.fulfillments.length - 1]?.state?.descriptor?.code;
+  const total = order?.items?.reduce((sum, item) => sum + (item.quantity?.count || 0), 0);
+
+  return (
+    total > 1 && 
+    (fulfilmentState === "Pending" || fulfilmentState === "Packed" || fulfilmentState === "Agent-assigned")
+  );
 };
 
 const isItemCustomization = (tags) => {
@@ -507,7 +523,7 @@ const parseQuoteToGetItems = (orderDetails) => {
       isCustomization: isItemCustomization(break_up_item?.item?.tags),
       isDelivery: break_up_item["@ondc/org/title_type"] === "delivery",
       parent_item_id: break_up_item?.item?.parent_item_id,
-      price: Number(break_up_item.price?.value)?.toFixed(2),
+      price: Number(break_up_item?.item?.price?.value)?.toFixed(2),
       itemQuantity,
       quantity,
       provided_by,
@@ -643,9 +659,9 @@ const parseQuoteToGetItems = (orderDetails) => {
 };
 
 const OrderItemsSummaryCard = (props) => {
-  const [open, setOpen] = React.useState(false);
-  const [itemToCancel, setItemToCancel] = React.useState(null);
-  const [order, setOrder] = React.useState(props?.order);
+  const [open, setOpen] = useState(false);
+  const [itemToCancel, setItemToCancel] = useState(null);
+  const [order, setOrder] = useState(props?.order);
   const classes = useStyles();
 
   let order_items = [];
@@ -654,17 +670,10 @@ const OrderItemsSummaryCard = (props) => {
   });
 
   order_items = Object.values(parseQuoteToGetItems(order));
-
   let cols = [
     { id: "url name", align: "left", minWidth: 50, label: "Items Summary" },
     { id: "quantity", align: "center", minWidth: "auto", label: "Qty" },
-    { id: "price", align: "center", minWidth: "50", label: "Price" },
-    {
-      id: "state",
-      align: "center",
-      minWidth: "50",
-      label: "Fulfillment Status",
-    },
+    { id: "price", align: "center", minWidth: "50", label: "Purchase Price" },
     { id: "totalPrice", align: "right", minWidth: "50", label: "Total Amount" },
   ];
 
@@ -681,6 +690,13 @@ const OrderItemsSummaryCard = (props) => {
   useEffect(() => {
     setOrder(props?.order)
   }, [props?.order])
+
+  // const getOrder = async () => {
+  //   const url = `/api/v1/seller/${order?._id}/order`;
+  //   getCall(url).then((resp) => {
+  //     setOrder(resp.data);
+  //   });
+  // };
 
   const rows = [
     {
@@ -743,11 +759,11 @@ const OrderItemsSummaryCard = (props) => {
           <MenuItem
             style={{ padding: 6 }}
             onClick={() => {
-              handlePartialOrderCancel({order_id: props.order_id, item: props.row})
-             }
+              handlePartialOrderCancel({ order_id: props.order_id, item: props.row })
+            }
             }
           >
-            Cancel Order
+            Partial Cancel Order
           </MenuItem>
         </Menu>
       </>
@@ -770,8 +786,7 @@ const OrderItemsSummaryCard = (props) => {
             <div>₹ {item?.price?.value}</div>
           ) : col.id === "action" ? (
             <div style={{ cursor: "pointer" }}>
-              {isOrderCancellable(order?.state) &&
-              item?.state !== "Cancelled" ? (
+              {isOrderCancellable(order) ? (
                 <ThreeDotsMenu
                   order_uuid={order?._id}
                   order_id={order?.orderId}
@@ -779,8 +794,7 @@ const OrderItemsSummaryCard = (props) => {
                   getOrder={props.getOrder}
                 />
               ) : (
-                // props?.order?.state
-                <></>
+                order?.state
               )}
             </div>
           ) : col.id === "totalPrice" ? (
@@ -931,7 +945,7 @@ const OrderItemsSummaryCard = (props) => {
   };
 
   const ExpandableTableRow = ({ children, expandComponent, ...otherProps }) => {
-    const [isExpanded, setIsExpanded] = React.useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     return (
       <>
@@ -1038,11 +1052,12 @@ const OrderItemsSummaryCard = (props) => {
           </Table>
         </TableContainer>
       </div>
-      <CancelOrderModal
+      <CancelItemModal
         showModal={itemToCancel ? true : false}
         setOrder={setOrder}
         handleCloseModal={() => setItemToCancel(null)}
-        data={itemToCancel} />
+        data={itemToCancel}
+        onOrderUpdate={props.onPartialOrderCancel} />
     </div>
   );
 };

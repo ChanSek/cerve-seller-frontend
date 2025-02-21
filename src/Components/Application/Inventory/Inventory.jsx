@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import InventoryTable from "../Inventory/InventoryTable";
 import Button from "../../Shared/Button";
-import AddIcon from "@mui/icons-material/Add";
+import { Add as AddIcon, Download as DownloadIcon, FileUpload as FileUploadIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { getCall, postCall, putCall } from "../../../Api/axios";
 import useCancellablePromise from "../../../Api/cancelRequest";
@@ -10,6 +10,7 @@ import { FILTER_OPTIONS, PRODUCT_CATEGORY } from "../../../utils/constants";
 import { useTheme } from "@mui/material/styles";
 import FilterComponent from "../../Shared/FilterComponent";
 import AddCustomization from "../Product/AddCustomization";
+import downloadExcel from "../Inventory/DownloadExcel";
 
 const fieldsToDelete = [
   "_id",
@@ -25,24 +26,24 @@ const fieldsToDelete = [
 ];
 
 export default function Inventory() {
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [queryString, setQueryString] = useState('');
   const filterFields = [
+    {
+      id: "category",
+      title: "",
+      placeholder: "Please Select Product Category",
+      options: categoryOptions,
+      type: "select",
+      variant: "standard",
+      disableClearable: true,
+    },
     {
       id: "name",
       title: "",
       placeholder: "Search by Product Name",
       type: "input",
       variant: "standard",
-    },
-    {
-      id: "category",
-      title: "",
-      placeholder: "Please Select Product Category",
-      options: Object.entries(FILTER_OPTIONS).map(([key, value]) => {
-        return { key: value, value: key };
-      }),
-      type: "select",
-      variant: "standard",
-      disableClearable: true,
     },
     {
       id: "stock",
@@ -55,7 +56,6 @@ export default function Inventory() {
       },
     },
   ];
-
   const columns = [
     { id: "subCategory", label: "Category", minWidth: 100 },
     { id: "productName", label: "Product Name", minWidth: 100 },
@@ -66,10 +66,20 @@ export default function Inventory() {
       format: (value) => value.toLocaleString("en-US"),
     },
     {
-      id: "price",
+      id: "purchasePrice",
       label: "Purchase Price",
       minWidth: 100,
       format: (value) => value.toLocaleString("en-US"),
+    },
+    {
+      id: "price",
+      label: "Price",
+      minWidth: 100,
+      format: (value) => value.toLocaleString("en-US"),
+    },
+    {
+      id: "measure",
+      label: "Measure",
     },
     {
       id: "cancellable",
@@ -83,6 +93,7 @@ export default function Inventory() {
       boolean: true,
       minWidth: 100,
     },
+    { id: "variationOn", label: "Variation On", minWidth: 100 },
     /*{
       id: "customizationGroupId",
       label: "Customization",
@@ -144,6 +155,16 @@ export default function Inventory() {
     }
   };
 
+  const getTempProducts = async () => {
+    try {
+      const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}&${queryString}`));
+      setProducts(res.content);
+      setTotalRecords(res.totalElements);
+    } catch (error) {
+      // cogoToast.error("Something went wrong!");
+    }
+  };
+
   const getOrgDetails = async (org_id) => {
     const url = `/api/v1/seller/merchantId/${org_id}/store`;
     const res = await getCall(url);
@@ -188,7 +209,7 @@ export default function Inventory() {
       setNewCustomizationData({ MRP: 0 });
       setShowCustomizationModal(false);
       getProducts();
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleUpdateCustomization = async () => {
@@ -204,51 +225,86 @@ export default function Inventory() {
       setCustomizationId(null);
       setShowCustomizationModal(false);
       getProducts();
-    } catch (error) {}
+    } catch (error) { }
   };
+
+  const getProductCategory = async (categoryId) => {
+    try {
+      const url = `/api/v1/seller/reference/category/${categoryId}`;
+      const result = await getCall(url);
+      return result.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    let data = [...filterFields]; // Create a copy of the fields array
+    const subCategoryIndex = data.findIndex((item) => item.id === "category");
+    getProductCategory('RET10').then((categoryList) => {
+      data[subCategoryIndex].options = categoryList;
+      setCategoryOptions(categoryList);
+    });
+  }, []);
 
   useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     getUser(user_id).then((u) => {
       // roles - Organization Admin, Super Admin
-      if (u.isSystemGeneratedPassword) navigate("/initial-steps");
-      else {
+      if (u?.isSystemGeneratedPassword) {
+        navigate("/initial-steps")
+      } else {
         if (u.role.name == "Organization Admin") {
-          getOrgDetails(u.organization._id).then((org) => {
-            if (isObjEmpty(org.data)) navigate("/initial-steps");
-            else{
-              setStoreId(org.data.storeId);
-              getProducts(org.data.storeId);
+          const merchantId = u?.organization?._id;
+          if (!isObjEmpty(merchantId)) {
+            var isActive = u?.organization?.active;
+            if (!isActive) {
+              navigate(`/user-listings/provider-details/${merchantId}`);
+            } else {
+              getOrgDetails(merchantId).then((org) => {
+                let category = u?.organization?.category;
+                if (!category) {
+                  navigate(`/application/store-details/${merchantId}`);
+                } else {
+                  setStoreId(org.data.storeId);
+                  getProducts(org.data.storeId);
+                }
+              });
             }
-          });
-        } else navigate("/application/user-listings");
+          } else {
+            navigate("/add-provider-info")
+          }
+        } else if (u.role.name == "Super Admin") {
+          navigate("/application/user-listings");
+        }
       }
     });
     //fetchCustomizationGroups();
   }, []);
 
   useEffect(() => {
-    //getProducts();
-    //console.log({ newCustomizationData });
-  }, [page, rowsPerPage]);
+    if (storeId && storeId !== undefined) {
+      getTempProducts();
+    }
+  }, [page, rowsPerPage, storeId]);
 
-  const handleRefresh = (data) => {
-    getProducts();
+  const handleRefresh = () => {
+    getProducts(storeId);
   };
 
   const onReset = () => {
     setFilters({ name: "", category: null, stock: false });
-    getProducts();
+    getProducts(storeId);
   };
 
   const onFilter = async () => {
     const filterParams = [];
     if (filters.name.trim() !== "") {
-      filterParams.push(`name=${encodeURIComponent(filters.name)}`);
+      filterParams.push(`name=${encodeURIComponent(filters.name.trim())}`);
     }
 
     if (filters.category != undefined && filters.category !== "") {
-      filterParams.push(`type=${encodeURIComponent(filters.category)}`);
+      filterParams.push(`category=${encodeURIComponent(filters.category)}`);
     }
 
     if (!filters.stock) {
@@ -258,44 +314,50 @@ export default function Inventory() {
     }
 
     const queryString = filterParams.join("&");
-    const url = `/api/v1/products?${queryString}`;
+    const url = `/api/v1/seller/storeId/${storeId}/products?${queryString}`;
 
     const res = await cancellablePromise(getCall(url));
-    setProducts(res.data);
-    setTotalRecords(res.count);
+    setProducts(res.content);
+    setTotalRecords(res.totalElements);
+    setQueryString(queryString)
   };
 
   return (
     <>
       <div className="container mx-auto my-8">
-        <div className="mb-4 flex flex-row justify-between items-center">
-          <label style={{ color: theme.palette.primary.main }} className="font-semibold text-2xl">
+        <div className="mb-4 flex flex-col sm:flex-row justify-between items-start">
+          <label
+            style={{ color: theme.palette.primary.main }}
+            className="font-semibold text-2xl mb-4 sm:mb-0"
+          >
             Inventory
           </label>
-          <div className="flex">
-            <div style={{ marginRight: 15 }}>
+          <div className="flex flex-col sm:flex-row">
+            <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
                 variant="contained"
                 icon={<AddIcon />}
-                title="Bulk upload"
-                onClick={() => navigate("/application/bulk-upload")}
-              />
-            </div>
-            <div style={{ marginRight: 15 }}>
-              <Button
-                variant="contained"
-                icon={<AddIcon />}
-                className=""
                 title="ADD PRODUCT"
                 onClick={() => navigate("/application/add-products")}
               />
             </div>
-            {/* <Button
-              variant="contained"
-              icon={<AddIcon />}
-              title="Add Customization"
-              onClick={() => setShowCustomizationModal(true)}
-            /> */}
+            <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
+                variant="contained"
+                icon={<FileUploadIcon />}
+                title="Bulk Upload"
+                onClick={() => navigate("/application/bulk-upload")}
+              />
+            </div>
+            <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
+                variant="contained"
+                icon={<DownloadIcon />}
+                title="Download Products"
+                onClick={() => downloadExcel(storeId)} // Pass storeId here
+              />
+            </div>
+            {/* Additional buttons can be added here */}
           </div>
         </div>
         <FilterComponent
