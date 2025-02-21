@@ -74,6 +74,7 @@ export default function Orders() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [user, setUser] = useState();
   const [columnList, setColumnList] = useState(columns);
+  const [merchantId, setMerchantId] = useState(null);
 
   const getUser = async (id) => {
     const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
@@ -83,14 +84,17 @@ export default function Orders() {
   };
 
   useEffect(() => {
-    const user_id = localStorage.getItem("user_id");
-    getUser(user_id).then((user) => {
-      getOrders(user?.organization?._id);
-      if(user && user?.role?.name === "Organization Admin"){
-        const data = columns.filter((item) => item.id !== "provider_name")
-        setColumnList(data);
-      }
-    });
+    if (!merchantId) {
+      const user_id = localStorage.getItem("user_id");
+      getUser(user_id).then((user) => {
+        setMerchantId(user?.organization?._id);
+        getOrders(user?.organization?._id);
+        if (user && user?.role?.name === "Organization Admin") {
+          const data = columns.filter((item) => item.id !== "provider_name")
+          setColumnList(data);
+        }
+      });
+    }
   }, []);
 
   const getOrders = (merchantId) => {
@@ -105,13 +109,14 @@ export default function Orders() {
       })
   };
 
-  // useEffect(() => {
-  //   console.log("get orders========================")
-  //   getOrders();
-  // }, [page, rowsPerPage]);
+  useEffect(() => {
+    if (merchantId) {
+      getOrders(merchantId);
+    }
+  }, [page, rowsPerPage]);
 
   useEffect(() => {
-    if(user && user?.role?.name === "Organization Admin"){
+    if (user && user?.role?.name === "Organization Admin") {
       const data = columns.filter((item) => item.id !== "provider_name")
       setColumnList(data);
     }
@@ -121,7 +126,7 @@ export default function Orders() {
     <>
       <div className="container mx-auto my-8">
         <div className="mb-4 flex flex-row justify-between items-center">
-          <label style={{color: theme.palette.primary.main}} className="font-semibold text-2xl">Orders</label>
+          <label style={{ color: theme.palette.primary.main }} className="font-semibold text-2xl">Orders</label>
         </div>
         <OrderTable
           columns={columnList}

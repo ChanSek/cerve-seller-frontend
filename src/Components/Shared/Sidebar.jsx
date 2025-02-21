@@ -40,18 +40,13 @@ export default function Sidebar(props) {
     return res[0];
   };
 
-  const getOrgDetails = async (org_id) => {
-    const url = `/api/v1/seller/merchantId/${org_id}/merchant`;
-    const res = await getCall(url);
-    return res.data;
-  };
-
   React.useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     getUser(user_id).then((userData) => {
-      getOrgDetails(userData?.organization?._id).then((org) => {
-        setCategory(org?.storeDetails?.category);
-      });
+      const orgId = userData?.organization?._id;
+      if (orgId) {
+        setCategory(userData?.category);
+      }
     });
   }, []);
 
@@ -182,6 +177,20 @@ export default function Sidebar(props) {
               <NavLink to="/application/user-listings" className="no-underline	text-black">
                 <ListItemButton sx={{ pl: 4 }}>
                   <ListItemText primary="User Listings" />
+                </ListItemButton>
+              </NavLink>
+            )}
+            {user?.role?.name === "Super Admin" && (
+              <NavLink to="/application/settlement" className="no-underline	text-black">
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemText primary="Order Settlement" />
+                </ListItemButton>
+              </NavLink>
+            )}
+            {user?.role?.name === "Super Admin" && (
+              <NavLink to="/application/gateway-activity" className="no-underline	text-black">
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemText primary="Gateway Activity" />
                 </ListItemButton>
               </NavLink>
             )}

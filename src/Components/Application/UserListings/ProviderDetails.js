@@ -200,6 +200,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
         accHolderName: res?.providerDetail?.account?.accountHolderName,
         accNumber: res?.providerDetail?.account?.accountNumber,
         cancelledCheque: res?.providerDetail?.account?.cancelledChequeUrl,
+        beneficiaryName: res?.providerDetail?.account?.beneficiaryName,
       });
     } catch (error) {
       console.log(error);

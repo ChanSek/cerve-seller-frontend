@@ -29,7 +29,7 @@ const SellerVerification = () => {
     let userRole = JSON.parse(localStorage.getItem("user"))?.role?.name;
     const isSuperAdmin = userRole === "Super Admin";
     try {
-      const url = `/api/v1/seller/merchantId/${id}/merchant`;
+      const url = `/api/v1/seller/merchantId/${id}/merchant?providerDetails=Y`;
       const result = await getCall(url);
       const res = result.data;
       setSellerActive(res?.user?.organization?.active);

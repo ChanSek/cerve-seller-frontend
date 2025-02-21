@@ -340,7 +340,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
 
     const getOrgDetails = async (id) => {
         try {
-            const url = `/api/v1/seller/merchantId/${id}/merchant`;
+            const url = `/api/v1/seller/merchantId/${id}/merchant?providerDetails=Y`;
             const result = await getCall(url);
             const res = result.data;
             if (res?.providerDetail?.storeDetails?.deliveryTime) {
@@ -669,7 +669,6 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 cogoToast.error("Please fill in all required data!");
             }
         }
-        console.log("formErrors --------->>>>>> "+JSON.stringify(formErrors));
         return !Object.values(formErrors).some((val) => val !== "");
     };
 

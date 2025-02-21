@@ -43,7 +43,6 @@ const ThreeDotsMenu = (props) => {
     try {
       switch (action) {
         case "enable":
-          console.log("isProvider "+isProvider);
           {isProvider 
             ? (await putCall(`/api/v1/seller/merchantId/${row?.merchantId}/review`, { "updatedField": "isActive", "isActive": true })) 
             : (await putCall(`/api/v1/seller/subscriberId/${row?.subscriberId}/enable`, { "active": true }))

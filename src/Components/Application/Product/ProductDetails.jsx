@@ -505,7 +505,7 @@ const AddGenericProduct = ({
 
   const getOrgDetails = async (id) => {
     try {
-      const url = `/api/v1/seller/merchantId/${id}/merchant`;
+      const url = `/api/v1/seller/merchantId/${id}/store`;
       const res = await getCall(url);
       return res.data;
     } catch (error) { }
@@ -572,14 +572,14 @@ const AddGenericProduct = ({
       fetchProductFromCatalogue();
     }
     const user = JSON.parse(localStorage.getItem("user"));
-    getOrgDetails(user.organization._id).then((org) => {
-      const fulfillments = org.providerDetail.storeDetails.fulfillments;
-      setStoreId(org.providerDetail.storeDetails.storeId);
+    getOrgDetails(user.organization._id).then((store) => {
+      const fulfillments = store.fulfillments;
+      setStoreId(store.storeId);
       getFulfillmentOptions(fulfillments);
 
       removeFields([
-        org.providerDetail.storeDetails.defaultCancellable ? null : "cancellable",
-        org.providerDetail.storeDetails.defaultReturnable ? null : "returnable"
+        store.defaultCancellable ? null : "cancellable",
+        store.defaultReturnable ? null : "returnable"
       ].filter(Boolean));
     });
   }, []);
@@ -730,8 +730,8 @@ const AddGenericProduct = ({
     formErrors.productCode =
       formValues?.productCode?.trim() === ""
         ? "Product code is not allowed to be empty"
-        : formValues?.productCode?.length > MAX_STRING_LENGTH_13
-          ? `Cannot be more than ${MAX_STRING_LENGTH_13} characters`
+        : !/^1:(\d{8}|\d{13})$/.test(formValues?.productCode?.trim())
+          ? "Product code must be in the format '1:EMA' where EMA is a number of either 8 or 13 digits"
           : "";
     formErrors.productName =
       formValues?.productName?.trim() === ""
@@ -861,7 +861,9 @@ const AddGenericProduct = ({
         ? "Please enter a valid number"
         : !isAmountValid(formValues?.purchasePrice)
           ? "Please enter only digit"
-          : "";
+          : formValues?.price && parseFloat(formValues.purchasePrice) > parseFloat(formValues.price)
+            ? "Pruchase price cannot be greater than the actual price"
+            : "";
       formErrors.availableQty = !formValues?.availableQty
         ? "Please enter a valid Quantity"
         : !isNumberOnly(formValues?.availableQty)

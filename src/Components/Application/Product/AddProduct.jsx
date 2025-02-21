@@ -189,12 +189,6 @@ export default function AddProduct() {
     return res[0];
   };
 
-  const getOrgDetails = async (org_id) => {
-    const url = `/api/v1/seller/merchantId/${org_id}/merchant`;
-    const res = await getCall(url);
-    return res.data;
-  };
-
   const getProductCategory = async (categoryId) => {
     try {
       const url = `/api/v1/seller/reference/category/${categoryId}`;
@@ -209,46 +203,50 @@ export default function AddProduct() {
   useEffect(() => {
     const user_id = localStorage.getItem("user_id");
     getUser(user_id).then((u) => {
-      getOrgDetails(u.organization._id).then((org) => {
-        let category = org?.providerDetail?.storeDetails?.category;
-        if (!category) navigate(`/application/store-details/${u.organization._id}`);
-        categoryForm.setFormValues((prev) => {
-          return { ...prev, productCategory: category };
-        });
-        let data = [...fields]; // Create a copy of the fields array
-        const subCategoryIndex = data.findIndex(
-          (item) => item.id === "productSubcategory1"
-        );
+      const org = u.organization;
+      let category = org?.category;
+      if (!org?.storeDetailsAvailable) navigate(`/application/store-details/${u.organization._id}`);
+      categoryForm.setFormValues((prev) => {
+        return { ...prev, productCategory: category };
+      });
+      let data = [...fields]; // Create a copy of the fields array
+      const subCategoryIndex = data.findIndex(
+        (item) => item.id === "productSubcategory1"
+      );
+      if (category === 'RET10') {
         getProductCategory(category).then((categoryList) => {
           data[subCategoryIndex].options = categoryList;
           setFields(data);
         });
-      });
+      } else {
+        data[subCategoryIndex].options = PRODUCT_SUBCATEGORY[category];
+        setFields(data);
+      }
     });
   }, []);
 
-  // useEffect(() => {
-  //   let category = categoryForm.formValues["productCategory"];
-  //   console.log("category "+category);
-  //   let sub_category = categoryForm.formValues["productSubcategory1"];
-  //   console.log("sub_category "+sub_category);
-  //   if (category && category !== "F&B" && sub_category) {
-  //     console.log("true ");
-  //     let category_data = allProperties[category];
-  //     let properties = category_data?.hasOwnProperty(sub_category)
-  //       ? category_data[sub_category]
-  //       : category_data["default"] || [];
-  //     let variants = properties?.filter((property) => property.required);
-  //     let variants_checkbox_map = variants?.reduce((acc, variant) => {
-  //       acc[variant.name] = false;
-  //       return acc;
-  //     }, {});
-  //     setAttributes(properties);
-  //     setVariants(variants);
-  //     setVariantsCheckboxState(variants_checkbox_map);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [categoryForm.formValues.productSubcategory1]);
+  useEffect(() => {
+    let category = categoryForm.formValues["productCategory"];
+    console.log("category " + category);
+    let sub_category = categoryForm.formValues["productSubcategory1"];
+    console.log("sub_category " + sub_category);
+    if (category && category !== 'RET10' && category !== "F&B" && sub_category) {
+      console.log("true ");
+      let category_data = allProperties[category];
+      let properties = category_data?.hasOwnProperty(sub_category)
+        ? category_data[sub_category]
+        : category_data["default"] || [];
+      let variants = properties?.filter((property) => property.required);
+      let variants_checkbox_map = variants?.reduce((acc, variant) => {
+        acc[variant.name] = false;
+        return acc;
+      }, {});
+      setAttributes(properties);
+      setVariants(variants);
+      setVariantsCheckboxState(variants_checkbox_map);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryForm.formValues.productSubcategory1]);
 
   const renderCategoryFields = () => {
     return categoryFields.map((category_id) => {

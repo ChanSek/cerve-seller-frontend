@@ -208,10 +208,8 @@ const CustomizationGroupDetails = (props) => {
 
   const updateCustomizationGroupDetails = async (data) => {
     try {
-      console.log("update payload: ", data);
       const url = `/api/v1/customizationGroup/${params.groupId}`;
       const res = await putCall(url, data);
-      console.log({ res });
       navigate("/application/customizations/customization-groups");
       cogoToast.success("Group details updated successfully");
     } catch (error) {

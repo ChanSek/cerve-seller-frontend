@@ -3,6 +3,7 @@ import Cookies from "js-cookie";
 import { deleteAllCookies } from "../utils/cookies";
 
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
+axios.defaults.withCredentials = true;
 
 function unAuthorizedResponse() {
   deleteAllCookies();
@@ -10,12 +11,9 @@ function unAuthorizedResponse() {
 }
 
 export function getCall(url) {
-  const token = Cookies.get("token");
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await axios.get(url, {
-        headers: { ...(token && { "Authorization": `Bearer ${token}` }) },
-      });
+      const response = await axios.get(url);
       return resolve(response.data);
     } catch (err) {
       const { status } = err.response;
@@ -26,12 +24,9 @@ export function getCall(url) {
 }
 
 export function postCall(url, params) {
-  const token = Cookies.get("token");
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await axios.post(url, params, {
-        headers: { ...(token && { "Authorization": `Bearer ${token}` }) },
-      });
+      const response = await axios.post(url, params);
       return resolve(response.data);
     } catch (err) {
       if (url === "/api/v1/auth/login") {
@@ -47,11 +42,10 @@ export function postCall(url, params) {
 }
 
 export function postMediaCall(url, params) {
-  const token = Cookies.get("token");
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.post(url, params, {
-        headers: { ...(token && { "Authorization": `Bearer ${token}`, "Content-Type": "multipart/form-data" }) },
+        headers: { ...({"Content-Type": "multipart/form-data" }) },
       });
       return resolve(response.data);
     } catch (err) {
@@ -66,32 +60,9 @@ export function postMediaCall(url, params) {
 }
 
 export function putCall(url, params) {
-  const token = Cookies.get("token");
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await axios.put(url, params, {
-        headers: { ...(token && { "Authorization": `Bearer ${token}` }) },
-      });
-      return resolve(response.data);
-    } catch (err) {
-      const { status } = err.response;
-      if (status === 401) return unAuthorizedResponse();
-      return reject(err);
-    }
-  });
-}
-
-export function patchCall(url, params) {
-  const token = Cookies.get("token");
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.patch(url, params, {
-        headers: {
-          ...(token && { Authorization: `Bearer ${token}` }),
-          Origin: "http://localhost:3000",
-          "Content-Type": "application/binary",
-        },
-      });
+      const response = await axios.put(url, params );
       return resolve(response.data);
     } catch (err) {
       const { status } = err.response;
@@ -102,12 +73,9 @@ export function patchCall(url, params) {
 }
 
 export function deleteCall(url) {
-  const token = Cookies.get("token");
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await axios.delete(url, {
-        headers: { ...(token && { "Authorization": `Bearer ${token}` }) },
-      });
+      const response = await axios.delete(url);
       return resolve(response.data);
     } catch (err) {
       const { status } = err.response;

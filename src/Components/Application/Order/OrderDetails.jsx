@@ -456,8 +456,13 @@ const OrderDetails = () => {
 };
 
 const isOrderCancellable = (order) => {
-  const fulfilmentState =  order?.fulfillments[order.fulfillments.length - 1].state.descriptor.code;
-  return fulfilmentState === "Pending" || fulfilmentState === "Packed" ||  fulfilmentState === "Agent-assigned";
+  const fulfilmentState = order?.fulfillments?.[order.fulfillments.length - 1]?.state?.descriptor?.code;
+  const total = order?.items?.reduce((sum, item) => sum + (item.quantity?.count || 0), 0);
+
+  return (
+    total > 1 && 
+    (fulfilmentState === "Pending" || fulfilmentState === "Packed" || fulfilmentState === "Agent-assigned")
+  );
 };
 
 const isItemCustomization = (tags) => {

@@ -2,7 +2,7 @@ import Cookies from "js-cookie";
 import { deleteAllCookies } from "./cookies";
 
 export function isLoggedIn() {
-  const token = Cookies.get("token");
+  const token = Cookies.get("signed");
   if (token) {
     return true;
   }

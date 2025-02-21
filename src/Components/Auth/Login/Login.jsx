@@ -11,6 +11,8 @@ import { AddCookie, getValueFromCookie } from "../../../utils/cookies";
 import { postCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
 import { isObjEmpty } from "../../../utils/validations";
+import { v4 as uuidv4 } from "uuid";
+
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
@@ -78,13 +80,13 @@ export default function Login() {
       const res = await postCall(url, login);
       if (res.status == 200) {
         if (res.data.emailExist) {
-          handleRedirect(res.data.access_token, res.data.user);
+          handleRedirect(res.data.user);
         } else {
           cogoToast.error("Email not registered!");
         }
       } else if (res.status == 401) {
         cogoToast.error(res.message, { hideAfter: 5 });
-      }else {
+      } else {
         cogoToast.error("Authentication failed!");
       }
     } catch (error) {
@@ -94,9 +96,9 @@ export default function Login() {
     }
   };
 
-  function handleRedirect(token, user) {
+  function handleRedirect(user) {
     const { _id } = user;
-    AddCookie("token", token);
+    AddCookie("signed", true);
     AddCookie("organization", user?.organization);
     AddCookie("enabled", user?.enabled);
     AddCookie("sellerActive", user?.organization?.active);
@@ -105,9 +107,9 @@ export default function Login() {
     if (!user.enabled) {
       navigate("/activate");
     } else if (!isObjEmpty(user.organization)) {
-      if(user?.organization?.active){
+      if (user?.organization?.active) {
         navigate("/application/inventory")
-      }else{
+      } else {
         navigate(`/user-listings/provider-details/${user?.organization?._id}`);
       }
     } else {
@@ -116,7 +118,7 @@ export default function Login() {
   }
 
   useEffect(() => {
-    if (getValueFromCookie("token")) {
+    if (getValueFromCookie("signed")) {
       const enabled = getValueFromCookie("enabled");
       if (enabled == "true") {
         const cookieValue = getValueFromCookie("organization");
@@ -127,7 +129,7 @@ export default function Login() {
         }
       } else {
         navigate("/activate");
-      }
+      }      
     }
   }, []);
 
@@ -145,31 +147,28 @@ export default function Login() {
           Email
           <span className="text-[#FF0000]"> *</span>
         </label>
-        <CssTextField
-          id={
-            inlineError.username_error
-              ? "outlined-error"
-              : "demo-helper-text-aligned"
-          }
-          variant="standard"
-          name="username"
-          type="email"
-          placeholder="Enter Email"
-          autoComplete="off"
-          className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
-          onChange={(event) => {
-            setLogin({ ...login, username: event.target.value });
-            setInlineError((inlineError) => ({
-              ...inlineError,
-              username_error: "",
-            }));
-          }}
-          size="small"
-          onBlur={checkEmail}
-          error={inlineError.username_error ? true : false}
-          // helperText={inlineError.email_error && inlineError.email_error}
-          required
-        />
+
+<CssTextField
+  id={`username-${inlineError.username_error ? "error" : "helper"}-${uuidv4()}`}
+  variant="standard"
+  name="username"
+  type="email"
+  placeholder="Enter Email"
+  autoComplete="off"
+  className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
+  onChange={(event) => {
+    setLogin({ ...login, username: event.target.value });
+    setInlineError((inlineError) => ({
+      ...inlineError,
+      username_error: "",
+    }));
+  }}
+  size="small"
+  onBlur={checkEmail}
+  error={inlineError.username_error ? true : false}
+  required
+/>
+
       </div>
       {inlineError.username_error && (
         <ErrorMessage>{inlineError.username_error}</ErrorMessage>

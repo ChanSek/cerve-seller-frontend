@@ -16,6 +16,12 @@ export const getFormErrors = (fields, formValues) => {
           : !isAmountValid(field_value)
           ? "Please enter only digit"
           : "";
+
+          if (id === "purchasePrice" && formValues["price"]) {
+            if (parseFloat(field_value) > parseFloat(formValues["price"])) {
+              error = "Purchase price cannot be greater than the actual price";
+            }
+          }
       } else if (field.type === "upload") {
         error = field_value.length < 3 ? "Minimum 3 images are required" : "";
       } else {

@@ -61,7 +61,7 @@ export default function NewSeller() {
             }
             if (res.status && res.status === 200 && res.data.status) {
                 const { _id } = res.data.user;
-                AddCookie("token", res.data.access_token);
+                AddCookie("signed", true);
                 localStorage.setItem("user_id", _id);
                 navigate("/activate");
                 cogoToast.success("Seller Account Created Successfully", { hideAfter: 5 });

@@ -251,7 +251,7 @@ export default function Inventory() {
     const user_id = localStorage.getItem("user_id");
     getUser(user_id).then((u) => {
       // roles - Organization Admin, Super Admin
-      if (u.isSystemGeneratedPassword) {
+      if (u?.isSystemGeneratedPassword) {
         navigate("/initial-steps")
       } else {
         if (u.role.name == "Organization Admin") {
@@ -262,7 +262,7 @@ export default function Inventory() {
               navigate(`/user-listings/provider-details/${merchantId}`);
             } else {
               getOrgDetails(merchantId).then((org) => {
-                let category = org?.data?.category;
+                let category = u?.organization?.category;
                 if (!category) {
                   navigate(`/application/store-details/${merchantId}`);
                 } else {

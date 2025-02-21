@@ -9,6 +9,8 @@ import Login from "../Components/Auth/Login/Login";
 import PrivateRoute from "./PrivateRoutes";
 import OrderDetails from "../Components/Application/Order/OrderDetails";
 import UserListings from "../Components/Application/UserListings/UserListings";
+import Settlement from "../Components/Application/Settlement/Settlement";
+import Activity from "../Components/Application/GatewayActivity/Activity";
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
 import ProviderDetails from "../Components/Application/UserListings/ProviderDetails";
 import StoreDetails from "../Components/Application/UserListings/StoreDetails";
@@ -164,6 +166,22 @@ export default function OndcRoutes() {
           element={
             <PrivateRoute>
               <UserListings />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/settlement"
+          element={
+            <PrivateRoute>
+              <Settlement />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/gateway-activity"
+          element={
+            <PrivateRoute>
+              <Activity />
             </PrivateRoute>
           }
         />

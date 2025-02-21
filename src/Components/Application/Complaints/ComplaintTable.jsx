@@ -13,12 +13,6 @@ import { convertDateInStandardFormat } from "../../../utils/formatting/date.js";
 import CustomerActionCard from "./actionCard.jsx";
 import cogoToast from "cogo-toast";
 import { ISSUE_TYPES } from "../../../Constants/issue-types.js";
-import { Tooltip } from "@material-ui/core";
-import { postCall } from "../../../Api/axios.js";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import MenuItem from "@mui/material/MenuItem";
-import Button from "@mui/material/Button";
-import Menu from "@mui/material/Menu";
 
 const StyledTableCell = styled(TableCell)({
   "&.MuiTableCell-root": {
@@ -37,7 +31,7 @@ export default function ComplaintTable(props) {
   const navigate = useNavigate();
   const [toggleActionModal, setToggleActionModal] = useState(false);
   const [supportActionDetails, setSupportActionDetails] = useState();
-  const [data, setData] = useState(props.data);
+  //const [data, setData] = useState(props.data);
 
   const AllCategory = ISSUE_TYPES.map((item) => {
     return item.subCategory.map((subcategoryItem) => {
@@ -57,114 +51,113 @@ export default function ComplaintTable(props) {
     handlePageChange(0);
   };
 
-  const ThreeDotsMenu = ({ row }) => {
-    const issue = row.issue;
-    const context = row.context;
-    const user = props.user;
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [resolved, setResolved] = useState(
-      issue.issue_actions?.respondent_actions?.some(
-        (x) => x.respondent_action === "PROCESSING"
-      )
-    );
+  // const ThreeDotsMenu = ({ row }) => {
+  //   const issue = row.issue;
+  //   const context = row.context;
+  //   const user = props.user;
+  //   const [anchorEl, setAnchorEl] = useState(null);
+  //   const [loading, setLoading] = useState(false);
+  //   const [resolved, setResolved] = useState(
+  //     issue.issue_actions?.respondent_actions?.some(
+  //       (x) => x.respondent_action === "PROCESSING"
+  //     )
+  //   );
 
-    function handleMenuClick() {
-      setSupportActionDetails(row);
-      handleClose();
-      setToggleActionModal(true);
-    }
+  //   function handleMenuClick() {
+  //     setSupportActionDetails(row);
+  //     handleClose();
+  //     setToggleActionModal(true);
+  //   }
 
-    const handleClick = (e) => {
-      console.log(e);
-      setAnchorEl(e.currentTarget);
-    };
+  //   const handleClick = (e) => {
+  //     console.log(e);
+  //     setAnchorEl(e.currentTarget);
+  //   };
 
-    const handleClose = () => {
-      setAnchorEl(null);
-    };
+  //   const handleClose = () => {
+  //     setAnchorEl(null);
+  //   };
 
-    const handleAction = () => {
-      setLoading(true);
-      const body = {
-        transaction_id: context.transaction_id,
-        respondent_action: "PROCESSING",
-        short_desc: "We are investigating your concern.",
-        updated_by: {
-          org: {
-            name: user.organization,
-          },
-          contact: {
-            phone: user.mobile,
-            email: user.email,
-          },
-          person: {
-            name: user.name,
-          },
-        },
-      };
-      postCall(`/api/client/issue_response`, body)
-        .then((resp) => {
-          setLoading(false);
-          if (resp.success) {
-            cogoToast.success("Action taken successfully");
-            setResolved(true);
-          } else {
-            cogoToast.error(resp.message);
-          }
-        })
-        .catch((error) => {
-          setLoading(false);
-          console.log(error);
-          cogoToast.error(error.response.data.error);
-        });
-    };
+  //   const handleAction = () => {
+  //     setLoading(true);
+  //     const body = {
+  //       transaction_id: context.transaction_id,
+  //       respondent_action: "PROCESSING",
+  //       short_desc: "We are investigating your concern.",
+  //       updated_by: {
+  //         org: {
+  //           name: user.organization,
+  //         },
+  //         contact: {
+  //           phone: user.mobile,
+  //           email: user.email,
+  //         },
+  //         person: {
+  //           name: user.name,
+  //         },
+  //       },
+  //     };
+  //     postCall(`/api/client/issue_response`, body)
+  //       .then((resp) => {
+  //         setLoading(false);
+  //         if (resp.success) {
+  //           cogoToast.success("Action taken successfully");
+  //           setResolved(true);
+  //         } else {
+  //           cogoToast.error(resp.message);
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         setLoading(false);
+  //         console.log(error);
+  //         cogoToast.error(error.response.data.error);
+  //       });
+  //   };
 
-    return (
-      <Fragment>
-        <Tooltip title="Action">
-          <Button onClick={handleClick}>
-            <MoreVertIcon />
-          </Button>
-        </Tooltip>
-        <Menu
-          id="card-actions-menu"
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
-        >
-          {issue.status === "CLOSED" ? (
-            <MenuItem disabled>No Action Required</MenuItem>
-          ) : (
-            <>
-              <MenuItem
-                disabled={loading || resolved}
-                onClick={() => {
-                  handleAction();
-                }}
-              >
-                Process
-              </MenuItem>
-              <MenuItem
-                disabled={
-                  !issue.issue_actions?.respondent_actions?.some(
-                    (x) => x.respondent_action === "PROCESSING"
-                  ) && !resolved
-                }
-                onClick={() => handleMenuClick()}
-              >
-                Resolve
-              </MenuItem>
-            </>
-          )}
-        </Menu>
-      </Fragment>
-    );
-  };
+  //   return (
+  //     <Fragment>
+  //       <Tooltip title="Action">
+  //         <Button onClick={handleClick}>
+  //           <MoreVertIcon />
+  //         </Button>
+  //       </Tooltip>
+  //       <Menu
+  //         id="card-actions-menu"
+  //         anchorEl={anchorEl}
+  //         keepMounted
+  //         open={Boolean(anchorEl)}
+  //         onClose={handleClose}
+  //       >
+  //         {issue.status === "CLOSED" ? (
+  //           <MenuItem disabled>No Action Required</MenuItem>
+  //         ) : (
+  //           <>
+  //             <MenuItem
+  //               disabled={loading || resolved}
+  //               onClick={() => {
+  //                 handleAction();
+  //               }}
+  //             >
+  //               Process
+  //             </MenuItem>
+  //             <MenuItem
+  //               disabled={
+  //                 !issue.issue_actions?.respondent_actions?.some(
+  //                   (x) => x.respondent_action === "PROCESSING"
+  //                 ) && !resolved
+  //               }
+  //               onClick={() => handleMenuClick()}
+  //             >
+  //               Resolve
+  //             </MenuItem>
+  //           </>
+  //         )}
+  //       </Menu>
+  //     </Fragment>
+  //   );
+  // };
 
   const renderColumn = (row, column) => {
-    console.log("row ++++++++++++++++++ "+JSON.stringify(row));
     const issue = row.issue;
     const value = issue[column.id];
     const short_description = issue.description.short_desc;
@@ -221,8 +214,8 @@ export default function ComplaintTable(props) {
             <br />
           </div>
         );
-      case "action":
-        return <ThreeDotsMenu row={row} />;
+      // case "action":
+      //   return <ThreeDotsMenu row={row} />;
       default:
         break;
     }
@@ -259,7 +252,7 @@ export default function ComplaintTable(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row, index) => {
+            {props.data.map((row, index) => {
               return (
                 <TableRow
                   style={{ cursor: "pointer" }}
@@ -274,7 +267,7 @@ export default function ComplaintTable(props) {
                         onClick={() => {
                           column.id !== "action" &&
                             navigate(
-                              `/application/complaints/${row.issue?.id}`
+                              `/application/complaints/${row?._id}`
                             );
                         }}
                         key={column.id}

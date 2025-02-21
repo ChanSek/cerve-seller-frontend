@@ -69,6 +69,7 @@ const InviteProvider = () => {
     IFSC: "",
     bankName: "",
     branchName: "",
+    beneficiaryName: "",
     cancelledCheque: "",
     captcha: "",
   };
@@ -163,6 +164,7 @@ const InviteProvider = () => {
       };
       const url = `/api/v1/seller/subscriberId/${subscriberId}/merchant`;
       const res = await postCall(url, data);
+      
       if (persistence) {
         setFormSubmited(false);
         if (res.status && res.status !== 200) {

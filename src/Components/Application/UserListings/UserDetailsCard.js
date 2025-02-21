@@ -105,7 +105,7 @@ const UserDetailsCard = ({ selectedTab, details }) => {
       const res = await putCall(url, data);
 
       if (res.status && res.status === 200) {
-        details[key].value = value;
+        details[key].value = res.data;
         cogoToast.success(formatLabel(key) + ' updated successfully.', { hideAfter: 5 });
       }
     } catch (error) {
@@ -165,9 +165,10 @@ const UserDetailsCard = ({ selectedTab, details }) => {
         break;
 
       case "accountNumber":
+        console.log("value "+value);
         if (value && value.toString().length < 9 || value.toString().length > 18) {
-          errors[field.id] = "Invliad Account Number";
-        }else if (value && isValidBankAccountNumber(value)) {
+          errors[field.id] = "Account Number Between 9 and 18";
+        }else if (value && !isValidBankAccountNumber(value)) {
           errors[field.id] = "Invliad Account Number";
         }
         break;

@@ -913,7 +913,7 @@ const RenderInput = (props) => {
                         tempUrl = e.target.result;
                         stateHandler({
                           ...state,
-                          [item.id]: response.data.urls,
+                          [item.id]: (response.data?.endPoint ? response.data.endPoint : response.data.urls),
                           tempURL: {
                             ...state.tempURL,
                             [item.id]: tempUrl,

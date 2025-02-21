@@ -14,7 +14,8 @@ export const FILTER_OPTIONS = {
 };
 
 export const PRODUCT_CATEGORY = {
-    "RET10": "Grocery"
+    "RET10": "Grocery",
+    "RET12": "Fashion"
 }
 
 export const DELIVERY_TYPE_LIST = {
@@ -396,7 +397,7 @@ export const PRODUCT_SUBCATEGORY = {
             "protocolKey": "@ondc/org/statutory_reqs_packaged_commodities"
         }
     ],
-    "Fashion": [
+    "RET12": [
         {
             "value": "Shirts",
             "key": "Shirts",
