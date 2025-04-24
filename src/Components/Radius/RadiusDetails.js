@@ -2,7 +2,6 @@ import { Button } from "@mui/material";
 import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
 import { getCall } from "../../Api/axios";
-import ScriptTag from "react-script-tag";
 import RenderInput from "../../utils/RenderInput";
 
 let circleFields = [
@@ -14,6 +13,17 @@ let circleFields = [
         required: true,
     }
 ]
+
+function useScript(src, onLoad) {
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = onLoad;
+    document.body.appendChild(script);
+    return () => { document.body.removeChild(script); };
+  }, [src, onLoad]);
+}
 
 const RadiusDetails = (props) => {
     const { showRadiusModal, polygonPoints, setPolygonPoints, setShowRadiusModal } = props;

@@ -1,7 +1,6 @@
 import { Button } from "@mui/material";
 import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
-import ScriptTag from "react-script-tag";
 
 const pts = [
   { lat: 29.218021299904706, lng: 76.82642543790467 },
@@ -17,6 +16,17 @@ const pts = [
   { lat: 28.004868266263415, lng: 75.36156716304546 },
   { lat: 28.66171186165053, lng: 75.69323318754206 },
 ];
+
+function useScript(src, onLoad) {
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = onLoad;
+    document.body.appendChild(script);
+    return () => { document.body.removeChild(script); };
+  }, [src, onLoad]);
+}
 
 const PolygonMap = (props) => {
   const { openPolygonMap, polygonPoints, setPolygonPoints, setOpenPolygonMap } = props;
@@ -98,14 +108,13 @@ const PolygonMap = (props) => {
     [toggle]
   );
 
+  useScript(
+    `https://apis.mappls.com/advancedmaps/api/${apiKey}/map_sdk?layer=vector&v=3.0&callback=initMap1`,
+    () => setScript1Loaded(true)
+  );
+
   return (
     <div>
-      <ScriptTag
-        isHydrating={true}
-        type="text/javascript"
-        src={`https://apis.mappls.com/advancedmaps/api/${apiKey}/map_sdk?layer=vector&v=3.0&callback=initMap1`}
-        onLoad={() => setScript1Loaded(true)}
-      />
       {script1Loaded && <div id="map" ref={ref} style={{ height: "70vh", borderRadius: 4 }} />}
       <div className="flex justify-end mt-4">
         <Button style={{ marginRight: 14 }} variant="outlined" onClick={() => setOpenPolygonMap(false)}>

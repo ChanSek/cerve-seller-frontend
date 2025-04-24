@@ -1,9 +1,19 @@
 import { useCallback, useEffect, useRef, useMemo, useState } from "react";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import axios from "axios";
-import ScriptTag from "react-script-tag";
 import "./PlacePickerMap.css";
 import {getCall} from "../../Api/axios";
+
+function useScript(src, onLoad) {
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = onLoad;
+    document.body.appendChild(script);
+    return () => { document.body.removeChild(script); };
+  }, [src, onLoad]);
+}
 
 export default function MapPointer(props) {
   const {
@@ -52,7 +62,7 @@ export default function MapPointer(props) {
     const { lat, lng } = data;
     if (lat && lng) {
       setLocation(data);
-    } else cogoToast.error("Location not found. Please try moving map.");
+    } else toast.error("Location not found. Please try moving map.");
   };
 
   useEffect(() => {
@@ -72,20 +82,17 @@ export default function MapPointer(props) {
     new MapmyIndia.placePicker(options);
   }, [mapInitialised, props]);
 
+  useScript(
+    `https://apis.mapmyindia.com/advancedmaps/v1/${apiKey}/map_load?v=1.3`,
+    () => setScript1Loaded(true)
+  );
+  useScript(
+    `https://apis.mapmyindia.com/advancedmaps/api/${apiKey}/map_sdk_plugins`,
+    () => setScript2Loaded(true)
+  );
+
   return (
     <div style={{ width: "100%", height: "100%" }}>
-      <ScriptTag
-        isHydrating={true}
-        type="text/javascript"
-        src={`https://apis.mapmyindia.com/advancedmaps/v1/${apiKey}/map_load?v=1.3`}
-        onLoad={() => setScript1Loaded(true)}
-      />
-      <ScriptTag
-        isHydrating={true}
-        type="text/javascript"
-        src={`https://apis.mapmyindia.com/advancedmaps/api/${apiKey}/map_sdk_plugins`}
-        onLoad={() => setScript2Loaded(true)}
-      />
       {script1Loaded && script2Loaded && <div id="map" ref={ref} />}
     </div>
   );
