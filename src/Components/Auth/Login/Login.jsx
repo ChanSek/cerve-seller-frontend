@@ -6,13 +6,12 @@ import ErrorMessage from "../../Shared/ErrorMessage";
 import TextField from "@mui/material/TextField";
 import { styled } from "@mui/material/styles";
 import { isEmailValid } from "../../../utils/validations";
-import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
 import { AddCookie, getValueFromCookie } from "../../../utils/cookies";
 import { postCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { isObjEmpty } from "../../../utils/validations";
 import { v4 as uuidv4 } from "uuid";
-
+import ReCAPTCHA from "react-google-recaptcha";
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
@@ -42,6 +41,7 @@ export default function Login() {
   });
   const [captchaVal, setCaptchaVal] = useState('');
   const [enableCaptcha, setEnableCaptcha] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState("");
 
   // use this function to check the email
   function checkEmail() {
@@ -75,6 +75,13 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (enableCaptcha && !recaptchaToken) {
+      setInlineError((inlineError) => ({
+        ...inlineError,
+        captcha_error: "Please complete the captcha.",
+      }));
+      return;
+    }
     const url = "/api/v1/auth/login";
     try {
       const res = await postCall(url, login);
@@ -82,17 +89,16 @@ export default function Login() {
         if (res.data.emailExist) {
           handleRedirect(res.data.user);
         } else {
-          cogoToast.error("Email not registered!");
+          toast.error("Email not registered!");
         }
       } else if (res.status == 401) {
-        cogoToast.error(res.message, { hideAfter: 5 });
+        toast.error(res.message, { hideAfter: 5 });
       } else {
-        cogoToast.error("Authentication failed!");
+        toast.error("Authentication failed!");
       }
     } catch (error) {
-      cogoToast.error("Authentication failed!");
-      //setEnableCaptcha(true)
-      //loadCaptchaEnginge(6)
+      toast.error("Authentication failed!");
+      setEnableCaptcha(true);
     }
   };
 
@@ -132,10 +138,6 @@ export default function Login() {
       }      
     }
   }, []);
-
-  useEffect(() => {
-    if (enableCaptcha) loadCaptchaEnginge(6)
-  }, [enableCaptcha])
 
   const loginForm = (
     <div className="m-auto w-10/12 md:w-3/4">
@@ -212,18 +214,11 @@ export default function Login() {
       )}
       {enableCaptcha && (
         <>
-          <div className="py-1"><LoadCanvasTemplate /></div>
           <div className="py-1">
-            <CssTextField
-              required
-              size="small"
-              name="captchaVal"
-              type="text"
-              placeholder="Enter Captcha Value"
-              autoComplete="off"
-              className="w-full h-full px-2.5 py-3.5 text-[#606161] bg-transparent !border-black"
-              onChange={(event) => {
-                setCaptchaVal(event.target.value);
+            <ReCAPTCHA
+              sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+              onChange={(token) => {
+                setRecaptchaToken(token);
                 setInlineError((inlineError) => ({
                   ...inlineError,
                   captcha_error: "",
