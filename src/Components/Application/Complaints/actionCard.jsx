@@ -4,7 +4,7 @@ import Button from "../../Shared/Button";
 import styles from "../../../Styles/actionCard.module.scss"
 import { postCall } from "../../../Api/axios";
 import CustomRadioButton from "./CustomRadioButton";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import ErrorMessage from "../../Shared/ErrorMessage";
 import { ONDC_COLORS } from "../../Shared/Colors";
 import { TextField } from "@mui/material";
@@ -125,13 +125,13 @@ export default function CustomerActionCard({
         if (resp?.status === 200) {
           onSuccess(supportActionDetails.transactionId)
         } else {
-          cogoToast.error(resp.message);
+          toast.error(resp.message);
         }
       })
       .catch((error) => {
         setLoading(false)
         console.log(error);
-        cogoToast.error(error.response.data.error);
+        toast.error(error.response.data.error);
       });
   }
 

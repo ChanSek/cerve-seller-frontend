@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import React, { useState } from "react";
 import { useEffect } from "react";
@@ -475,7 +475,7 @@ const ProviderInitialSteps = () => {
       const res = await postCall(url, data);
       navigate("/application/inventory");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
       console.log(error.response);
     }
   };

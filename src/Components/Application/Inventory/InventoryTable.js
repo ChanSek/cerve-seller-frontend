@@ -15,8 +15,8 @@ import Menu from "@mui/material/Menu";
 import { styled } from "@mui/material/styles";
 import { useNavigate, Link } from "react-router-dom";
 import { getCall, postCall, putCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
-import Tooltip from "@material-ui/core/Tooltip";
+import { toast } from "react-toastify";
+import Tooltip from "@mui/material/Tooltip";
 import { FormControlLabel, IconButton, InputAdornment, Modal, Radio, TextField } from "@mui/material";
 import { Search } from "@mui/icons-material";
 
@@ -86,12 +86,12 @@ export default function InventoryTable(props) {
       const url = `/api/v1/seller/productId/${product_id}/publish`;
       putCall(url, { published: !published })
         .then((resp) => {
-          cogoToast.success("Product state updated successfully");
+          toast.success("Product state updated successfully");
           onRefresh();
         })
         .catch((error) => {
           console.log(error);
-          cogoToast.error(error.response.data.error);
+          toast.error(error.response.data.error);
         });
     };
 

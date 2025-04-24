@@ -7,7 +7,7 @@ import {
   isPhoneNoValid,
 } from "../../utils/validations";
 import { postCall } from "../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import useForm from "../../hooks/useForm";
 import userFields from "./provider-user-fields";
@@ -52,18 +52,18 @@ const AddSeller = () => {
       const res = await postCall(url, data);
       setFormSubmited(false);
       if (res.status && res.status !== 200) {
-        cogoToast.error(res.message, { hideAfter: 5 });
+        toast.error(res.message, { hideAfter: 5 });
       }
       if (res.status && res.status === 200 && res.data.status) {
         const { _id } = res.data.user;
         AddCookie("token", res.data.access_token);
         localStorage.setItem("user_id", _id);
         navigate("/activate");
-        cogoToast.success("Seller Account Created Successfully", { hideAfter: 5 });
+        toast.success("Seller Account Created Successfully", { hideAfter: 5 });
       }
     } catch (error) {
       console.log("error.response", error.response);
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 

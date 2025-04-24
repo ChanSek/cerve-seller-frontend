@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import useForm from "../../../hooks/useForm";
 import { Button } from "@mui/material";
 import { putCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import EditIcon from '@mui/icons-material/Edit';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Tooltip from '@mui/material/Tooltip';
@@ -106,12 +106,12 @@ const UserDetailsCard = ({ selectedTab, details }) => {
 
       if (res.status && res.status === 200) {
         details[key].value = res.data;
-        cogoToast.success(formatLabel(key) + ' updated successfully.', { hideAfter: 5 });
+        toast.success(formatLabel(key) + ' updated successfully.', { autoClose: 5000 });
       }
     } catch (error) {
       console.log("error", error);
       console.log("error.response", error.response);
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
 
     handleModalClose();

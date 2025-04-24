@@ -12,7 +12,7 @@ import {
   isValidGSTIN,
 } from "../../utils/validations";
 import { postCall } from "../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { containsOnlyNumbers } from "../../utils/formatting/string";
 import useForm from "../../hooks/useForm";
@@ -99,12 +99,12 @@ const InviteProvider = () => {
       const url = `/api/v1/organizations`;
       const res = await postCall(url, data);
       navigate("/application/user-listings");
-      cogoToast.success(
+      toast.success(
         "Provider created successfully and invitation sent on e-mail"
       );
     } catch (error) {
       console.log("error.response", error.response);
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 

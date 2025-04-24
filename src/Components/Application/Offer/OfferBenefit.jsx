@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useForm from "../../../hooks/useForm";
 import { getCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { FormControl, MenuItem, Autocomplete, Select, TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -55,7 +55,7 @@ console.log(formValues)
 
       setProducts(all_products);
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   }
 

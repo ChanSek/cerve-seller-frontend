@@ -11,7 +11,7 @@ import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { convertDateInStandardFormat } from "../../../utils/formatting/date.js";
 import CustomerActionCard from "./actionCard.jsx";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { ISSUE_TYPES } from "../../../Constants/issue-types.js";
 
 const StyledTableCell = styled(TableCell)({
@@ -101,16 +101,16 @@ export default function ComplaintTable(props) {
   //       .then((resp) => {
   //         setLoading(false);
   //         if (resp.success) {
-  //           cogoToast.success("Action taken successfully");
+  //           toast.success("Action taken successfully");
   //           setResolved(true);
   //         } else {
-  //           cogoToast.error(resp.message);
+  //           toast.error(resp.message);
   //         }
   //       })
   //       .catch((error) => {
   //         setLoading(false);
   //         console.log(error);
-  //         cogoToast.error(error.response.data.error);
+  //         toast.error(error.response.data.error);
   //       });
   //   };
 
@@ -229,7 +229,7 @@ export default function ComplaintTable(props) {
           supportActionDetails={supportActionDetails}
           onClose={() => setToggleActionModal(false)}
           onSuccess={() => {
-            cogoToast.success("Action taken successfully");
+            toast.success("Action taken successfully");
             setToggleActionModal(false);
             props.onSuccess();
           }}

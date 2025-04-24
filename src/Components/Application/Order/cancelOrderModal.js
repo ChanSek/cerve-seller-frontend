@@ -7,8 +7,7 @@ import {
 } from "@mui/material";
 import { CANCELATION_REASONS } from "./order-cancelation-reason";
 import { postCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
-
+import { toast } from "react-toastify";
 
 const CancelOrderModal = (props) => {
   const { showModal, handleCloseModal, data, onOrderCancel } = props;
@@ -17,7 +16,7 @@ const CancelOrderModal = (props) => {
   const cancelOrder = async () => {
     const url = `/api/v1/seller/order/${data?.order_id}/cancel`;
     await postCall(url, { cancellation_reason_id: reason });
-    cogoToast.success("Order cancelled successfully!");
+    toast.success("Order cancelled successfully!");
     handleCloseModal();
     await new Promise(resolve => setTimeout(resolve, 500));
     onOrderCancel();

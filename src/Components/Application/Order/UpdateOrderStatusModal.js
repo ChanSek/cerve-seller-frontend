@@ -6,7 +6,7 @@ import {
   Select
 } from "@mui/material";
 import { getCall, postCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { DELIVERY_FULFILLMENT_STATUS, RTO_FULFILLMENT_STATUS } from "./order-fulfillment-status";
 import { RTO_REASONS } from "./rto-reasons";
 
@@ -76,12 +76,12 @@ const UpdateOrderStatus = (props) => {
   const updateStatus = async () => {
     if (!selectedStatus.fulfillmentStatus) {
       // Show validation error message
-      cogoToast.error("Please select a status before updating.");
+      toast.error("Please select a status before updating.");
       return;
     }
     // Validate both the main status and the additional reason
     if (selectedStatus.fulfillmentStatus === "RTO-Initiated" && !selectedReason) {
-      cogoToast.error("Please select a reason to Initiate the RTO.");
+      toast.error("Please select a reason to Initiate the RTO.");
       return;
     }
     const url = `/api/v1/seller/fulfillment/${order?.orderId}/state`;
@@ -91,7 +91,7 @@ const UpdateOrderStatus = (props) => {
       newState: selectedStatus.fulfillmentStatus,
       reasonId: selectedReason
     });
-    cogoToast.success("Order Status Successfully Updated!");
+    toast.success("Order Status Successfully Updated!");
     setloading({ ...loading, update_order_loading: false });
     handleCloseModal();
     await new Promise(resolve => setTimeout(resolve, 500));

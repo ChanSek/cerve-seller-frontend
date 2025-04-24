@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import RenderInput from "../../utils/RenderInput";
 import { isNumberOnly } from "../../utils/validations";
 import { postCall } from "../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import useForm from "../../hooks/useForm";
 import userFields from "./seller-activation-fields";
@@ -41,20 +41,20 @@ export default function ActivateSeller() {
             const url = `/api/v1/seller/subscriberId/${subscriberId}/activate`;
             const res = await postCall(url, data);
             if (res.status && res.status !== 200) {
-                cogoToast.error(res.message, { hideAfter: 5 });
+                toast.error(res.message, { autoClose: 5000 });
             }
             if (res.status && res.status === 200) {
                 if (res.data.status) {
                     AddCookie("enabled", res.data.status);
                     navigate("/");
-                    cogoToast.success(res.data.message, { hideAfter: 5 });
+                    toast.success(res.data.message, { autoClose: 5000 });
                 } else {
-                    cogoToast.error(res.data.message, { hideAfter: 15 });
+                    toast.error(res.data.message, { autoClose: 15000 });
                 }
             }
         } catch (error) {
             console.log("error.response", error.response);
-            cogoToast.error(error.response.data.error);
+            toast.error(error.response.data.error);
         }
     };
 
@@ -65,18 +65,18 @@ export default function ActivateSeller() {
             const url = `/api/v1/seller/subscriberId/${subscriberId}/regenerateKey`;
             const res = await postCall(url, data);
             if (res.status && res.status !== 200) {
-                cogoToast.error(res.message, { hideAfter: 5 });
+                toast.error(res.message, { autoClose: 5000 });
             }
             if (res.status && res.status === 200) {
                 if (res.data.status) {
-                    cogoToast.success(res.data.message, { hideAfter: 10 });
+                    toast.success(res.data.message, { autoClose: 10000 });
                 } else {
-                    cogoToast.error(res.data.message, { hideAfter: 5 });
+                    toast.error(res.data.message, { autoClose: 5000 });
                 }
             }
         } catch (error) {
             console.log("error.response", error.response);
-            cogoToast.error(error.response.data.error);
+            toast.error(error.response.data.error);
         }
     };
     useEffect(() => {

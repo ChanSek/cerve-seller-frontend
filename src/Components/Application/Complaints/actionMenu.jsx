@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { postCall } from '../../../Api/axios';
-import cogoToast from 'cogo-toast';
+import { toast } from 'react-toastify';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
@@ -68,16 +68,16 @@ const ThreeDotsMenu = ({row, user, handleMenuClick, expanded}) => {
         .then((resp) => {
           setLoading(false)
           if(resp.message?.ack?.status === "ACK") {
-          cogoToast.success("Action taken successfully");
+          toast.success("Action taken successfully");
           setProcessed(true)
           }else{
-            cogoToast.error(resp.message);
+            toast.error(resp.message);
           }
         })
         .catch((error) => {
           setLoading(false)
           console.log(error);
-          cogoToast.error(error.response.data.error);
+          toast.error(error.response.data.error);
         });
      }
   

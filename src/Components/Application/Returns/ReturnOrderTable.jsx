@@ -22,7 +22,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { postCall } from "../../../Api/axios.js";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { EditOutlined } from "@mui/icons-material";
 import { RETURN_REJECT_REASONS } from "./return-reject-reasons.js";
 import { PICKUP_REJECT_REASONS } from "./pickup-failed-reason.js";
@@ -101,13 +101,13 @@ const ActionMenu = ({ row, handleRefresh }) => {
     } else { }
     postCall(url, data)
       .then((resp) => {
-        cogoToast.success("Status updated successfully");
+        toast.success("Status updated successfully");
         handleClose();
         handleRefresh();
       })
       .catch((error) => {
         console.log(error);
-        cogoToast.error(error.response?.data?.error || error.message);
+        toast.error(error.response?.data?.error || error.message);
       });
   };
 

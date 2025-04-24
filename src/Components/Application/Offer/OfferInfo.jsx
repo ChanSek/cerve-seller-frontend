@@ -7,7 +7,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import RenderInput from "../../../utils/RenderInput";
 import { getCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import moment from "moment";
 
 const CssTextField = styled(TextField)({
@@ -101,7 +101,7 @@ const OfferInfo = ({ formData, onFormUpdate, offerInfoFormErrors, setOfferType, 
 
       setProducts(filteredProducts);
     } catch (error) {
-      cogoToast.error(error.message);
+      toast.error(error.message);
     }
   }
 

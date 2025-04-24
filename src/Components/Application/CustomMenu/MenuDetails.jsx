@@ -8,7 +8,7 @@ import MenuBasicInfo from "./MenuBasicInfo";
 import MenuProducts from "./MenuProducts";
 import { Button } from "@mui/material";
 import { getCall, putCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import StoreTimingsRenderer from "../UserListings/StoreTimingsRenderer";
 
 const initialMenuDetails = {
@@ -128,7 +128,7 @@ const MenuDetails = () => {
       });
       setAllProducts(all_products);
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 
@@ -156,9 +156,9 @@ const MenuDetails = () => {
 
       const res = await putCall(url, updatedData);
       getMenuDetails();
-      cogoToast.success("Menu details updated successfully");
+      toast.success("Menu details updated successfully");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 

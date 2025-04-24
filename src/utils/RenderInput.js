@@ -23,7 +23,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import moment from "moment";
 import dayjs from "dayjs";
 import axios from "axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import PlacePickerMap from "../Components/PlacePickerMap/PlacePickerMap";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
@@ -873,13 +873,13 @@ const RenderInput = (props) => {
               const token = Cookies.get("token");
               for (const file of e.target.files) {
                 if (!file.type.startsWith("image/")) {
-                  cogoToast.warn("Only image files are allowed");
+                  toast.warn("Only image files are allowed");
                   // reset file input
                   uploadFileRef.current.value = null;
                   return;
                 }
                 if (file.size > allowedMaxSize) {
-                  cogoToast.warn("File size should be less than 2 MB");
+                  toast.warn("File size should be less than 2 MB");
                   // reset file input
                   uploadFileRef.current.value = null;
                   return;

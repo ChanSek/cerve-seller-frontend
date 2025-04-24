@@ -5,7 +5,7 @@ import RenderInput from "../../../utils/RenderInput";
 import { areObjectsEqual, isEmailValid, isNumberOnly, isPhoneNoValid } from "../../../utils/validations";
 import { useEffect } from "react";
 import { getCall, postCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
 import moment from "moment";
 import StoreTimingsRenderer from "./StoreTimingsRenderer";
@@ -664,9 +664,9 @@ const StoreDetails = ({ isFromUserListing = false }) => {
         setErrors(formErrors);
         if (Object.values(formErrors).some((val) => val !== "")) {
             if (formErrors.customArea && formErrors.customArea !== "") {
-                cogoToast.error(formErrors.customArea);
+                toast.error(formErrors.customArea);
             } else {
-                cogoToast.error("Please fill in all required data!");
+                toast.error("Please fill in all required data!");
             }
         }
         return !Object.values(formErrors).some((val) => val !== "");
@@ -832,17 +832,17 @@ const StoreDetails = ({ isFromUserListing = false }) => {
             postCall(url, payload)
                 .then((resp) => {
                     if (resp.status && resp.status !== 200) {
-                        cogoToast.error(resp.message, { hideAfter: 5 });
+                        toast.error(resp.message, { autoClose: 5000 });
                     }
                     if (resp.status && resp.status === 200) {
-                        cogoToast.success("Store details updated successfully", { hideAfter: 5 });
+                        toast.success("Store details updated successfully", { autoClose: 5000 });
                         getOrgDetails(provider_id);
                         navigate("/application/inventory");
                     }
                 })
                 .catch((error) => {
                     console.log(error);
-                    cogoToast.error(error.response.data.error);
+                    toast.error(error.response.data.error);
                 });
         }
     };

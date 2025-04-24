@@ -13,7 +13,7 @@ import {
   TableRow,
   Button,
 } from "@mui/material";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { postCall } from "../../../Api/axios.js";
 import { useTheme } from "@mui/material/styles";
 
@@ -30,25 +30,25 @@ const PendingSettlementModal = ({ open, onClose, loading, settlementDetails, err
         ""
       );
       if (!userInput) {
-        cogoToast.warn("Action cancelled: Type input is required.");
+        toast.warn("Action cancelled: Type input is required.");
         return;
       }
       if (!validInputs.includes(userInput.trim())) {
-        cogoToast.warn("Action cancelled: Valid settle type is required.");
+        toast.warn("Action cancelled: Valid settle type is required.");
         return;
       }
     }
     postCall(`/api/v1/seller/${settlementId}/${action}?type=${userInput}`, {})
       .then((resp) => {
         if (resp?.status === 200) {
-          cogoToast.success("Action taken successfully");
+          toast.success("Action taken successfully");
         } else {
-          cogoToast.error(resp.message);
+          toast.error(resp.message);
         }
       })
       .catch((error) => {
         console.error(error);
-        cogoToast.error(error.response.data.error);
+        toast.error(error.response.data.error);
       });
   };
 
@@ -57,14 +57,14 @@ const PendingSettlementModal = ({ open, onClose, loading, settlementDetails, err
     postCall(`/api/v1/seller/assign`, [itemId])
       .then((resp) => {
         if (resp?.status === 200) {
-          cogoToast.success("Assigned successfully");
+          toast.success("Assigned successfully");
         } else {
-          cogoToast.error(resp.message);
+          toast.error(resp.message);
         }
       })
       .catch((error) => {
         console.error(error);
-        cogoToast.error(error.response.data.error);
+        toast.error(error.response.data.error);
       });
   };
 

@@ -10,8 +10,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { postCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
-
+import { toast } from "react-toastify";
 
 const modalStyle = {
   position: "absolute",
@@ -63,13 +62,13 @@ export default function InfoRequestModal({ user, supportActionDetails, open, han
             onSuccess(resp.message);
           }
         } else {
-          cogoToast.error(resp.message);
+          toast.error(resp.message);
         }
       })
       .catch((error) => {
         setLoading(false);
         console.log(error);
-        cogoToast.error(error.response?.data?.error || "Error occurred");
+        toast.error(error.response?.data?.error || "Error occurred");
       });
     handleClose();
   };

@@ -3,7 +3,7 @@ import { Button } from "@mui/material";
 import RenderInput from "../../utils/RenderInput";
 import { isEmailValid, isPhoneNoValid } from "../../utils/validations";
 import { postCall } from "../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import useForm from '../../hooks/useForm'
 
@@ -62,10 +62,10 @@ const InviteAdmin = () => {
       const res = await postCall(url, formValues);
       if(res){
         navigate("/application/user-listings");
-        cogoToast.success("Admin created successfully and invitation sent on e-mail");
+        toast.success("Admin created successfully and invitation sent on e-mail");
       }
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 

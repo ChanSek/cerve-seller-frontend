@@ -3,7 +3,7 @@ import { getCall, postCall } from "../../../Api/axios";
 import { useTheme } from '@mui/material/styles';
 import ComplaintTable from "./ComplaintTable";
 import Button from "../../Shared/Button";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 
 const columns = [
   {
@@ -69,7 +69,7 @@ export default function Complaints() {
   const initiateSession = async () => {
     const url = `/api/v1/seller/initiateIssue`;
     await postCall(url, {}).then(() => {
-      cogoToast.success("New Session Initiated Successfully");
+      toast.success("New Session Initiated Successfully");
     });
   };
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import UserTable from "./UserTable";
 import { Tab, Tabs } from "@mui/material";
 import { getCall } from "../../../Api/axios";
@@ -122,7 +122,7 @@ const UserListings = () => {
       setAdmins(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 
@@ -137,7 +137,7 @@ const UserListings = () => {
       setProviders(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 

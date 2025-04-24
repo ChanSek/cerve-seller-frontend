@@ -5,7 +5,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Navbar from "../../Shared/Navbar";
 import { getCall, postCall } from "../../../Api/axios.js";
 import { Link, Button, CircularProgress } from "@mui/material";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
 
 const BulkUpload = () => {
@@ -27,14 +27,14 @@ const BulkUpload = () => {
           if (resp.status == 200) {
             setError(false);
             setMsg("");
-            cogoToast.success("Product added successfully!");
+            toast.success("Product added successfully!");
           } else {
             setError(true);
             setMsg(resp.message);
           }
         }).catch(error => {
           if (error.response)
-            cogoToast.error(error.response.data.error);
+            toast.error(error.response.data.error);
         }).finally(() => {
           setLoading(false);
           setSelectedFile(null);

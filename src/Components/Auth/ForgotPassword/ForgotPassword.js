@@ -7,7 +7,7 @@ import { Button } from "@mui/material";
 import { isEmailValid } from "../../../utils/validations";
 import { postCall } from "../../../Api/axios";
 import { useNavigate } from "react-router-dom";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import {
   isNumberOnly
 } from "../../../utils/validations";
@@ -99,7 +99,7 @@ const ForgotPassword = () => {
       if (res.status && res.status === 200) {
         if (res.data.status) {
           navigate("/");
-          cogoToast.success(res.data.message, { hideAfter: 5 });
+          toast.success(res.data.message, { autoClose: 5000 });
         } else {
           setError(true);
           setMsg(res.data.message);
@@ -107,7 +107,7 @@ const ForgotPassword = () => {
       }
     } catch (error) {
       console.log("error.response", error.response);
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 

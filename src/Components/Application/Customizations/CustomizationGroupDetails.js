@@ -5,7 +5,7 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { useNavigate, useParams } from "react-router-dom";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
 import { getCall, postCall, putCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { FormControl, MenuItem, Select, TextField, Checkbox } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Add, Delete, Save } from "@mui/icons-material";
@@ -72,7 +72,7 @@ const CustomizationGroupDetails = (props) => {
   const handleTabChange = (event, newValue) => {
     if (newValue != 1) {
       if (!customizationGroupData.seq || customizationGroupData.seq <= 0) {
-        cogoToast.error("Please select a valid sequence first");
+        toast.error("Please select a valid sequence first");
       } else {
         setTabValue(newValue);
       }
@@ -190,7 +190,7 @@ const CustomizationGroupDetails = (props) => {
       setAddedItems(customizations);
     } catch (error) {
       console.log(error);
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 
@@ -199,10 +199,10 @@ const CustomizationGroupDetails = (props) => {
       const url = `/api/v1/customizationGroup`;
       const res = await postCall(url, data);
       console.log({ res });
-      cogoToast.success("Group added successfully");
+      toast.success("Group added successfully");
       navigate("/application/customizations/customization-groups");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 
@@ -211,9 +211,9 @@ const CustomizationGroupDetails = (props) => {
       const url = `/api/v1/customizationGroup/${params.groupId}`;
       const res = await putCall(url, data);
       navigate("/application/customizations/customization-groups");
-      cogoToast.success("Group details updated successfully");
+      toast.success("Group details updated successfully");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 

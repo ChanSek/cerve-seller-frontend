@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Button from "../../Shared/Button";
 import CustomRadioButton from "./CustomRadioButton";
 import { postCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { TextField } from "@mui/material";
 import styled from "@emotion/styled";
 import ErrorMessage from "../../Shared/ErrorMessage";
@@ -341,7 +341,7 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
     setResolutions(updatedResolutions);
 
     if (!isValid) {
-      cogoToast.error("Please fix validation errors in one or more resolution entries.");
+      toast.error("Please fix validation errors in one or more resolution entries.");
       return;
     }
 
@@ -414,11 +414,11 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
         onSuccess(supportActionDetails.transactionId);
         onClose();
       } else {
-        cogoToast.error(resp.message);
+        toast.error(resp.message);
       }
     } catch (error) {
       setLoading(false);
-      cogoToast.error(error.response?.data?.error || "An error occurred");
+      toast.error(error.response?.data?.error || "An error occurred");
     }
   };
 

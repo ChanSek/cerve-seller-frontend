@@ -11,8 +11,7 @@ import {
 } from "@mui/material";
 import { CANCELATION_REASONS } from "./cancelation-reasons";
 import { getCall, postCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
-
+import { toast } from "react-toastify";
 
 const AddCustomizationGroup = (props) => {
   const { showModal, handleCloseModal, data, onOrderUpdate } = props;
@@ -34,7 +33,7 @@ const AddCustomizationGroup = (props) => {
     handleCloseModal();
     await new Promise(resolve => setTimeout(resolve, 1000));
     onOrderUpdate();
-    cogoToast.success("Product cancelled successfully!");
+    toast.success("Product cancelled successfully!");
   };
 
   return (

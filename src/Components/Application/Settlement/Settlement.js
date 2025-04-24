@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import SettlementTable from "./SettlementTable";
 import { Tab, Tabs } from "@mui/material";
 import { getCall } from "../../../Api/axios";
@@ -43,7 +43,7 @@ const Settlement = () => {
       setSettlement(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 

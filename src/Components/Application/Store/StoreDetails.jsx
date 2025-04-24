@@ -4,11 +4,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import RenderInput from "../../../utils/RenderInput";
 import { useEffect } from "react";
 import { getCall, postCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import Navbar from "../../Shared/Navbar";
 import { useAuth } from "../../../Router/AuthProvider.js";
 import { PRODUCT_CATEGORY } from "../../../utils/constants";
-
 
 let storeFields = [
   {
@@ -190,7 +189,7 @@ const StoreDetails = (props) => {
         setAddressDetails(store_details?.address);
       })
       .catch((error) => {
-        cogoToast.error(error.response.data.error);
+        toast.error(error.response.data.error);
       });
   };
 
@@ -242,12 +241,12 @@ const StoreDetails = (props) => {
     }
     postCall(url, payload)
       .then((resp) => {
-        cogoToast.success("Store details updated successfully");
+        toast.success("Store details updated successfully");
         getStoreDetails(org_id);
       })
       .catch((error) => {
         console.log(error);
-        cogoToast.error(error.response.data.error);
+        toast.error(error.response.data.error);
       });
   };
 

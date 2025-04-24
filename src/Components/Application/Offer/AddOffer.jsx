@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import moment from "moment";
 import MyButton from "../../Shared/Button";
 import { useNavigate, useParams } from "react-router-dom";
@@ -126,15 +126,15 @@ const AddOffer = () => {
             let response = ''
             if (params?.id) {
                 response = await putCall(`/api/v1/offers/${params?.id}`, formData);
-                cogoToast.success("Offer Updated Succesfully");
+                toast.success("Offer Updated Succesfully");
             } else {
                 response = await postCall('/api/v1/offers', formData);
-                cogoToast.success("Offer Added Succesfully");
+                toast.success("Offer Added Succesfully");
 
             }
             navigate('/application/offers');
         } catch (error) {
-            cogoToast.error(error.response.data.error);
+            toast.error(error.response.data.error);
         }
     };
 

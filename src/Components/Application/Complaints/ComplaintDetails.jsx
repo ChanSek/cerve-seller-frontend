@@ -18,7 +18,7 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineContent from '@mui/lab/TimelineContent';
 import TimelineDot from '@mui/lab/TimelineDot';
 import { ISSUE_TYPES } from "../../../Constants/issue-types";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import CustomerActionCard from "./actionCard";
 import MultiResolutionPage from "./resolutionCard";
 import InfoRequestModal from "./InfoRequestModal";
@@ -156,17 +156,17 @@ const ComplaintDetails = () => {
         .then((resp) => {
           setLoading(false)
           if (resp?.status === 200) {
-            cogoToast.success("Action taken successfully");
+            toast.success("Action taken successfully");
             setProcessed(true)
             getComplaint()
           } else {
-            cogoToast.error(resp.message);
+            toast.error(resp.message);
           }
         })
         .catch((error) => {
           setLoading(false)
           console.log(error);
-          cogoToast.error(error.response.data.error);
+          toast.error(error.response.data.error);
         });
     }
 
@@ -264,7 +264,7 @@ const ComplaintDetails = () => {
           supportActionDetails={supportActionDetails}
           onClose={() => setToggleActionModal(false)}
           onSuccess={(id) => {
-            cogoToast.success("Action taken successfully");
+            toast.success("Action taken successfully");
             setToggleActionModal(false);
             setExpanded(id)
             getComplaint()
@@ -277,7 +277,7 @@ const ComplaintDetails = () => {
           supportActionDetails={supportActionDetails}
           onClose={() => setToggleResolutionModal(false)}
           onSuccess={(id) => {
-            cogoToast.success("Action taken successfully");
+            toast.success("Action taken successfully");
             setToggleActionModal(false);
             setExpanded(id)
             getComplaint()
