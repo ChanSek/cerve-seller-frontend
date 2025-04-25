@@ -1,13 +1,28 @@
 import React, { useEffect, useState } from "react";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { Button, Modal } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate, useParams } from "react-router-dom";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
 import { deleteCall, getCall, postCall } from "../../../Api/axios";
 import AddCustomizationGroup from "../Product/AddCustomizationGroup";
-import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import CustomDialog from "../../Shared/CustomDialog";
+
+// dnd-kit imports
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy
+} from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 
 const _availableGroups = [
   {
@@ -49,28 +64,32 @@ const CustomizationGroups = () => {
   const [groupToDelete, setGroupToDelete] = useState(null);
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
 
-  const onSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
 
-    setAvailableGroups((items) => {
-      const reorderedItems = [...items];
-      const movedItem = reorderedItems.splice(oldIndex, 1)[0];
-      reorderedItems.splice(newIndex, 0, movedItem);
-      return reorderedItems;
+  // dnd-kit sortable Group
+  function SortableGroup({ item, disabled }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+      id: item.id,
+      disabled
     });
-  };
-
-  const Group = ({ data }) => {
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+      borderStyle: reordering ? "dashed" : "solid"
+    };
     return (
-      <div>
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
         <div
-          style={{ borderStyle: reordering ? "dashed" : "solid" }}
           className={`flex items-center justify-between py-2 px-8 mb-2 border-2 border-[#1876d1a1] rounded-xl bg-white `}
           onClick={(e) => e.stopPropagation()}
         >
           <div>
             <p>
-              {data.name} {data.description ? `- ( ${data?.description} )` : ""}
+              {item.name} {item.description ? `- ( ${item?.description} )` : ""}
             </p>
           </div>
           <div>
@@ -79,7 +98,7 @@ const CustomizationGroups = () => {
               variant="contained"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/application/customizations/customization-groups/${data.name}/${data._id}`);
+                navigate(`/application/customizations/customization-groups/${item.name}/${item._id}`);
               }}
             >
               Edit
@@ -91,7 +110,7 @@ const CustomizationGroups = () => {
               onClick={(e) => {
                 e.stopPropagation();
                 setShowDeleteConfirmDialog(true);
-                setGroupToDelete(data._id);
+                setGroupToDelete(item._id);
               }}
             >
               Delete group
@@ -100,19 +119,17 @@ const CustomizationGroups = () => {
         </div>
       </div>
     );
+  }
+
+  // dnd-kit drag end handler
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = availableGroups.findIndex((item) => item.id === active.id);
+      const newIndex = availableGroups.findIndex((item) => item.id === over?.id);
+      setAvailableGroups((items) => arrayMove(items, oldIndex, newIndex));
+    }
   };
-
-  const GroupItem = SortableElement(({ item }) => <Group data={item} />);
-
-  const GroupList = SortableContainer(({ items }) => {
-    return (
-      <div>
-        {items.map((item, index) => (
-          <GroupItem key={`item-${index}`} index={index} item={item} />
-        ))}
-      </div>
-    );
-  });
 
   const getCustomizationGroups = async () => {
     const url = `/api/v1/customizationGroups?limit=10&offset=0`;
@@ -152,7 +169,7 @@ const CustomizationGroups = () => {
         setShowDeleteConfirmDialog(false);
       })
       .catch((err) => {
-        cogoToast.error(err.response.data.error);
+        toast.error(err.response.data.error);
         setShowDeleteConfirmDialog(false);
       });
   };
@@ -191,11 +208,24 @@ const CustomizationGroups = () => {
 
       <div>
         {reordering ? (
-          <GroupList items={availableGroups} onSortEnd={onSortEnd} />
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={availableGroups.map((item) => item.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {availableGroups.map((item) => (
+                <SortableGroup key={item.id} item={item} disabled={!reordering} />
+              ))}
+            </SortableContext>
+          </DndContext>
         ) : (
           <div>
             {availableGroups && availableGroups.length > 0 ? (
-              availableGroups.sort((a, b) => a.seq - b.seq).map((item) => <Group data={item} key={item.id} />)
+              availableGroups.sort((a, b) => a.seq - b.seq).map((item) => <SortableGroup key={item.id} item={item} disabled={true} />)
             ) : (
               <div>
                 <div

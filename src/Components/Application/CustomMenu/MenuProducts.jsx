@@ -1,25 +1,53 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import Button from "../../Shared/Button";
-import { SortableContainer, SortableElement } from "react-sortable-hoc";
-import { Add, Delete, Save } from "@mui/icons-material";
+import { Add, Delete } from "@mui/icons-material";
 import AddMenuProduct from "./AddMenuProduct";
+// dnd-kit imports
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy
+} from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 
 const MenuProducts = (props) => {
   const { allProducts, addedProducts, setAddedProducts } = props;
-
   const [showModal, setShowModal] = useState(false);
   const [reordering, setReordering] = useState(false);
+
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
 
   const handleRemoveProduct = (item) => {
     const filteredProducts = addedProducts.filter((p) => p.id !== item.id);
     setAddedProducts(filteredProducts);
   };
 
-  const Product = ({ item }) => {
+  // dnd-kit sortable Product
+  function SortableProduct({ item, disabled }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+      id: item.id,
+      disabled
+    });
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+      borderStyle: reordering ? "dashed" : "solid"
+    };
     return (
-      <div>
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
         <div
-          style={{ borderStyle: reordering ? "dashed" : "solid" }}
           className="flex items-center justify-between py-[4px] px-8 mb-2 border border-[#1876d1a1] rounded-xl bg-white"
           onClick={(e) => e.stopPropagation()}
         >
@@ -30,29 +58,16 @@ const MenuProducts = (props) => {
         </div>
       </div>
     );
-  };
+  }
 
-  const ProductItem = SortableElement(({ item }) => <Product item={item} />);
-
-  const ProductList = SortableContainer(({ items }) => {
-    return (
-      <div>
-        {items.map((item, index) => (
-          <ProductItem key={`item-${index}`} index={index} item={item} />
-        ))}
-      </div>
-    );
-  });
-
-  const onSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-
-    setAddedProducts((items) => {
-      const reorderedItems = [...items];
-      const movedItem = reorderedItems.splice(oldIndex, 1)[0];
-      reorderedItems.splice(newIndex, 0, movedItem);
-      return reorderedItems;
-    });
+  // dnd-kit drag end handler
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = addedProducts.findIndex((item) => item.id === active.id);
+      const newIndex = addedProducts.findIndex((item) => item.id === over?.id);
+      setAddedProducts((items) => arrayMove(items, oldIndex, newIndex));
+    }
   };
 
   return (
@@ -81,11 +96,24 @@ const MenuProducts = (props) => {
       </div>
 
       {reordering ? (
-        <ProductList items={addedProducts} onSortEnd={onSortEnd} />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={addedProducts.map((item) => item.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {addedProducts.map((item) => (
+              <SortableProduct key={item.id} item={item} disabled={!reordering} />
+            ))}
+          </SortableContext>
+        </DndContext>
       ) : (
         <div>
           {addedProducts.length > 0 ? (
-            addedProducts.map((item) => <Product item={item} />)
+            addedProducts.map((item) => <SortableProduct key={item.id} item={item} disabled={true} />)
           ) : (
             <div>
               <div className="flex items-center justify-between py-3 px-4 mb-2 border border-[#1876d1a1] rounded-lg bg-white">

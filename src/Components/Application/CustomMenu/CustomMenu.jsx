@@ -3,11 +3,25 @@ import MenuBasicInfo from "./MenuBasicInfo";
 import { Button, Modal } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate, useParams } from "react-router-dom";
-import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
 import CustomDialog from "../../Shared/CustomDialog";
 import { deleteCall, getCall, postCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
+// dnd-kit imports
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy
+} from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 
 const availableMenu = [
   { id: "M1", seq: 1, name: "Snacks" },
@@ -38,6 +52,11 @@ const CustomMenu = () => {
 
   const [menuToDelete, setMenuToDelete] = useState(null);
 
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
+
   const getAllMenu = async () => {
     const url = `/api/v1/menu?category=${encodeURIComponent(params.category)}`;
     //  const url = `/api/v1/menu?name=`;
@@ -58,9 +77,9 @@ const CustomMenu = () => {
       getAllMenu();
       setShowMenuModal(false);
       setMenuData({});
-      cogoToast.success("New menu created successfully");
+      toast.success("New menu created successfully");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 
@@ -81,9 +100,9 @@ const CustomMenu = () => {
     try {
       const res = await postCall(url, updatedMenuItems);
       setReordering(false);
-      cogoToast.success("Menu order updated successfully");
+      toast.success("Menu order updated successfully");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 
@@ -110,11 +129,21 @@ const CustomMenu = () => {
     getAllMenu();
   }, [showMenuModal]);
 
-  const Menu = ({ data }) => {
+  // dnd-kit sortable Menu
+  function SortableMenu({ data, disabled }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+      id: data.id,
+      disabled
+    });
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+      borderStyle: reordering ? "dashed" : "solid"
+    };
     return (
-      <div>
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
         <div
-          style={{ borderStyle: reordering ? "dashed" : "solid" }}
           className={`flex items-center justify-between py-2 px-8 mb-2 border-2 border-[#1876d1a1] rounded-xl bg-white `}
           onClick={(e) => e.stopPropagation()}
         >
@@ -147,29 +176,16 @@ const CustomMenu = () => {
         </div>
       </div>
     );
-  };
+  }
 
-  const MenuItem = SortableElement(({ item }) => <Menu data={item} />);
-
-  const MenuList = SortableContainer(({ items }) => {
-    return (
-      <div>
-        {items.map((item, index) => (
-          <MenuItem key={`item-${index}`} index={index} item={item} />
-        ))}
-      </div>
-    );
-  });
-
-  const onSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-
-    setAvailableMenuItems((items) => {
-      const reorderedItems = [...items];
-      const movedItem = reorderedItems.splice(oldIndex, 1)[0];
-      reorderedItems.splice(newIndex, 0, movedItem);
-      return reorderedItems;
-    });
+  // dnd-kit drag end handler
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = availableMenuItems.findIndex((item) => item.id === active.id);
+      const newIndex = availableMenuItems.findIndex((item) => item.id === over?.id);
+      setAvailableMenuItems((items) => arrayMove(items, oldIndex, newIndex));
+    }
   };
 
   const handleIgnoreDeleteAction = () => {
@@ -221,11 +237,24 @@ const CustomMenu = () => {
 
       <div>
         {reordering ? (
-          <MenuList items={availableMenuItems} onSortEnd={onSortEnd} />
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={availableMenuItems.map((item) => item.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {availableMenuItems.map((item) => (
+                <SortableMenu key={item.id} data={item} disabled={!reordering} />
+              ))}
+            </SortableContext>
+          </DndContext>
         ) : (
           <div>
             {availableMenuItems.length > 0 ? (
-              availableMenuItems.sort((a, b) => a.seq - b.seq).map((item) => <Menu data={item} key={item.id} />)
+              availableMenuItems.sort((a, b) => a.seq - b.seq).map((item) => <SortableMenu key={item.id} data={item} disabled={true} />)
             ) : (
               <div>
                 <div

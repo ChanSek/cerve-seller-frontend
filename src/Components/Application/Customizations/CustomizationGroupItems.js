@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import MyButton from "../../Shared/Button";
-import { SortableContainer, SortableElement } from "react-sortable-hoc";
 import { Add, Delete, Save, Search } from "@mui/icons-material";
 import {
   Autocomplete,
@@ -15,6 +14,22 @@ import {
   Button,
 } from "@mui/material";
 import { getCall } from "../../../Api/axios";
+
+// dnd-kit imports
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const CustomizationGroupItems = (props) => {
   const {
@@ -34,6 +49,11 @@ const CustomizationGroupItems = (props) => {
 
   const [notAddedCustomizations, setNotAddedCustomizations] = useState([]);
   const [selectedCustomizations, setSelectedCustomizations] = useState([]);
+
+  // dnd-kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
 
   const handleCustomizationSelect = (customizationId) => {
     setSelectedCustomizations((prevSelected) => {
@@ -82,14 +102,23 @@ const CustomizationGroupItems = (props) => {
     setAddedItems(updatedAddedItems);
   };
 
-  const Item = ({ item }) => {
+  // dnd-kit sortable Item
+  function SortableItem({ item, disabled }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+      id: item._id,
+      disabled,
+    });
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+      borderStyle: reordering ? "dashed" : "solid",
+    };
     const id = item.customizationId ? item.customizationId : item._id;
     const value = addedItems.find((ai) => ai._id === id)?.nextGroupId || [];
-
     return (
-      <div key={item._id}>
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
         <div
-          style={{ borderStyle: reordering ? "dashed" : "solid" }}
           className="flex items-center justify-between py-[12px] px-8 mb-2 border border-[#1876d1a1] rounded-xl bg-white"
           onClick={(e) => e.stopPropagation()}
         >
@@ -141,29 +170,16 @@ const CustomizationGroupItems = (props) => {
         </div>
       </div>
     );
-  };
+  }
 
-  const CustomizationItem = SortableElement(({ item }) => <Item item={item} />);
-
-  const ItemList = SortableContainer(({ items }) => {
-    return (
-      <div>
-        {items.map((item, index) => (
-          <CustomizationItem key={`item-${index}`} index={index} item={item} />
-        ))}
-      </div>
-    );
-  });
-
-  const onSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-
-    setAddedItems((items) => {
-      const reorderedItems = [...items];
-      const movedItem = reorderedItems.splice(oldIndex, 1)[0];
-      reorderedItems.splice(newIndex, 0, movedItem);
-      return reorderedItems;
-    });
+  // dnd-kit drag end handler
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = addedItems.findIndex((item) => item._id === active.id);
+      const newIndex = addedItems.findIndex((item) => item._id === over?.id);
+      setAddedItems((items) => arrayMove(items, oldIndex, newIndex));
+    }
   };
 
   const renderCustomizationItems = () => {
@@ -222,7 +238,20 @@ const CustomizationGroupItems = (props) => {
       </div>
 
       {reordering ? (
-        <ItemList items={addedItems} onSortEnd={onSortEnd} />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={addedItems.map((item) => item._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {addedItems.map((item) => (
+              <SortableItem key={item._id} item={item} disabled={!reordering} />
+            ))}
+          </SortableContext>
+        </DndContext>
       ) : (
         <div>
           {addedItems.length > 0 ? (
@@ -247,7 +276,7 @@ const CustomizationGroupItems = (props) => {
               </div>
 
               {addedItems.map((item, index) => (
-                <Item key={index} item={item} />
+                <SortableItem key={item._id} item={item} disabled={true} />
               ))}
             </>
           ) : (
