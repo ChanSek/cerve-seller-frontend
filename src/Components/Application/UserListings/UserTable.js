@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { MoreVert, LockOutlined } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { putCall } from "../../../Api/axios";
-import { Tooltip } from "@material-ui/core";
+import { Tooltip } from "@mui/material";
 
 const StyledTableCell = styled(TableCell)({
   "&.MuiTableCell-root": {

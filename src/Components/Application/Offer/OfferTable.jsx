@@ -14,9 +14,9 @@ import Menu from "@mui/material/Menu";
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { convertDateInStandardFormat } from "../../../utils/formatting/date.js";
-import Tooltip from "@material-ui/core/Tooltip";
+import Tooltip from "@mui/material/Tooltip";
 import { deleteCall } from "../../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 
 const StyledTableCell = styled(TableCell)({
     "&.MuiTableCell-root": {
@@ -79,12 +79,12 @@ export default function OfferTable(props) {
             e.stopPropagation()
             const response = await deleteCall(`/api/v1/offers/${offerId}`);
             if (response) {
-                cogoToast.success("Offer Deleted Succesfully");
+                toast.success("Offer Deleted Succesfully");
                 dataUpdate()
                 navigate('/application/offers');
             }
         } catch (error) {
-            cogoToast.error(error.response.data.error);
+            toast.error(error.response.data.error);
         }
     }
     const renderColumn = (row, column) => {

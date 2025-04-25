@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import moment from "moment";
 import MyButton from "../../Shared/Button";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -242,15 +242,15 @@ const AddGenericProduct = ({
       //await cancellablePromise(postCall(api_url, data));
       const res = await postCall(api_url, data)
       if (res.status && res.status !== 200) {
-        cogoToast.error(res.message, { hideAfter: 5 });
+        toast.error(res.message, { autoClose: 5000 });
       }
       if (res.status && res.status === 200) {
-        cogoToast.success("Product added successfully!", { hideAfter: 5 });
+        toast.success("Product added successfully!", { autoClose: 5000 });
         navigate("/application/inventory");
       }
     } catch (error) {
       console.log(error);
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 
@@ -261,7 +261,7 @@ const AddGenericProduct = ({
         return resp;
       })
       .catch((error) => {
-        cogoToast.error("Something went wrong!");
+        toast.error("Something went wrong!");
         console.log(error);
         return [];
       });
@@ -293,7 +293,7 @@ const AddGenericProduct = ({
     )
       .then(async (resp) => {
         if (resp.data.total === 0) {
-          cogoToast.error("Product details unavailable!");
+          toast.error("Product details unavailable!");
         } else {
           // let resp_data = resp.data.data[0];
           let variant_data = resp.data.data[0]?.variants[0];
@@ -346,7 +346,7 @@ const AddGenericProduct = ({
         }
       })
       .catch((error) => {
-        cogoToast.error("Something went wrong!");
+        toast.error("Something went wrong!");
         console.log(error);
       });
   };
@@ -409,7 +409,7 @@ const AddGenericProduct = ({
         //  setVitalFields(formatAttributesToFieldsDataFormat(attributes));
       })
       .catch((error) => {
-        cogoToast.error("Something went wrong!");
+        toast.error("Something went wrong!");
         console.log(error);
       });
   };
@@ -485,16 +485,16 @@ const AddGenericProduct = ({
       const res = await putCall(`/api/v1/seller/productId/${state.productId}/product`, data);
       if (res.status) {
         if (res.status !== 200) {
-          cogoToast.error(res.message, { hideAfter: 10 });
+          toast.error(res.message, { autoClose: 10000 });
         } else if (res.status === 200) {
-          cogoToast.success("Product updated successfully!");
+          toast.success("Product updated successfully!");
           navigate("/application/inventory");
         }
       } else {
-        cogoToast.success("Something went wrong!", { hideAfter: 10 });
+        toast.success("Something went wrong!", { autoClose: 10000 });
       }
     } catch (error) {
-      cogoToast.error("Something went wrong!");
+      toast.error("Something went wrong!");
       console.log(error);
     }
   };
@@ -973,7 +973,7 @@ const AddGenericProduct = ({
         const missingGroupNames = missingGroups.map((groupId) =>
           getCustomizationGroupName(groupId)
         );
-        cogoToast.error(
+        toast.error(
           `Please add at least one customization for groups: ${missingGroupNames.join(
             ", "
           )}.`
@@ -997,7 +997,7 @@ const AddGenericProduct = ({
         return `${groupName} [${customizationName}]`;
       });
 
-      cogoToast.error(
+      toast.error(
         `Customizations with the following details must have a price greater than 0: ${errorMessages.join(
           ", "
         )}.`
