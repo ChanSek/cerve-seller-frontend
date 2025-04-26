@@ -17,23 +17,19 @@ import {
   hasRepeatedChars,
 } from "../../utils/validations";
 import { getCall, postCall } from "../../Api/axios";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import useForm from "../../hooks/useForm";
 import kycDetailFields from "./provider-kyc-fields";
 import kycDocumentFields from "./provider-kyc-doc-fields";
 import bankDetailFields from "./provider-bank-details-fields";
-import {
-  loadCaptchaEnginge,
-  LoadCanvasTemplate,
-  validateCaptcha,
-} from "react-simple-captcha";
-
+import ReCAPTCHA from "react-google-recaptcha";
 
 const InviteProvider = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [subscriberId, setSubscriberId] = useState(localStorage.getItem("user_id"));
+  const [recaptchaToken, setRecaptchaToken] = useState("");
 
   async function logout() {
     if (window.confirm("Are you sure want to logout your session?")) {
@@ -127,8 +123,6 @@ const InviteProvider = () => {
   useEffect(() => {
     if (step === 1 || step === 2) {
       getProviderDetails();
-    } else if (step === 3) {
-      loadCaptchaEnginge(6);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
@@ -168,17 +162,17 @@ const InviteProvider = () => {
       if (persistence) {
         setFormSubmited(false);
         if (res.status && res.status !== 200) {
-          cogoToast.error(res.message, { hideAfter: 5 });
+          toast.error(res.message, { hideAfter: 5 });
         }
         if (res.status && res.status === 200) {
           navigate("/application/inventory");
-          cogoToast.success("Seller onboarded successfully", { hideAfter: 5 });
+          toast.success("Seller onboarded successfully", { hideAfter: 5 });
         }
       }
     } catch (error) {
       console.log("error", error);
       console.log("error.response", error.response);
-      cogoToast.error(error.response.data.error);
+      toast.error(error.response.data.error);
     }
   };
 
@@ -363,11 +357,7 @@ const InviteProvider = () => {
           ? "Cancelled Cheque is required"
           : "";
       formErrors.captcha =
-        formValues.captcha === ""
-          ? "Captcha is required"
-          : !validateCaptcha(formValues.captcha)
-            ? "Captcha does not match"
-            : "";
+        !recaptchaToken ? "Captcha is required" : "";
     }
     setErrors({
       ...formErrors,
@@ -746,12 +736,6 @@ const InviteProvider = () => {
             captcha: "Captcha is required",
           }));
           return false;
-        } else if (!validateCaptcha(fieldValue)) {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            captcha: "Captcha does not match",
-          }));
-          return false;
         } else {
           setErrors((prevErrors) => ({
             ...prevErrors,
@@ -815,22 +799,17 @@ const InviteProvider = () => {
                 {step === 3 ? (
                   <>
                     <div className="py-1">
-                      <LoadCanvasTemplate />
-                    </div>
-                    <div className="py-1">
-                      <RenderInput
-                        item={{
-                          id: "captcha",
-                          // title: "Serviceable Radius/Circle (in Kilometer)",
-                          placeholder: "Enter Captcha Value",
-                          type: "input",
-                          error: errors?.["captcha"] ? true : false,
-                          helperText: errors?.["captcha"] || "",
+                      <ReCAPTCHA
+                        sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY || "YOUR_RECAPTCHA_SITE_KEY"}
+                        onChange={(token) => {
+                          setRecaptchaToken(token);
+                          setErrors((prev) => ({ ...prev, captcha: "" }));
                         }}
-                        state={formValues}
-                        stateHandler={setFormValues}
                       />
                     </div>
+                    {errors?.["captcha"] && (
+                      <div className="py-1" style={{ color: 'red', fontSize: 12 }}>{errors["captcha"]}</div>
+                    )}
                   </>
                 ) : (
                   <></>
