@@ -16,6 +16,7 @@ import {
   Button,
   Menu,
   CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -27,11 +28,10 @@ import {
   getFulfillmentData,
   getShortAddress,
 } from "./../../../utils/orders.js";
-import cogoToast from "cogo-toast";
+import { toast } from "react-toastify";
 import { convertDateInStandardFormat } from "../../../utils/formatting/date";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
-import { Tooltip } from "@material-ui/core";
-import useStyles from "./style";
+import orderStyles from "./style";
 import CancelItemModal from "./cancelItemModal";
 import CancelOrderModal from "./cancelOrderModal";
 import UpdateOrderStatus from "./UpdateOrderStatusModal.js";
@@ -148,7 +148,7 @@ const OrderDetails = () => {
     const resp = await postCall(url, { cancellation_reason_id: "004" });
     await new Promise(resolve => setTimeout(resolve, 1000));
     await getOrder();
-    cogoToast.success("Order cancelled successfully!");
+    toast.success("Order cancelled successfully!");
   };
 
   const handleCompleteOrderUpdate = (order_details) => {
@@ -169,7 +169,7 @@ const OrderDetails = () => {
     const url = `/api/v1/seller/order/${order_uuid}/status`;
     const resp = await postCall(url, { status: "Accepted" });
     await getOrder();
-    cogoToast.success("Order accepted successfully!");
+    toast.success("Order accepted successfully!");
   };
 
 
@@ -662,7 +662,6 @@ const OrderItemsSummaryCard = (props) => {
   const [open, setOpen] = useState(false);
   const [itemToCancel, setItemToCancel] = useState(null);
   const [order, setOrder] = useState(props?.order);
-  const classes = useStyles();
 
   let order_items = [];
   props?.orderItems?.map((item) => {
@@ -811,25 +810,25 @@ const OrderItemsSummaryCard = (props) => {
     return (
       <div>
         <div
-          className={classes.summaryQuoteItemContainer}
+          style={orderStyles.summaryQuoteItemContainer}
           key={`quote-${qIndex}-price`}
         >
           <Typography
             variant="body1"
-            className={
+            sx={
               isCustomization
-                ? classes.summaryCustomizationPriceLabel
-                : classes.summaryItemPriceLabel
+                ? orderStyles.summaryCustomizationPriceLabel
+                : orderStyles.summaryItemPriceLabel
             }
           >
             {quote?.price?.title}
           </Typography>
           <Typography
             variant="body1"
-            className={
+            sx={
               isCustomization
-                ? classes.summaryCustomizationPriceValue
-                : classes.summaryItemPriceValue
+                ? orderStyles.summaryCustomizationPriceValue
+                : orderStyles.summaryItemPriceValue
             }
           >
             {`₹${quote?.price?.value}`}
@@ -837,25 +836,25 @@ const OrderItemsSummaryCard = (props) => {
         </div>
         {quote?.tax && (
           <div
-            className={classes.summaryQuoteItemContainer}
+            style={orderStyles.summaryQuoteItemContainer}
             key={`quote-${qIndex}-tax`}
           >
             <Typography
               variant="body1"
-              className={
+              sx={
                 isCustomization
-                  ? classes.summaryCustomizationTaxLabel
-                  : classes.summaryItemTaxLabel
+                  ? orderStyles.summaryCustomizationTaxLabel
+                  : orderStyles.summaryItemTaxLabel
               }
             >
               {quote?.tax.title}
             </Typography>
             <Typography
               variant="body1"
-              className={
+              sx={
                 isCustomization
-                  ? classes.summaryCustomizationPriceValue
-                  : classes.summaryItemPriceValue
+                  ? orderStyles.summaryCustomizationPriceValue
+                  : orderStyles.summaryItemPriceValue
               }
             >
               {`₹${quote?.tax.value}`}
@@ -864,22 +863,22 @@ const OrderItemsSummaryCard = (props) => {
         )}
         {quote?.discount && (
           <div
-            className={classes.summaryQuoteItemContainer}
+            style={orderStyles.summaryQuoteItemContainer}
             key={`quote-${qIndex}-discount`}
           >
             <Typography
               variant="body1"
-              className={
+              sx={
                 isCustomization
-                  ? classes.summaryCustomizationDiscountLabel
-                  : classes.summaryItemDiscountLabel
+                  ? orderStyles.summaryCustomizationDiscountLabel
+                  : orderStyles.summaryItemDiscountLabel
               }
             >
               {quote?.discount.title}
             </Typography>
             <Typography
               variant="body1"
-              className={classes.summaryItemPriceValue}
+              sx={orderStyles.summaryItemPriceValue}
             >
               {`₹${quote?.discount.value}`}
             </Typography>
@@ -893,15 +892,14 @@ const OrderItemsSummaryCard = (props) => {
     return (
       <div key={`quote-${qIndex}`}>
         <div
-          className={classes.summaryQuoteItemContainer}
+          style={orderStyles.summaryQuoteItemContainer}
           key={`quote-${qIndex}-title`}
         >
           <Typography
             variant="body1"
-            className={`${classes.summaryItemLabel} ${quote.textClass}`}
+            sx={{ ...orderStyles.summaryItemLabel, ...quote.textClass }}
           >
-            {/* {quote?.title} */}
-            <p className={`${classes.ordered_from} ${quote.textClass}`}>
+            <p style={{ ...orderStyles.ordered_from, ...quote.textClass }}>
               {quote.quantityMessage}
             </p>
           </Typography>
@@ -910,12 +908,12 @@ const OrderItemsSummaryCard = (props) => {
         {quote?.customizations && (
           <div key={`quote-${qIndex}-customizations`}>
             <div
-              className={classes.summaryQuoteItemContainer}
+              style={orderStyles.summaryQuoteItemContainer}
               key={`quote-${qIndex}-customizations`}
             >
               <Typography
                 variant="body1"
-                className={classes.summaryItemPriceLabel}
+                sx={orderStyles.summaryItemPriceLabel}
               >
                 Customizations
               </Typography>
@@ -924,12 +922,12 @@ const OrderItemsSummaryCard = (props) => {
               (customization, cIndex) => (
                 <div>
                   <div
-                    className={classes.summaryQuoteItemContainer}
+                    style={orderStyles.summaryQuoteItemContainer}
                     key={`quote-${qIndex}-customizations-${cIndex}`}
                   >
                     <Typography
                       variant="body1"
-                      className={classes.summaryCustomizationLabel}
+                      sx={orderStyles.summaryCustomizationLabel}
                     >
                       {customization.title}
                     </Typography>
