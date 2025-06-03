@@ -92,7 +92,7 @@ const ComplaintDetails = () => {
     setIssueActions(mergedarray)
     setResolutions(resolutions);
 
-    const isProcessed = mergedarray?.some(x => x.description.code === "PROCESSING")
+    const isProcessed = mergedarray?.some(x => x.description?.code === "PROCESSING")
     const isCascaded = (mergedarray[mergedarray?.length - 2]?.respondent_action === "CASCADED" || mergedarray[mergedarray?.length - 1]?.description.code === "CASCADED")
     const isEscalate = mergedarray[mergedarray?.length - 1]?.description.code === "ESCALATE"
     const isResolved = mergedarray[mergedarray?.length - 1]?.description.code === "RESOLVED"
@@ -468,8 +468,8 @@ function OppositeContentTimeline(actions, resolutions) {
     >
       {actions.length > 0 &&
         actions.map((action, i) => {
-          const codeColor = getCodeColor(action.description.code);
-          const isEscalated = action.description.code === "ESCALATED"; // Check if the code is "ESCALATED"
+          const codeColor = getCodeColor(action?.descriptor?.code);
+          const isEscalated = action?.descriptor?.code === "ESCALATED"; // Check if the code is "ESCALATED"
 
           return (
             <TimelineItem key={action.id}>
@@ -484,24 +484,24 @@ function OppositeContentTimeline(actions, resolutions) {
                       isEscalated ? "text-red-600" : codeColor
                     }`}
                   >
-                    {action.description.code}:
+                    {action?.descriptor?.code}:
                   </p>
-                  <p className="text-md font-normal">{action.description.short_desc}</p>
+                  <p className="text-md font-normal">{action?.descriptor?.short_desc}</p>
                 </div>
                 <div className="flex items-center">
                   <p className="text-base font-semibold mr-2">Updated by:</p>
-                  <p className="text-md font-normal">{action.actor_details?.name}</p>
+                  <p className="text-md font-normal">{action?.actor_details?.name}</p>
                 </div>
                 <div className="flex items-center">
                   <p className="text-base font-semibold mr-2">Updated at:</p>
                   <p className="text-md font-normal">
-                    {moment(action.updated_at).format("MMMM Do, YYYY hh:mm a")}
+                    {moment(action?.updated_at).format("MMMM Do, YYYY hh:mm a")}
                   </p>
                 </div>
-                {action.description.code === "RESOLUTION_PROPOSED" && (
+                {action?.descriptor?.code === "RESOLUTION_PROPOSED" && (
                   <div className="mt-4">
                     <p className="text-base font-semibold">Resolution Options:</p>
-                    {renderResolutions(action.ref_id)}
+                    {renderResolutions(action?.ref_id)}
                   </div>
                 )}
               </TimelineContent>

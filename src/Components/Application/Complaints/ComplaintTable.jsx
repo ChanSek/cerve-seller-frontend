@@ -160,7 +160,7 @@ export default function ComplaintTable(props) {
   const renderColumn = (row, column) => {
     const issue = row.issue;
     const value = issue[column.id];
-    const short_description = issue.description.short_desc;
+    const short_description = issue.description?.short_desc;
     switch (column.id) {
       case "issueId":
         return (

@@ -8,6 +8,7 @@ import { useTheme } from '@mui/material/styles';
 
 const columns = [
   { id: "orderId", label: "Order Id", minWidth: 120, align: "center" },
+  { id: "transactionId", label: "Transaction Id", minWidth: 120, align: "center" },
   {
     id: "createdAt",
     label: "Created On",

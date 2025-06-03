@@ -194,6 +194,13 @@ export default function Sidebar(props) {
                 </ListItemButton>
               </NavLink>
             )}
+            {user?.role?.name === "Super Admin" && (
+              <NavLink to="/application/admin-activity" className="no-underline	text-black">
+                <ListItemButton sx={{ pl: 4 }}>
+                  <ListItemText primary="Admin Activity" />
+                </ListItemButton>
+              </NavLink>
+            )}
           </List>
         </Collapse>
       </List>

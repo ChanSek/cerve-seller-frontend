@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import RenderInput from "../../../utils/RenderInput";
-import verficationFields from "./seller-verification-fields";
+import verficationFields from "./admin-details-fields";
 import { useParams } from "react-router-dom";
 import useForm from "../../../hooks/useForm";
 import { Button } from "@mui/material";
@@ -23,7 +23,7 @@ import {
   hasRepeatedChars,
 } from "../../../utils/validations";
 
-const UserDetailsCard = ({ selectedTab, details }) => {
+const AdminDetailsCard = ({ selectedTab, details }) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentField, setCurrentField] = useState({});
@@ -427,4 +427,4 @@ const styles = {
   },
 };
 
-export default UserDetailsCard;
+export default AdminDetailsCard;

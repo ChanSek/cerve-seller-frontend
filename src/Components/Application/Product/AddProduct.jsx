@@ -7,6 +7,7 @@ import useForm from "../../../hooks/useForm";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
 import { allProductFieldDetails, categoryFields } from "./product-fields";
 import ProductDetails from "./ProductDetails";
+import DynamicSubcategorySelect from "./DynamicSubcategorySelect"
 import { PRODUCT_SUBCATEGORY } from "../../../utils/constants";
 import { allProperties } from "./categoryProperties";
 import Box from "@mui/material/Box";
@@ -162,6 +163,7 @@ export default function AddProduct() {
   const categoryInitialValues = {
     productCategory: "",
     productSubcategory1: "",
+    masterProductName: "",
   };
 
   const barCodeInitialValues = {
@@ -251,6 +253,23 @@ export default function AddProduct() {
   const renderCategoryFields = () => {
     return categoryFields.map((category_id) => {
       let item = getProductFieldDetails(category_id);
+      // Dynamic logic for "masterProductName"
+      if (item.id === "masterProductName") {
+        return (
+          <DynamicSubcategorySelect
+            key={item.id}
+            item={item}
+            value={categoryForm.formValues[item.id] || ""}
+            onChange={(newValue) =>
+              categoryForm.setFormValues({
+                ...categoryForm.formValues,
+                [item.id]: newValue,
+              })
+            }
+            error={categoryForm.errors?.[item.id] || ""}
+          />
+        );
+      }
       return (
         item && (
           <RenderInput
@@ -404,6 +423,7 @@ export default function AddProduct() {
           categoryForm={categoryForm}
           category={selectedCategory}
           subCategory={categoryForm.formValues?.productSubcategory1}
+          selectedMasterProduct={categoryForm.formValues?.masterProductName}
           attributes={attributes}
           variants={variants}
           variationOn={dataEntryForm.formValues.dataEntryMode === "manual" ? variationData : "none"}

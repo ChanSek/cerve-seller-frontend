@@ -333,6 +333,10 @@ const OrderDetails = () => {
             <p className="text-base font-normal">{order?.orderId}</p>
           </div>
           <div className="flex justify-between mt-3">
+            <p className="text-base font-normal">Transaction ID</p>
+            <p className="text-base font-normal">{order?.transactionId}</p>
+          </div>
+          <div className="flex justify-between mt-3">
             <p className="text-base font-normal">Created On</p>
             <p className="text-base font-normal">
               {convertDateInStandardFormat(order?.createdAt)}

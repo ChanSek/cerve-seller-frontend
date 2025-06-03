@@ -10,7 +10,8 @@ import PrivateRoute from "./PrivateRoutes";
 import OrderDetails from "../Components/Application/Order/OrderDetails";
 import UserListings from "../Components/Application/UserListings/UserListings";
 import Settlement from "../Components/Application/Settlement/Settlement";
-import Activity from "../Components/Application/GatewayActivity/Activity";
+import GatewayActivity from "../Components/Application/GatewayActivity/GatewayActivity.js";
+import AdminDetails from "../Components/Application/AdminActivity/AdminDetails.js";
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
 import ProviderDetails from "../Components/Application/UserListings/ProviderDetails";
 import StoreDetails from "../Components/Application/UserListings/StoreDetails";
@@ -181,7 +182,15 @@ export default function OndcRoutes() {
           path="/application/gateway-activity"
           element={
             <PrivateRoute>
-              <Activity />
+              <GatewayActivity />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/admin-activity"
+          element={
+            <PrivateRoute>
+              <AdminDetails />
             </PrivateRoute>
           }
         />

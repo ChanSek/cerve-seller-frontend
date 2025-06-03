@@ -99,6 +99,12 @@ export default function InventoryTable(props) {
             <span>{row.orderId}</span>
           </>
         );
+      case "transactionId":
+        return (
+          <>
+            <span>{row.transactionId}</span>
+          </>
+        );
       case "createdAt":
         return (
           <>

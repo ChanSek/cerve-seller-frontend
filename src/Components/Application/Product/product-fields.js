@@ -83,6 +83,15 @@ export const allProductFieldDetails = [
     required: true,
   },
   {
+    id: "masterProductName",
+    title: "Product Name",
+    placeholder: "Search Product By Name",
+    options: [],
+    type: "select",
+    disableClearable: true,
+    required: true,
+  },
+  {
     id: "packerName",
     title: "Manufacturer Or Packer Name",
     placeholder: "Manufacturer Or Packer Name",
@@ -362,7 +371,7 @@ export const allProductFieldDetails = [
   },
 ];
 
-export const categoryFields = ["productCategory", "productSubcategory1"];
+export const categoryFields = ["productCategory", "productSubcategory1", "masterProductName"];
 
 export const productDetailsFields = [
   "productCode",
