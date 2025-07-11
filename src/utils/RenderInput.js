@@ -86,7 +86,7 @@ const RenderInput = (props) => {
   };
 
   const formatDecimal = (value) => {
-    if (value === undefined || value === '') return '';
+    if (value === undefined || value === '' || value === null) return '';
     const cleanValue = value.toString().replace(/[^0-9.]/g, '');
     const [integerPart, decimalPart] = cleanValue.split('.');
     const formattedIntegerPart = integerPart.slice(0, 10);
@@ -219,18 +219,28 @@ const RenderInput = (props) => {
           helperText={item.error && item.helperText}
           value={item.valueInDecimal ? formatDecimal(state[item.id]) : state[item.id]}
           onChange={(e) => {
-            const value = item.valueInDecimal ? formatDecimal(e.target.value) : e.target.value;
+            let value = e.target.value;
+          
+            // Check if field is decimal
+            if (item.valueInDecimal) {
+              value = formatDecimal(value);
+            } else {
+              value = value.replace(".","");
+            }
+          
             // Enforce maximum length
             const maxLength = item.maxLength || undefined;
             if (maxLength && value.length > maxLength) {
               return;
             }
-            // const formattedValue = item.formatInDecimal? formatDecimal(value, true) : value;
+          
+            // Set the state
             stateHandler({
               ...state,
               [item.id]: value,
             });
           }}
+          
           inputProps={{
             step: "1",
           }}
@@ -729,23 +739,19 @@ const RenderInput = (props) => {
     // };
 
     const renderUploadedUrls = () => {
+      const getImageElement = (url) => (
+        <div className="image-preview-container">
+          <img src={url} height={50} width={50} style={{ margin: "10px" }} alt="" />
+          <img src={url} className="image-preview-large" alt="zoom" />
+        </div>
+      );
       if (item?.multiple) {
-        if (state?.uploaded_urls) {
-          return state?.uploaded_urls?.map((url) => {
-            return <img src={url} height={50} width={50} style={{ margin: "10px" }} alt="" />;
-          });
+        if (state?.imageUrls) {
+          return state.imageUrls.map((url) => getImageElement(url));
         }
       } else {
         if ((!isImageChanged && state?.tempURL?.[item.id]) || state[item.id]) {
-          return (
-            <img
-              src={state?.tempURL?.[item.id] || state[item.id] || ""}
-              height={50}
-              width={50}
-              style={{ margin: "10px" }}
-              alt=""
-            />
-          );
+          return getImageElement(state?.tempURL?.[item.id] || state[item.id]);
         } else {
           return <></>;
         }

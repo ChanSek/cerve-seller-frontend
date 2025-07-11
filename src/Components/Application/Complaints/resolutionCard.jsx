@@ -524,4 +524,4 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
   );
 }
 
-export default MultiResolutionModal;
+export default MultiResolutionModa;

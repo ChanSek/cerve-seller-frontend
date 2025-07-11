@@ -304,38 +304,38 @@ export const allProductFieldDetails = [
     disableClearable: true,
     required: true,
   },
-  {
-    id: "cancellable",
-    title: "Cancellable",
-    type: "radio",
-    options: [
-      { key: "Yes", value: "true" },
-      { key: "No", value: "false" },
-    ],
-    required: true,
-    isDisabled: false
-  },
-  {
-    id: "returnable",
-    title: "Returnable",
-    type: "radio",
-    options: [
-      { key: "Yes", value: "true" },
-      { key: "No", value: "false" },
-    ],
-    required: true,
-    isDisabled: false
-  },
-  {
-    id: "availableOnCod",
-    title: "Available On Cash On Delivery",
-    type: "radio",
-    options: [
-      { key: "Yes", value: "true" },
-      { key: "No", value: "false" },
-    ],
-    required: true,
-  },
+  // {
+  //   id: "cancellable",
+  //   title: "Cancellable",
+  //   type: "radio",
+  //   options: [
+  //     { key: "Yes", value: "true" },
+  //     { key: "No", value: "false" },
+  //   ],
+  //   required: true,
+  //   isDisabled: false
+  // },
+  // {
+  //   id: "returnable",
+  //   title: "Returnable",
+  //   type: "radio",
+  //   options: [
+  //     { key: "Yes", value: "true" },
+  //     { key: "No", value: "false" },
+  //   ],
+  //   required: true,
+  //   isDisabled: false
+  // },
+  // {
+  //   id: "availableOnCod",
+  //   title: "Available On Cash On Delivery",
+  //   type: "radio",
+  //   options: [
+  //     { key: "Yes", value: "true" },
+  //     { key: "No", value: "false" },
+  //   ],
+  //   required: true,
+  // },
   {
     id: "imageUrls",
     title: "Images (Select minimum 3 files with maximum size of 2Mb for each file)",

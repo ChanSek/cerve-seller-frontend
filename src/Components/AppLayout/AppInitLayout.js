@@ -9,6 +9,7 @@ const AppInitLayout = (props) => {
     useEffect(() => {
         const interval = setInterval(() => {
             const token = getValueFromCookie('token')
+            console.log("token "+token);
             if (!token) setIsSessionExpired(true)
         }, 10000)
         return () => clearInterval(interval)

@@ -32,6 +32,7 @@ import AddOffer from "../Components/Application/Offer/AddOffer";
 import NewSeller from "../Components/OnBoarding/new-seller-account";
 import ActivateSeller from "../Components/OnBoarding/activateSeller";
 import SellerVerification from "../Components/Application/UserListings/SellerVerification.js";
+import ReturnDetails from "../Components/Application/Returns/ReturnDetails.jsx";
 
 export default function OndcRoutes() {
   return (
@@ -143,6 +144,14 @@ export default function OndcRoutes() {
           element={
             <PrivateRoute>
               <Returns />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/returns/:id"
+          element={
+            <PrivateRoute>
+              <ReturnDetails />
             </PrivateRoute>
           }
         />

@@ -19,6 +19,7 @@ import cogoToast from "cogo-toast";
 import Tooltip from "@material-ui/core/Tooltip";
 import { FormControlLabel, IconButton, InputAdornment, Modal, Radio, TextField } from "@mui/material";
 import { Search } from "@mui/icons-material";
+import EditProductDialog from "../Product/EditProductDialog";
 
 const StyledTableCell = styled(TableCell)({
   "&.MuiTableCell-root": {
@@ -45,7 +46,8 @@ export default function InventoryTable(props) {
   const [searchInput, setSearchInput] = useState("");
   const [selectedRow, setSelectedRow] = useState(null);
   const [initialGroup, setInitialGroup] = useState(null);
-
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editDialogData, setEditDialogData] = useState(null);
   const updateInitialCustomizationGroup = async () => {
     try {
       const url = `/api/v1/products/${selectedRow._id}`;
@@ -117,14 +119,13 @@ export default function InventoryTable(props) {
                 fetchCustomizationItem(row.productId);
                 setShowCustomizationModal(true);
               } else {
-                navigate("/application/add-products", {
-                  state: {
-                    productId: row.commonDetails.productId,
-                    productCategory: row.commonDetails.category,
-                    productSubCategory: row.commonDetails.subCategory,
-                    productVariationOn: row.variationOn,
-                  },
+                setEditDialogData({
+                  productId: row.commonDetails?.productId,
+                  productCategory: row.commonDetails?.category,
+                  productSubCategory: row.commonDetails?.subCategory,
+                  productVariationOn: row.variationOn,
                 });
+                setEditDialogOpen(true);
               }
             }}
           >
@@ -310,6 +311,19 @@ export default function InventoryTable(props) {
           </div>
         </div>
       </Modal>
+      {/* EditProductDialog Modal */}
+      {editDialogOpen && (
+        <EditProductDialog
+          open={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
+          storeId={props.storeId}
+          category={editDialogData?.productCategory}
+          productId={editDialogData?.productId}
+          variationOn={editDialogData?.productVariationOn}
+          subCategory={editDialogData?.productSubCategory}
+          refreshProducts={onRefresh}
+        />
+      )}
     </Paper>
   );
 }

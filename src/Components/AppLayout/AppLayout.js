@@ -44,7 +44,7 @@ const AppLayout = (props) => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            const token = getValueFromCookie('signed')
+            const token = getValueFromCookie('signed');
             if (!token) setIsSessionExpired(true);
             if (!initTokenRefreshed && !isSessionExpired) {
                 startTokenRefreshInterval("/api/v1/auth/refresh");
