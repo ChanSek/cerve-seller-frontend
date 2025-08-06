@@ -12,7 +12,6 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { postCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
 
-
 const modalStyle = {
   position: "absolute",
   top: "50%",
@@ -25,50 +24,75 @@ const modalStyle = {
   p: 4,
 };
 
-export default function InfoRequestModal({ user, supportActionDetails, open, handleClose, onSuccess }) {
+export default function InfoRequestModal({
+  complaintId,
+  open,
+  handleClose,
+  refreshComplaints,
+}) {
   const [loading, setLoading] = useState(false);
-  // Start with one info request section
-  const [infoRequests, setInfoRequests] = useState([{ name: "", info: "" }]);
+  const [infoRequests, setInfoRequests] = useState([
+    { name: "", info: "", errors: {} },
+  ]);
 
-  // Update a specific info request field
   const handleChange = (index, field, value) => {
     const updatedRequests = [...infoRequests];
     updatedRequests[index][field] = value;
+    updatedRequests[index].errors = {
+      ...updatedRequests[index].errors,
+      [field]: !value.trim() ? `${field} is required` : "",
+    };
     setInfoRequests(updatedRequests);
   };
 
-  // Add a new info request section (max 5)
   const handleAdd = () => {
     if (infoRequests.length < 5) {
-      setInfoRequests([...infoRequests, { name: "", info: "" }]);
+      setInfoRequests([
+        ...infoRequests,
+        { name: "", info: "", errors: {} },
+      ]);
     }
   };
 
-  // Remove an info request section (ensure at least one remains)
   const handleRemove = (index) => {
     if (infoRequests.length > 1) {
       setInfoRequests(infoRequests.filter((_, i) => i !== index));
     }
   };
 
-  // Handler for form submission
+  const validateRequests = () => {
+    const updatedRequests = infoRequests.map((req) => ({
+      ...req,
+      errors: {
+        name: !req.name.trim() ? "Name is required" : "",
+        info: !req.info.trim() ? "Information is required" : "",
+      },
+    }));
+    setInfoRequests(updatedRequests);
+    return updatedRequests.every(
+      (req) => !req.errors.name && !req.errors.info
+    );
+  };
+
   const handleSubmit = () => {
+    if (!validateRequests()) {
+      return;
+    }
+
     setLoading(true);
-    postCall(`/api/v1/seller/${supportActionDetails._id}/infoRequests`,infoRequests)
+    const requests = infoRequests.map(({ name, info }) => ({ name, info }));
+    postCall(`/api/v1/seller/${complaintId}/infoRequests`, requests)
       .then((resp) => {
         setLoading(false);
         if (resp?.status === 200) {
-          // Call the onSuccess callback if provided
-          if (onSuccess) {
-            onSuccess(resp.message);
-          }
+          cogoToast.info(resp.message);
+          refreshComplaints();
         } else {
           cogoToast.error(resp.message);
         }
       })
       .catch((error) => {
         setLoading(false);
-        console.log(error);
         cogoToast.error(error.response?.data?.error || "Error occurred");
       });
     handleClose();
@@ -82,10 +106,9 @@ export default function InfoRequestModal({ user, supportActionDetails, open, han
       aria-describedby="info-request-modal-description"
     >
       <Box sx={modalStyle}>
-        <Typography id="info-request-modal-title" variant="h6" component="h2">
+        <Typography id="info-request-modal-title" variant="h6">
           Request More Information
         </Typography>
-
         {infoRequests.map((req, index) => (
           <Box
             key={index}
@@ -94,10 +117,9 @@ export default function InfoRequestModal({ user, supportActionDetails, open, han
               border: "1px solid #ccc",
               p: 2,
               borderRadius: 1,
-              position: "relative",
             }}
           >
-            <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box display="flex" justifyContent="space-between">
               <Typography variant="subtitle1">
                 Info Request {index + 1}
               </Typography>
@@ -112,24 +134,35 @@ export default function InfoRequestModal({ user, supportActionDetails, open, han
               )}
             </Box>
             <TextField
-              label="Name"
-              variant="outlined"
+              label={
+                <span>
+                  Name <span style={{ color: "red" }}>*</span>
+                </span>
+              }
+              variant="standard"
               fullWidth
               margin="normal"
               value={req.name}
               onChange={(e) => handleChange(index, "name", e.target.value)}
+              error={!!req.errors.name}
+              helperText={req.errors.name}
             />
             <TextField
-              label="Information"
-              variant="outlined"
+              label={
+                <span>
+                  Information <span style={{ color: "red" }}>*</span>
+                </span>
+              }
+              variant="standard"
               fullWidth
               margin="normal"
               value={req.info}
               onChange={(e) => handleChange(index, "info", e.target.value)}
+              error={!!req.errors.info}
+              helperText={req.errors.info}
             />
           </Box>
         ))}
-
         {infoRequests.length < 5 && (
           <Button
             variant="outlined"
@@ -141,7 +174,6 @@ export default function InfoRequestModal({ user, supportActionDetails, open, han
             Add Another Request
           </Button>
         )}
-
         <Box mt={3} display="flex" justifyContent="flex-end">
           <Button onClick={handleClose} color="inherit" sx={{ mr: 2 }}>
             Cancel

@@ -7,23 +7,42 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import MenuItem from "@mui/material/MenuItem";
-import Button from "@mui/material/Button";
-import Menu from "@mui/material/Menu";
-import { styled } from "@mui/material/styles";
-import moment from "moment";
+// Removed MoreVertIcon, MenuItem, Button, Menu as they are for the removed actions menu
+import { styled, useTheme } from "@mui/material/styles";
+import moment from "moment"; // Keep if convertDateInStandardFormat uses it or if needed elsewhere
 import { useNavigate } from "react-router-dom";
-import { getFullAddress, getFulfillmentData } from "./../../../utils/orders.js";
+import { Box, Typography, Tooltip, Tabs, Tab } from "@mui/material"; // Removed IconButton
+
+import { getFullAddress } from "./../../../utils/orders.js";
 import { convertDateInStandardFormat } from "../../../utils/formatting/date.js";
 
-const StyledTableCell = styled(TableCell)({
-  "&.MuiTableCell-root": {
-    fontWeight: "bold",
-  },
-});
+// Styled components for better readability and reusability
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  width: "100%",
+  overflow: "hidden",
+  boxShadow: theme.shadows[3],
+  borderRadius: theme.shape.borderRadius,
+}));
 
-export default function InventoryTable(props) {
+const StyledTableHeadCell = styled(TableCell)(({ theme }) => ({
+  fontWeight: "bold",
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+  whiteSpace: 'nowrap',
+  padding: theme.spacing(1.5, 2),
+}));
+
+const StyledTableBodyCell = styled(TableCell)(({ theme }) => ({
+  padding: theme.spacing(1.5, 2),
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  maxWidth: '250px', // Adjust as needed
+}));
+
+export default function OrderTable(props) {
+  const theme = useTheme();
+
   const {
     page,
     columns,
@@ -32,9 +51,11 @@ export default function InventoryTable(props) {
     totalRecords,
     handlePageChange,
     handleRowsPerPageChange,
+    onTabChange,
   } = props;
   const navigate = useNavigate();
-
+  const [activeTab, setActiveTab] = useState(0);
+  const orderStateCategories = ['ONGOING', 'COMPLETED', 'CANCELLED'];
   const onPageChange = (event, newPage) => {
     handlePageChange(newPage);
   };
@@ -44,190 +65,171 @@ export default function InventoryTable(props) {
     handlePageChange(0);
   };
 
-  // const ThreeDotsMenu = (props) => {
-  //   const [anchorEl, setAnchorEl] = useState(null);
+  // Handler for changing the active tab.
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+   // page(0); // Reset to the first page when the tab changes.
 
-  //   function handleMenuClick(data) {}
+    // Propagate the new tab value to the parent component
+    if (onTabChange) {
+      onTabChange(orderStateCategories[newValue]);
+    }
 
-  //   const handleClick = (e) => {
-  //     setAnchorEl(e.currentTarget);
-  //   };
-
-  //   const handleClose = () => {
-  //     setAnchorEl(null);
-  //   };
-
-  //   const { data } = props;
-
-  //   return (
-  //     <Fragment>
-  //       <Button onClick={(e) => handleClick(e)}>
-  //         <MoreVertIcon />
-  //       </Button>
-  //       <Menu
-  //         id="card-actions-menu"
-  //         anchorEl={anchorEl}
-  //         keepMounted
-  //         open={Boolean(anchorEl)}
-  //         onClose={handleClose}
-  //       >
-  //         <MenuItem
-  //           onClick={() => {
-  //             navigate(`/application/orders/${props.row.attributes.order_id}`);
-  //           }}
-  //         >
-  //           Order Details
-  //         </MenuItem>
-  //         <MenuItem onClick={() => handleMenuClick(data.Val1)}>
-  //           Edit Order
-  //         </MenuItem>
-  //       </Menu>
-  //     </Fragment>
-  //   );
-  // };
+    // Propagate page reset to the parent.
+    if (handlePageChange) {
+      handlePageChange(0);
+    }
+  };
 
   const renderColumn = (row, column) => {
-    const value = row[column.id];
-    const payment = row["payment"];
-    const delivery_info = getFulfillmentData(row["fulfillments"], "Delivery");
-    const ordered_items = row.items;
-
     switch (column.id) {
       case "orderId":
         return (
-          <>
-            <span>{row.orderId}</span>
-          </>
+          // Make the Order ID itself clickable for navigation
+          <Typography
+            variant="body2"
+            color="primary"
+            sx={{ textDecoration: 'underline', cursor: 'pointer' }}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent any parent click handlers
+              navigate(`/application/orders/${row?.orderId}`);
+            }}
+          >
+            {row.orderId}
+          </Typography>
         );
+      case "transactionId":
+        return <Typography variant="body2">{row.transactionId}</Typography>;
       case "createdAt":
-        return (
-          <>
-            <span>{convertDateInStandardFormat(value)}</span>
-          </>
-        );
+        return <Typography variant="body2">{convertDateInStandardFormat(row.createdAt)}</Typography>;
       case "updatedAt":
-        return (
-          <>
-            <span>{convertDateInStandardFormat(value)}</span>
-          </>
-        );
+        return <Typography variant="body2">{convertDateInStandardFormat(row.updatedAt)}</Typography>;
       case "state":
         return (
-          <div>
-            <span className="mr-2">{value}</span>
-          </div>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 'medium',
+              color: theme.palette.mode === 'dark' ? theme.palette.info.light : theme.palette.info.dark
+            }}
+          >
+            {row.state}
+          </Typography>
         );
-
       case "payment_type":
-        return (
-          <div>
-            <span>{payment.type}</span>
-            <br />
-          </div>
-        );
+        return <Typography variant="body2">{row.paymentType}</Typography>;
       case "provider_name":
-        return (
-          <div>
-            <span>{row?.organization?.name}</span>
-            <br />
-          </div>
-        );
+        return <Typography variant="body2">{row.organization?.name || 'N/A'}</Typography>;
       case "total_amt":
         return (
-          <div>
-            <span>
-              ₹{" "}
-              {payment?.params?.amount
-                ? parseFloat(payment?.params?.amount).toFixed(2)
-                : ""}
-            </span>
-            <br />
-          </div>
-        );
-      case "order_items":
-        return (
-          <div>
-            x{ordered_items.length}
-            {/* {ordered_items.map((item, idx) => (
-              <span>{`${item.attributes.product.data.attributes.name} ${
-                idx !== ordered_items.length - 1 ? "," : ""
-              } `}</span>
-            ))} */}
-            <br />
-          </div>
+          <Typography variant="body2" fontWeight="bold">
+            ₹{parseFloat(row.totalAmount).toFixed(2)}
+          </Typography>
         );
       case "delivery_info":
         return (
-          <div style={{ textTransform: "capitalize" }}>
-            <span>
-              <p>{getFullAddress(delivery_info?.end?.location?.address)}</p>
-            </span>
-            <br />
-          </div>
+          <Typography variant="body2" sx={{ textTransform: "capitalize" }}>
+            {getFullAddress(row.deliveryAddress)}
+          </Typography>
         );
-
       default:
-        break;
+        return <Typography variant="body2">{row[column.id]}</Typography>;
     }
   };
 
   return (
-    <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <TableContainer>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {props.columns.map((column) => (
-                <StyledTableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{
-                    minWidth: column.minWidth,
-                    backgroundColor: "#1976d2",
-                    color: "#fff",
-                  }}
-                  className="font-medium"
-                >
-                  {column.label}
-                </StyledTableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {props.data.map((row, index) => {
-              return (
-                <TableRow
-                  style={{ cursor: "pointer" }}
-                  hover
-                  role="checkbox"
-                  tabIndex={-1}
-                  key={index}
-                  onClick={() => {
-                    navigate(`/application/orders/${row?._id}`);
-                  }}
-                >
-                  {props.columns.map((column, idx) => {
-                    return (
-                      <TableCell key={column.id} align={column.align}>
-                        {renderColumn(row, column)}
-                      </TableCell>
-                    );
-                  })}
+    <Fragment>
+      <Box sx={{ borderColor: 'divider', mb: 2 }}>
+        <Tabs value={activeTab} onChange={handleTabChange} aria-label="order state tabs">
+          <Tab label="Ongoing" />
+          <Tab label="Completed" />
+          <Tab label="Cancelled" />
+        </Tabs>
+      </Box>
+      <StyledPaper>
+        <TableContainer>
+          <Table stickyHeader aria-label="order table">
+            <TableHead>
+              <TableRow>
+                {columns.map((column) => (
+                  <StyledTableHeadCell
+                    key={column.id}
+                    align={column.align}
+                    style={{ minWidth: column.minWidth }}
+                  >
+                    {column.label}
+                  </StyledTableHeadCell>
+                ))}
+                {/* Removed Actions column header */}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.length === 0 ? (
+                <TableRow>
+                  <StyledTableBodyCell colSpan={columns.length} align="center"> {/* Adjusted colSpan */}
+                    <Typography variant="subtitle1" color="text.secondary" sx={{ py: 3 }}>
+                      No orders found.
+                    </Typography>
+                  </StyledTableBodyCell>
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={totalRecords}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={onPageChange}
-        onRowsPerPageChange={onRowsPerPageChange}
-      />
-    </Paper>
+              ) : (
+                data.map((row) => (
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    tabIndex={-1}
+                    key={row.orderId || row.id}
+                  // Removed onClick from TableRow
+                  >
+                    {columns.map((column) => {
+                      const cellContent = renderColumn(row, column);
+                      const tooltipText = (() => {
+                        // Handle specific cases for tooltip text if renderColumn returns JSX
+                        if (column.id === "delivery_info") {
+                          return getFullAddress(row.deliveryAddress);
+                        }
+                        // For other columns, try to get the raw string value
+                        // Ensure this is a string to avoid issues with Tooltip 'title' prop
+                        return row[column.id] ? String(row[column.id]) : '';
+                      })();
+
+                      return (
+                        <StyledTableBodyCell key={column.id} align={column.align}>
+                          <Tooltip
+                            title={tooltipText}
+                            placement="bottom-start"
+                            arrow
+                          >
+                            <Box
+                              sx={{
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {cellContent}
+                            </Box>
+                          </Tooltip>
+                        </StyledTableBodyCell>
+                      );
+                    })}
+                    {/* Removed Actions cell */}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={totalRecords}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={onPageChange}
+          onRowsPerPageChange={onRowsPerPageChange}
+        />
+      </StyledPaper></Fragment>
   );
 }

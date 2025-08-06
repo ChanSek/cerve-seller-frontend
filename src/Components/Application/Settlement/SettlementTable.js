@@ -13,7 +13,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import { postCall, getCall } from "../../../Api/axios";
-import PendingSettlementModal from "./PendingSettlementModal.js"; 
+import PendingSettlementModal from "./PendingSettlementModal.js";
 import SettledSettlementModal from "./SettledSettlementModal.js";
 
 
@@ -34,7 +34,18 @@ const ThreeDotsMenu = (props) => {
     setOpen(true);
     setLoading(true);
     setError(null);
+    await fetchSettlementDetails(status);
+  };
 
+  const handleClose = () => {
+    setOpen(false);
+    setSettlementDetails(null);
+    setError(null);
+  };
+
+  const fetchSettlementDetails = async (status) => {
+    setLoading?.(true);
+    setError?.(null);
     try {
       const response = await getCall(`/api/v1/seller/${row?.merchantId}/${status}/settlement`);
       setSettlementDetails(response.data);
@@ -45,12 +56,6 @@ const ThreeDotsMenu = (props) => {
     }
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    setSettlementDetails(null);
-    setError(null);
-  };
-
   const buttonText = view === "pending" ? "SETTLEMENT" : "VIEW";
 
   return (
@@ -58,20 +63,15 @@ const ThreeDotsMenu = (props) => {
       <Button variant="contained" size="small" onClick={() => handleOpen(view)}>
         {buttonText}
       </Button>
-      {view == "pending" && <PendingSettlementModal
-        open={open}
-        onClose={handleClose}
-        loading={loading}
-        settlementDetails={settlementDetails}
-        error={error}
-      />}
-      {view == "settled" && <SettledSettlementModal
-        open={open}
-        onClose={handleClose}
-        loading={loading}
-        settlementDetails={settlementDetails}
-        error={error}
-      />}
+        <PendingSettlementModal
+          open={open}
+          onClose={handleClose}
+          loading={loading}
+          settlementDetails={settlementDetails}
+          error={error}
+          view={view}
+          handleSettlementRefresh={() => fetchSettlementDetails(view)}
+        />
     </>
   );
 };

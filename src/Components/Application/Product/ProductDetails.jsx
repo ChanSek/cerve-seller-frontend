@@ -46,6 +46,7 @@ const AddGenericProduct = ({
   barCodeForm,
   category,
   subCategory,
+  selectedMasterProduct,
   categoryForm,
   selectedVariantNames,
   variants,
@@ -351,6 +352,22 @@ const AddGenericProduct = ({
       });
   };
 
+  const fetchProductFromMaster = async () => {
+    getCall(
+      `/api/v1/seller/product/master/${selectedMasterProduct.id}`
+    )
+      .then(async (resp) => {
+        if (resp.data.commonDetails) {
+          console.log("Data "+JSON.stringify(resp.data.commonDetails));
+          setFormValues({ ...resp.data.commonDetails });
+        }
+      })
+      .catch((error) => {
+        cogoToast.error("Something went wrong!");
+        console.log(error);
+      });
+  };
+
   const getProduct = () => {
     getCall(`/api/v1/seller/productId/${state.productId}/product`)
       .then((resp) => {
@@ -570,6 +587,9 @@ const AddGenericProduct = ({
     }
     if (barCodeForm.formValues.barCodeType) {
       fetchProductFromCatalogue();
+    }
+    if (selectedMasterProduct) {
+      fetchProductFromMaster();
     }
     const user = JSON.parse(localStorage.getItem("user"));
     getOrgDetails(user.organization._id).then((store) => {

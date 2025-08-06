@@ -172,3 +172,26 @@ input[type='number']::-webkit-outer-spin-button {
   font-weight: bold;
   color: #007bff;
 }
+
+.image-preview-container {
+  position: relative;
+  display: inline-block;
+}
+
+.image-preview-large {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  width: 500px;
+  height: auto;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  display: none;
+}
+
+.image-preview-container:hover .image-preview-large {
+  display: block;
+}

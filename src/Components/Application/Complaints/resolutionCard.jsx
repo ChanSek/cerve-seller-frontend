@@ -34,7 +34,7 @@ const ACTION_TYPES = {
   refundIssue: "REFUND_ISSUE",
   cascadeIssue: "CASCADE_ISSUE",
   noAction: "NO_ACTION",
-  cancelIssue: "CANCEL_ISSUE",
+  cancel: "CANCEL",
 };
 
 // ----------------------
@@ -46,6 +46,7 @@ const initialResolution = {
   globalShortDescription: "",
   refundShortDescription: "",
   replacementShortDescription: "",
+  cancelShortDescription: "",
   refundAmount: "",
   longDescription: "",
   errors: {} // For field-specific validation errors
@@ -143,6 +144,15 @@ function ResolutionEntry({ index, resolution, onChange, onRemove, disabled }) {
             <p>Refund</p>
           </div>
         </CustomRadioButton>
+        <CustomRadioButton
+          disabled={disabled}
+          checked={resolution.selectedAction === ACTION_TYPES.cancel}
+          onClick={() => handleActionChange(ACTION_TYPES.cancel)}
+        >
+          <div style={{ padding: "0 1rem" }}>
+            <p>Cancel</p>
+          </div>
+        </CustomRadioButton>
         {/* <CustomRadioButton
           disabled={disabled}
           checked={resolution.selectedAction === ACTION_TYPES.cascadeIssue}
@@ -158,7 +168,8 @@ function ResolutionEntry({ index, resolution, onChange, onRemove, disabled }) {
       {/* For actions other than Refund or Replace, show Global Short Description */}
       {resolution.selectedAction &&
         resolution.selectedAction !== ACTION_TYPES.refundIssue &&
-        resolution.selectedAction !== ACTION_TYPES.replaceIssue && (
+        resolution.selectedAction !== ACTION_TYPES.replaceIssue &&
+        resolution.selectedAction !== ACTION_TYPES.cancel && (
           <div style={{ marginBottom: "1rem" }}>
             <label>
               Description <span style={{ color: "red" }}>*</span>
@@ -249,6 +260,31 @@ function ResolutionEntry({ index, resolution, onChange, onRemove, disabled }) {
         </div>
       )}
 
+      {/* Replacement-specific field */}
+      {resolution.selectedAction === ACTION_TYPES.cancel && (
+        <div style={{ marginBottom: "1rem" }}>
+          <label>
+            Cancel Short Description{" "}
+            <span style={{ color: "red" }}>*</span>
+          </label>
+          <CssTextField
+            type="input"
+            fullWidth
+            size="small"
+            placeholder="Cancel short description"
+            value={resolution.cancelShortDescription}
+            onChange={(e) =>
+              handleFieldChange("cancelShortDescription", e.target.value)
+            }
+            inputProps={{ maxLength: 50 }}
+          />
+          {resolution.errors?.cancelShortDescription && (
+            <ErrorMessage>{resolution.errors.cancelShortDescription}</ErrorMessage>
+          )}
+        </div>
+      )}
+
+
       {/* Long Description (optional) */}
       {/* <div style={{ marginBottom: "1rem" }}>
         <label>Long Description</label>
@@ -302,7 +338,8 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
       errors.selectedAction = "Please select an action.";
     } else if (
       resolution.selectedAction !== ACTION_TYPES.refundIssue &&
-      resolution.selectedAction !== ACTION_TYPES.replaceIssue
+      resolution.selectedAction !== ACTION_TYPES.replaceIssue &&
+      resolution.selectedAction !== ACTION_TYPES.cancel
     ) {
       // For actions other than Refund or Replace, global short description is required.
       if (!resolution.globalShortDescription.trim()) {
@@ -322,6 +359,12 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
     if (resolution.selectedAction === ACTION_TYPES.replaceIssue) {
       if (!resolution.replacementShortDescription.trim()) {
         errors.replacementShortDescription = "Please enter description";
+      }
+    }
+
+    if (resolution.selectedAction === ACTION_TYPES.cancel) {
+      if (!resolution.cancelShortDescription.trim()) {
+        errors.cancelShortDescription = "Please enter description";
       }
     }
 
@@ -356,7 +399,7 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
           return "NO-ACTION";
         case ACTION_TYPES.cascadeIssue:
           return "CASCADED";
-        case ACTION_TYPES.cancelIssue:
+        case ACTION_TYPES.cancel:
           return "CANCEL";
         default:
           return "";
@@ -370,6 +413,8 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
         short_desc = res.refundShortDescription;
       } else if (res.selectedAction === ACTION_TYPES.replaceIssue) {
         short_desc = res.replacementShortDescription;
+      } else if (res.selectedAction === ACTION_TYPES.cancel) {
+        short_desc = res.cancelShortDescription;
       } else {
         short_desc = res.globalShortDescription;
       }
@@ -383,26 +428,26 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
         actions: [actionObj],
       };
     });
-    
+
     // Build the full payload (adjust API path and structure as needed)
     const body = {
       resolutions: payloadResolutions,
       updated_by: user?.name
-    //   updated_by: {
-    //     org: {
-    //       name: supportActionDetails.bppDomain,
-    //     },
-    //     contact: {
-    //       phone: user?.mobile,
-    //       email: user?.email,
-    //     },
-    //     person: {
-    //       name: user?.name,
-    //     },
-    //   },
+      //   updated_by: {
+      //     org: {
+      //       name: supportActionDetails.bppDomain,
+      //     },
+      //     contact: {
+      //       phone: user?.mobile,
+      //       email: user?.email,
+      //     },
+      //     person: {
+      //       name: user?.name,
+      //     },
+      //   },
     };
     const actions = body.resolutions.flatMap(resolution => resolution.actions);
-    body.resolutions = actions;   
+    body.resolutions = actions;
     setLoading(true);
     try {
       const resp = await postCall(
@@ -479,4 +524,4 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
   );
 }
 
-export default MultiResolutionModal;
+export default MultiResolutionModa;

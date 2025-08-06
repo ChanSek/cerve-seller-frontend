@@ -10,7 +10,8 @@ import PrivateRoute from "./PrivateRoutes";
 import OrderDetails from "../Components/Application/Order/OrderDetails";
 import UserListings from "../Components/Application/UserListings/UserListings";
 import Settlement from "../Components/Application/Settlement/Settlement";
-import Activity from "../Components/Application/GatewayActivity/Activity";
+import GatewayActivity from "../Components/Application/GatewayActivity/GatewayActivity.js";
+import AdminDetails from "../Components/Application/AdminActivity/AdminDetails.js";
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
 import ProviderDetails from "../Components/Application/UserListings/ProviderDetails";
 import StoreDetails from "../Components/Application/UserListings/StoreDetails";
@@ -31,6 +32,7 @@ import AddOffer from "../Components/Application/Offer/AddOffer";
 import NewSeller from "../Components/OnBoarding/new-seller-account";
 import ActivateSeller from "../Components/OnBoarding/activateSeller";
 import SellerVerification from "../Components/Application/UserListings/SellerVerification.js";
+import ReturnDetails from "../Components/Application/Returns/ReturnDetails.jsx";
 
 export default function OndcRoutes() {
   return (
@@ -146,6 +148,14 @@ export default function OndcRoutes() {
           }
         />
         <Route
+          path="/application/returns/:id"
+          element={
+            <PrivateRoute>
+              <ReturnDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/application/add-products"
           element={
             <PrivateRoute>
@@ -181,7 +191,15 @@ export default function OndcRoutes() {
           path="/application/gateway-activity"
           element={
             <PrivateRoute>
-              <Activity />
+              <GatewayActivity />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/admin-activity"
+          element={
+            <PrivateRoute>
+              <AdminDetails />
             </PrivateRoute>
           }
         />

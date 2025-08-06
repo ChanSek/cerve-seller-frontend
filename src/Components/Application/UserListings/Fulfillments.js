@@ -43,7 +43,7 @@ const Fulfillments = (props) => {
   const renderDeliveryForm = () => {
     return (
       <>
-        {deliveryFulfillmentFields.map((field) => {
+        {/* {deliveryFulfillmentFields.map((field) => {
           return (
             <React.Fragment key={field?.id}>
               <RenderInput
@@ -74,7 +74,7 @@ const Fulfillments = (props) => {
               },
             }));
           }}
-        />
+        /> */}
         <p style={{ marginTop: -5, marginLeft: 2, color: "rgb(211, 47, 47)", fontSize: "14px" }}>
           {errors?.deliveryStoreTimings}
         </p>
@@ -125,7 +125,7 @@ const Fulfillments = (props) => {
 
   return (
     <>
-      <p className="text-2xl font-semibold mb-4 mt-14">Supported Fulfillments</p>
+      {/* <p className="text-2xl font-semibold mb-4 mt-14">Supported Fulfillments</p>
       <div className="flex flex-col">
         <FormControlLabel
           control={
@@ -133,7 +133,7 @@ const Fulfillments = (props) => {
           }
           label="Delivery"
         />
-        {supportedFulfillments.delivery && renderDeliveryForm()}
+        {supportedFulfillments.delivery && renderDeliveryForm()} */}
         {/* <FormControlLabel
           control={
             <Checkbox checked={supportedFulfillments.selfPickup} onChange={handleCheckboxChange} value="selfPickup" />
@@ -141,7 +141,7 @@ const Fulfillments = (props) => {
           label="Self Pickup"
         />
         {supportedFulfillments.selfPickup && renderSelfPickupForm()} */}
-      </div>
+      {/* </div> */}
     </>
   );
 };

@@ -67,19 +67,20 @@ const StoreTimingsRenderer = (props) => {
   };
 
   const renderDaysDDs = () => {
-    return (
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
-        <div style={{ display: "flex" }}>
-          <div style={{ marginLeft: "10px", marginTop: "7px" }}>
-            Days: <span style={{ color: "red" }}>*</span>
-          </div>
-          {renderDaysDD("from")}
-          <div style={{ marginLeft: "10px", marginTop: "7px" }}>To</div>
-          {renderDaysDD("to")}
-        </div>
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-gray-700">
+          Days: <span className="text-red-600">*</span>
+        </span>
+        {renderDaysDD("from")}
+        <span className="text-sm font-medium text-gray-700">to</span>
+        {renderDaysDD("to")}
       </div>
-    );
-  };
+    </div>
+  );
+};
+
 
   const handleStoreTiming = (data, index) => {
     storeTimings[index] = data;

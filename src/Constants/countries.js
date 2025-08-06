@@ -1,4 +1,5 @@
 export const countries = [
+  { value: "India", key: "India" },
   { value: "Afghanistan", key: "Afghanistan" },
   { value: "Åland Islands", key: "Åland Islands" },
   { value: "Albania", key: "Albania" },
@@ -101,7 +102,6 @@ export const countries = [
   { value: "Hong Kong", key: "Hong Kong" },
   { value: "Hungary", key: "Hungary", eu: true },
   { value: "Iceland", key: "Iceland" },
-  { value: "India", key: "India" },
   { value: "Indonesia", key: "Indonesia" },
   { value: "Iran, Islamic Republic of", key: "Iran, Islamic Republic of" },
   { value: "Iraq", key: "Iraq" },

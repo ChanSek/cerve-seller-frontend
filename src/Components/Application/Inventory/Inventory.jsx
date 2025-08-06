@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { getCall, postCall, putCall } from "../../../Api/axios";
 import useCancellablePromise from "../../../Api/cancelRequest";
 import { isObjEmpty } from "../../../utils/validations";
-import { FILTER_OPTIONS, PRODUCT_CATEGORY } from "../../../utils/constants";
 import { useTheme } from "@mui/material/styles";
+import AddProductDialog from "../Product/AddProductDialog";
 import FilterComponent from "../../Shared/FilterComponent";
 import AddCustomization from "../Product/AddCustomization";
 import downloadExcel from "../Inventory/DownloadExcel";
@@ -28,6 +28,7 @@ const fieldsToDelete = [
 export default function Inventory() {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [queryString, setQueryString] = useState('');
+  const [open, setOpen] = useState(false);
   const filterFields = [
     {
       id: "category",
@@ -81,19 +82,19 @@ export default function Inventory() {
       id: "measure",
       label: "Measure",
     },
-    {
-      id: "cancellable",
-      label: "Cancellable",
-      boolean: true,
-      minWidth: 100,
-    },
-    {
-      id: "returnable",
-      label: "Returnable",
-      boolean: true,
-      minWidth: 100,
-    },
-    { id: "variationOn", label: "Variation On", minWidth: 100 },
+    // {
+    //   id: "cancellable",
+    //   label: "Cancellable",
+    //   boolean: true,
+    //   minWidth: 100,
+    // },
+    // {
+    //   id: "returnable",
+    //   label: "Returnable",
+    //   boolean: true,
+    //   minWidth: 100,
+    // },
+    // { id: "variationOn", label: "Variation", minWidth: 100 },
     /*{
       id: "customizationGroupId",
       label: "Customization",
@@ -124,7 +125,7 @@ export default function Inventory() {
   const { cancellablePromise } = useCancellablePromise();
   const [products, setProducts] = useState([]);
   const [storeId, setStoreId] = useState('');
-
+  const [category, setCategory] = useState('');
   const [filters, setFilters] = useState({
     name: "",
     category: "",
@@ -267,6 +268,7 @@ export default function Inventory() {
                   navigate(`/application/store-details/${merchantId}`);
                 } else {
                   setStoreId(org.data.storeId);
+                  setCategory(org.data.category);
                   getProducts(org.data.storeId);
                 }
               });
@@ -334,12 +336,21 @@ export default function Inventory() {
           </label>
           <div className="flex flex-col sm:flex-row">
             <div className="mb-2 sm:mb-0 sm:mr-4">
-              <Button
+              {/* <Button
                 variant="contained"
                 icon={<AddIcon />}
                 title="ADD PRODUCT"
                 onClick={() => navigate("/application/add-products")}
-              />
+              /> */}
+              <Button
+                variant="contained"
+                icon={<AddIcon />}
+                title="ADD PRODUCT"
+                onClick={() => setOpen(true)}
+              >
+                ADD PRODUCT
+              </Button>
+              <AddProductDialog storeId={storeId} category={category} open={open} onClose={() => setOpen(false)} refreshProducts={handleRefresh}/>
             </div>
             <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
@@ -377,6 +388,7 @@ export default function Inventory() {
           customizationGroups={customizationGroups}
           setShowCustomizationModal={setShowCustomizationModal}
           getProducts={getProducts}
+          storeId={storeId}
           //fetchCustomizationItem={fetchCustomizationItem}
           handlePageChange={(val) => setPage(val)}
           handleRowsPerPageChange={(val) => setRowsPerPage(val)}

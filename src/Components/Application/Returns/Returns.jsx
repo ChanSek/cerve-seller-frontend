@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import ReturnOrderTable from "./ReturnOrderTable";
 import { getCall } from "../../../Api/axios";
-import columns from './colDefs';
+import columns from './return-fields';
 import { useTheme } from '@mui/material/styles';
+
 
 export default function Returns() {
   const theme = useTheme();
@@ -12,6 +13,7 @@ export default function Returns() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [user, setUser] = useState();
   const [merchantId, setMerchantId] = useState(null);
+
 
   const getReturnOrders = (merchantId) => {
     const url = `/api/v1/seller/${merchantId}/orders/return/request?limit=${rowsPerPage}&offset=${page}`;
@@ -46,11 +48,11 @@ export default function Returns() {
     }
   }, [merchantId]);
 
-  // useEffect(() => {
-  //   if (params.id) {
-  //     getReturnOrders(rowsPerPage, page);
-  //   }
-  // }, [page, rowsPerPage]);
+  useEffect(() => {
+    if (merchantId) {
+      getReturnOrders(merchantId);
+    }
+  }, [page, rowsPerPage]);
 
   const handleRefresh = () => {
     getReturnOrders(merchantId);
