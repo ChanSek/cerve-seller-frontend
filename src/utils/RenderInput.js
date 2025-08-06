@@ -86,7 +86,7 @@ const RenderInput = (props) => {
   };
 
   const formatDecimal = (value) => {
-    if (value === undefined || value === '') return '';
+    if (value === undefined || value === '' || value === null) return '';
     const cleanValue = value.toString().replace(/[^0-9.]/g, '');
     const [integerPart, decimalPart] = cleanValue.split('.');
     const formattedIntegerPart = integerPart.slice(0, 10);
@@ -219,18 +219,28 @@ const RenderInput = (props) => {
           helperText={item.error && item.helperText}
           value={item.valueInDecimal ? formatDecimal(state[item.id]) : state[item.id]}
           onChange={(e) => {
-            const value = item.valueInDecimal ? formatDecimal(e.target.value) : e.target.value;
+            let value = e.target.value;
+
+            // Check if field is decimal
+            if (item.valueInDecimal) {
+              value = formatDecimal(value);
+            } else {
+              value = value.replace(".", "");
+            }
+
             // Enforce maximum length
             const maxLength = item.maxLength || undefined;
             if (maxLength && value.length > maxLength) {
               return;
             }
-            // const formattedValue = item.formatInDecimal? formatDecimal(value, true) : value;
+
+            // Set the state
             stateHandler({
               ...state,
               [item.id]: value,
             });
           }}
+
           inputProps={{
             step: "1",
           }}
@@ -729,23 +739,19 @@ const RenderInput = (props) => {
     // };
 
     const renderUploadedUrls = () => {
+      const getImageElement = (url) => (
+        <div className="image-preview-container">
+          <img src={url} height={50} width={50} style={{ margin: "10px" }} alt="" />
+          <img src={url} className="image-preview-large" alt="zoom" />
+        </div>
+      );
       if (item?.multiple) {
-        if (state?.uploaded_urls) {
-          return state?.uploaded_urls?.map((url) => {
-            return <img src={url} height={50} width={50} style={{ margin: "10px" }} alt="" />;
-          });
+        if (state?.imageUrls) {
+          return state.imageUrls.map((url) => getImageElement(url));
         }
       } else {
         if ((!isImageChanged && state?.tempURL?.[item.id]) || state[item.id]) {
-          return (
-            <img
-              src={state?.tempURL?.[item.id] || state[item.id] || ""}
-              height={50}
-              width={50}
-              style={{ margin: "10px" }}
-              alt=""
-            />
-          );
+          return getImageElement(state?.tempURL?.[item.id] || state[item.id]);
         } else {
           return <></>;
         }
@@ -897,30 +903,34 @@ const RenderInput = (props) => {
                 })
                   .then((response) => {
                     setIsImageChanged(true);
+                    const uploadedUrl = response?.data?.endPoint || response?.data?.urls;
+
                     if (item.multiple) {
-                      stateHandler((prevState) => {
-                        const newState = {
-                          ...prevState,
-                          [item.id]: [...prevState[item.id], response.data.urls],
-                          uploaded_urls: [],
-                        };
-                        return newState;
-                      });
+                      // Handle multiple uploads
+                      const updatedValue = [...(state[item.id] || []), ...(Array.isArray(uploadedUrl) ? uploadedUrl : [uploadedUrl])];
+
+                      const updatedState = {
+                        ...state,
+                        [item.id]: updatedValue,
+                        uploaded_urls: [],
+                      };
+                      stateHandler(updatedState); // ✅ works for both formData and variant.data
                     } else {
-                      let reader = new FileReader();
+                      // Handle single image upload
+                      const reader = new FileReader();
                       let tempUrl = "";
                       reader.onload = function (e) {
                         tempUrl = e.target.result;
-                        stateHandler({
+                        const updatedState = {
                           ...state,
-                          [item.id]: (response.data?.endPoint ? response.data.endPoint : response.data.urls),
+                          [item.id]: uploadedUrl,
                           tempURL: {
                             ...state.tempURL,
                             [item.id]: tempUrl,
                           },
-                        });
+                        };
+                        stateHandler(updatedState); // ✅ same here
                       };
-
                       reader.readAsDataURL(file);
                     }
                   })

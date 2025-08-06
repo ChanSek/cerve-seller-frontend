@@ -76,47 +76,6 @@ let storeFields = [
         required: true,
     },
     {
-        id: "default_cancellable",
-        title: "Default Cancellable Setting",
-        options: [
-            { key: "Cancellable", value: "true" },
-            { key: "Non-Cancellable", value: "false" },
-        ],
-        type: "radio",
-        required: true,
-    },
-    {
-        id: "default_returnable",
-        title: "Default Returnable Setting",
-        options: [
-            { key: "Returnable", value: "true" },
-            { key: "Non-Returnable", value: "false" },
-        ],
-        type: "radio",
-        required: true,
-    },
-    {
-        id: "country",
-        title: "Country",
-        placeholder: "Country",
-        type: "input",
-        required: true,
-    },
-    {
-        id: "state",
-        title: "State",
-        placeholder: "State",
-        type: "input",
-        required: true,
-    },
-    {
-        id: "city",
-        title: "City",
-        placeholder: "City",
-        type: "input",
-        required: true,
-    },
-    {
         id: "building",
         title: "Building",
         placeholder: "Building",
@@ -131,13 +90,6 @@ let storeFields = [
         required: true,
     },
     {
-        id: "area_code",
-        title: "PIN Code",
-        placeholder: "PIN code",
-        type: "input",
-        required: true,
-    },
-    {
         id: "locality",
         title: "Locality",
         placeholder: "Locality",
@@ -145,8 +97,36 @@ let storeFields = [
         required: true,
     },
     {
+        id: "city",
+        title: "City",
+        placeholder: "City",
+        type: "input",
+        required: true,
+    },
+    {
+        id: "state",
+        title: "State",
+        placeholder: "State",
+        type: "input",
+        required: true,
+    },
+    {
+        id: "country",
+        title: "Country",
+        placeholder: "Country",
+        type: "input",
+        required: true,
+    },
+    {
+        id: "area_code",
+        title: "PIN Code",
+        placeholder: "PIN code",
+        type: "input",
+        required: true,
+    },
+    {
         id: "logo",
-        file_type: "logo",
+        file_type: "product_image",
         title: "Logo",
         type: "upload",
         required: true,
@@ -357,7 +337,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                     "default_cancellable": "false",
                     "location_availability": "radius",
                     "onNetworkLogistics": "false",
-                    "cities":[],
+                    "cities": [],
                 };
             } else {
                 storeData = {
@@ -516,63 +496,12 @@ const StoreDetails = ({ isFromUserListing = false }) => {
 
         if (!isFromUserListing) {
             if (storeStatus === "enabled") {
-                //const length = storeDetails.holidays?.length;
-                //formErrors.holidays = length === 0 || !length ? "Holidays are required" : "";
                 formErrors.storeTimes = getStoreTimesErrors();
             } else {
                 formErrors.holidays = "";
                 formErrors.storeTimes = "";
             }
-        } else {
         }
-
-        formErrors.logisticsBppId = storeDetails.onNetworkLogistics === "true" ? storeDetails.logisticsBppId.trim() === "" ? "Logistics Bpp Id is required" : "" : "";
-        formErrors.logisticsDeliveryType = storeDetails.logisticsDeliveryType === undefined || storeDetails.logisticsDeliveryType.trim() === "" ? "Logistics Delivery Type is required" : "";
-        formErrors.deliveryTime = storeDetails.onNetworkLogistics === "false"
-            ? (storeDetails.deliveryTime === ""
-                ? "Delivery Time is required"
-                : storeDetails.deliveryTime === "0"
-                    ? "Delivery Time must be greater than 0"
-                    : "")
-            : "";
-        // formErrors.logisticsBppId = "";
-        // formErrors.logisticsDeliveryType = "";
-
-        formErrors.deliveryEmail =
-            supportedFulfillments.delivery !== false
-                ? fulfillmentDetails.deliveryDetails?.deliveryEmail?.trim() === ""
-                    ? "Delivery Email is required"
-                    : !isEmailValid(fulfillmentDetails.deliveryDetails?.deliveryEmail)
-                        ? "Please enter a valid email address"
-                        : ""
-                : "";
-
-        formErrors.deliveryMobile =
-            supportedFulfillments.delivery !== false
-                ? fulfillmentDetails.deliveryDetails?.deliveryMobile?.trim() === ""
-                    ? "Mobile Number is required"
-                    : !isPhoneNoValid(fulfillmentDetails.deliveryDetails?.deliveryMobile)
-                        ? "Please enter a valid mobile number"
-                        : ""
-                : "";
-
-        formErrors.selfPickupEmail =
-            supportedFulfillments.selfPickup !== false
-                ? fulfillmentDetails.selfPickupDetails?.selfPickupEmail?.trim() === ""
-                    ? "Delivery Email is required"
-                    : !isEmailValid(fulfillmentDetails.selfPickupDetails?.selfPickupEmail)
-                        ? "Please enter a valid email address"
-                        : ""
-                : "";
-
-        formErrors.selfPickupMobile =
-            supportedFulfillments.selfPickup !== false
-                ? fulfillmentDetails.selfPickupDetails?.selfPickupMobile?.trim() === ""
-                    ? "Mobile Number is required"
-                    : !isPhoneNoValid(fulfillmentDetails.selfPickupDetails?.selfPickupMobile)
-                        ? "Please enter a valid mobile number"
-                        : ""
-                : "";
 
         const deliveryStoreTimings = fulfillmentDetails.deliveryDetails.storeTimings;
         const selfDeliveryStoreTimings = fulfillmentDetails.selfPickupDetails.storeTimings;
@@ -637,7 +566,6 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                     ? "Please enter a valid mobile number"
                     : "";
 
-            // Check if all nested properties are empty, then delete the entire object from formErrors
             if (
                 Object.keys(formErrors.deliveryAndSelfPickupDetails).every(
                     (key) => formErrors.deliveryAndSelfPickupDetails[key] === ""
@@ -662,6 +590,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
         }
 
         setErrors(formErrors);
+        console.log("formErrors ", formErrors);
         if (Object.values(formErrors).some((val) => val !== "")) {
             if (formErrors.customArea && formErrors.customArea !== "") {
                 cogoToast.error(formErrors.customArea);
@@ -774,11 +703,10 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 area_code: area_code,
                 locality: locality,
             };
-            let iso8601 = "";
+            let iso8601;
             if (storeDetails.frequency && storeDetails.StoreTimeType === "frequency") {
                 // Create a duration object with the hours you want to convert
                 const duration = moment.duration(parseInt(storeDetails.frequency), "hours");
-
                 // Format the duration in ISO 8601 format
                 iso8601 = duration.toISOString();
             } else {
@@ -809,7 +737,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                 radius: storeDetails.radius || "",
                 useNetworkLogistics: storeDetails.onNetworkLogistics,
                 logisticsBppId: storeDetails.onNetworkLogistics === 'true' ? storeDetails.logisticsBppId : '',
-                logisticsDeliveryType: storeDetails.logisticsDeliveryType,
+                logisticsDeliveryType: storeDetails.logisticsDeliveryType ? storeDetails.logisticsDeliveryType : "Standard Delivery",
                 deliveryTime: storeDetails.onNetworkLogistics === 'false' ? storeDetails.deliveryTime : '',
             };
             if (location) {
@@ -823,11 +751,6 @@ const StoreDetails = ({ isFromUserListing = false }) => {
             }
             payload["custom_area"] = polygonPoints;
             payload["logoUrl"] = storeDetails.logo;
-            // if (!startWithHttpRegex.test(storeDetails.logo)) {
-            //   payload["logoUrl"] = storeDetails.logo;
-            // } else {
-            //   payload["logoUrl"] = logo_path;
-            // }
 
             postCall(url, payload)
                 .then((resp) => {
@@ -984,7 +907,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                                 Store Details
                             </label>
                         </div>
-                        {storeDetailFields.map((item) => (
+                        {/* {storeDetailFields.map((item) => (
                             <RenderInput
                                 key={item.id} // Ensure unique key for list items
                                 item={{
@@ -995,89 +918,117 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                                 state={storeDetails}
                                 stateHandler={setStoreDetails}
                             />
-                        ))}
+                        ))} */}
+                        {/* Grouped Location & Address Section */}
+                        <div className="bg-[#f9f9f9] border border-gray-300 rounded-xl p-6 mb-6 shadow-sm">
+                            <p className="text-lg font-semibold mb-4 text-gray-700">Store Geo Location & Address</p>
+
+                            <div className="flex flex-col md:flex-row gap-6">
+                                {/* 75%: Location (Map) */}
+                                <div className="w-full md:w-3/4">
+                                    {storeDetailFields
+                                        .filter((item) => item.id === "location")
+                                        .map((item) => (
+                                            <RenderInput
+                                                key={item.id}
+                                                item={{
+                                                    ...item,
+                                                    error: !!errors?.[item.id],
+                                                    helperText: errors?.[item.id] || "",
+                                                }}
+                                                state={storeDetails}
+                                                stateHandler={setStoreDetails}
+                                            />
+                                        ))}
+                                </div>
+
+                                {/* 25%: Address Fields (No gaps) */}
+                                <div className="w-full md:w-1/4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                    {storeDetailFields
+                                        .filter((item) =>
+                                            [
+                                                "building",
+                                                "street",
+                                                "locality",
+                                                "city",
+                                                "country",
+                                                "state",
+                                                "area_code",
+                                            ].includes(item.id)
+                                        )
+                                        .map((item) => {
+                                            const fullWidthFields = ["building", "street", "locality"];
+                                            const isFullWidth = fullWidthFields.includes(item.id);
+                                            return (
+                                                <div
+                                                    key={item.id}
+                                                    className={isFullWidth ? "col-span-2" : ""}
+                                                >
+                                                    <RenderInput
+                                                        item={{
+                                                            ...item,
+                                                            error: !!errors?.[item.id],
+                                                            helperText: errors?.[item.id] || "",
+                                                        }}
+                                                        state={storeDetails}
+                                                        stateHandler={setStoreDetails}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+                        {/* Remaining fields */}
+                        {storeDetailFields
+                            .filter(
+                                (item) =>
+                                    ![
+                                        "location",
+                                        "country",
+                                        "state",
+                                        "city",
+                                        "building",
+                                        "street",
+                                        "area_code",
+                                        "locality",
+                                    ].includes(item.id)
+                            )
+                            .map((item) => (
+                                <RenderInput
+                                    key={item.id}
+                                    item={{
+                                        ...item,
+                                        error: !!errors?.[item.id],
+                                        helperText: errors?.[item.id] || "",
+                                    }}
+                                    state={storeDetails}
+                                    stateHandler={setStoreDetails}
+                                />
+                            ))}
 
                         {!isFromUserListing && (
                             <>
-                                <p className="text-2xl font-semibold mb-4 mt-14">Logistics Details</p>
-                                <RenderInput
-                                    item={{
-                                        id: "onNetworkLogistics",
-                                        title: "Network Logistics",
-                                        options: [
-                                            { key: "On", value: "true" },
-                                            { key: "Off", value: "false" },
-                                        ],
-                                        type: "radio",
-                                        required: true,
-                                        error: !!errors?.["onNetworkLogistics"],
-                                        helperText: errors?.["onNetworkLogistics"] || "",
-                                    }}
-                                    state={storeDetails}
-                                    stateHandler={setStoreDetails}
-                                />
-                                <RenderInput
-                                    item={{
-                                        id: "logisticsDeliveryType",
-                                        title: "Logistics Delivery Type",
-                                        placeholder: "Logistics Delivery Type",
-                                        error: !!errors?.["logisticsDeliveryType"],
-                                        helperText: errors?.["logisticsDeliveryType"] || "",
-                                        options: deliveryTypeList,
-                                        type: "select",
-                                    }}
-                                    state={storeDetails}
-                                    stateHandler={setStoreDetails}
-                                />
-                                {storeDetails.onNetworkLogistics === 'true' ? (
-                                    <RenderInput
-                                        item={{
-                                            id: "logisticsBppId",
-                                            title: "Logistics Bpp Id",
-                                            placeholder: "Logistics Bpp Id",
-                                            type: "input",
-                                            error: !!errors?.["logisticsBppId"],
-                                            helperText: errors?.["logisticsBppId"] || "",
-                                        }}
-                                        state={storeDetails}
-                                        stateHandler={setStoreDetails}
-                                    />
-                                ) : (
-                                    <RenderInput
-                                        item={{
-                                            id: "deliveryTime",
-                                            title: "Delivery Time (in hours)",
-                                            placeholder: "Delivery Time (in hours)",
-                                            type: "number",
-                                            error: !!errors?.["deliveryTime"],
-                                            helperText: errors?.["deliveryTime"] || "",
-                                        }}
-                                        state={storeDetails}
-                                        stateHandler={setStoreDetails}
-                                    />
-                                )}
-                                <Fulfillments
-                                    errors={errors}
-                                    supportedFulfillments={supportedFulfillments}
-                                    setSupportedFulfillments={setSupportedFulfillments}
-                                    fulfillmentDetails={fulfillmentDetails}
-                                    setFulfillmentDetails={setFulfillmentDetails}
-                                />
+                                <p className="text-2xl font-semibold mb-4">Store Timing</p>
 
-                                <p className="text-2xl font-semibold mb-2 mt-14">Store Timing</p>
+                                {/* Store Status */}
                                 <div className="py-1 flex flex-col">
                                     <FormControl component="fieldset">
                                         <label className="text-sm py-2 ml-1 font-medium text-left text-[#606161] inline-block">
-                                            Store Status
-                                            <span className="text-[#FF0000]"> *</span>
+                                            Store Status<span className="text-[#FF0000]"> *</span>
                                         </label>
+
                                         <RadioGroup
                                             value={storeStatus}
                                             onChange={(e) => {
                                                 setStoreStatus(e.target.value);
                                             }}
                                         >
-                                            <div className="flex flex-row">
+                                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-6">
                                                 {[
                                                     { key: "Enabled", value: "enabled" },
                                                     { key: "Temporarily Closed", value: "closed" },
@@ -1086,8 +1037,17 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                                                     <FormControlLabel
                                                         key={radioItem.value}
                                                         value={radioItem.value}
-                                                        control={<Radio size="small" checked={radioItem.value === storeStatus} />}
-                                                        label={<div className="text-sm font-medium text-[#606161]">{radioItem.key}</div>}
+                                                        control={
+                                                            <Radio
+                                                                size="small"
+                                                                checked={radioItem.value === storeStatus}
+                                                            />
+                                                        }
+                                                        label={
+                                                            <div className="text-sm font-medium text-[#606161]">
+                                                                {radioItem.key}
+                                                            </div>
+                                                        }
                                                     />
                                                 ))}
                                             </div>
@@ -1095,8 +1055,9 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                                     </FormControl>
                                 </div>
 
+                                {/* Holidays Picker */}
                                 {storeStatus === "enabled" && (
-                                    <>
+                                    <div className="mt-4">
                                         <RenderInput
                                             item={{
                                                 id: "holidays",
@@ -1111,29 +1072,29 @@ const StoreDetails = ({ isFromUserListing = false }) => {
                                             state={storeDetails}
                                             stateHandler={setStoreDetails}
                                         />
-                                        <p
-                                            style={{
-                                                color: "#d32f2f",
-                                                fontSize: "0.75rem",
-                                                marginLeft: 12,
-                                            }}
-                                        >
-                                            {errors?.["holidays"] || ""}
-                                        </p>
-                                    </>
+                                        {errors?.["holidays"] && (
+                                            <p className="text-red-600 text-xs ml-3 mt-1">
+                                                {errors["holidays"]}
+                                            </p>
+                                        )}
+                                    </div>
                                 )}
 
-                                <StoreTimingsRenderer
-                                    errors={errors}
-                                    storeStatus={storeStatus}
-                                    storeTimings={storeTimings}
-                                    setStoreTimings={setStoreTimings}
-                                    temporaryClosedTimings={temporaryClosedTimings}
-                                    setTemporaryClosedTimings={setTemporaryClosedTimings}
-                                    temporaryClosedDays={temporaryClosedDays}
-                                    setTemporaryClosedDays={setTemporaryClosedDays}
-                                />
+                                {/* Store Timings */}
+                                <div className="mt-6">
+                                    <StoreTimingsRenderer
+                                        errors={errors}
+                                        storeStatus={storeStatus}
+                                        storeTimings={storeTimings}
+                                        setStoreTimings={setStoreTimings}
+                                        temporaryClosedTimings={temporaryClosedTimings}
+                                        setTemporaryClosedTimings={setTemporaryClosedTimings}
+                                        temporaryClosedDays={temporaryClosedDays}
+                                        setTemporaryClosedDays={setTemporaryClosedDays}
+                                    />
+                                </div>
                             </>
+
                         )}
 
                         <div className="flex mt-16">

@@ -28,6 +28,14 @@ const superAdminCols = [
     label: "Status",
   },
   {
+    id: "createdAt",
+    label: "Created On",
+  },
+  {
+    id: "updatedAt",
+    label: "Mondified On",
+  },
+  {
     id: "Action",
     label: "Action",
   },
@@ -49,6 +57,14 @@ const providerCols = [
   {
     id: "formatted_status",
     label: "Status",
+  },
+  {
+    id: "createdAt",
+    label: "Created On",
+  },
+  {
+    id: "updatedAt",
+    label: "Mondified On",
   },
   {
     id: "Action",
@@ -200,8 +216,8 @@ const UserListings = () => {
             indicatorColor="primary"
             textColor="primary"
           >
-            <Tab value="admin" label="ADMINS" />
-            <Tab value="provider" label="SELLERS" />
+            <Tab value="admin" label="SUBSCRIBERS" />
+            <Tab value="provider" label="MERCHANTS" />
           </Tabs>
           {/* <Button
             sx={{ height: 30, textTransform: "none" }}

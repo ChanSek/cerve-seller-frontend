@@ -6,22 +6,42 @@ axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.withCredentials = true;
 
 function unAuthorizedResponse() {
+  // Clear all cookies
   deleteAllCookies();
-  window.location.pathname = "/";
+
+  // Clear auth tokens and session data
+  localStorage.removeItem("token");
+  sessionStorage.clear();
+
+  // Redirect user to login page
+  if (window.location.pathname !== "/login") {
+    window.location.replace("/login"); // More reliable than assigning pathname
+  }
 }
 
 export function getCall(url) {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.get(url);
+
+      // Handle API-level unauthorized status (not HTTP)
+      const apiStatus = response?.data?.status;
+      const apiMessage = response?.data?.message;
+
+      if (apiStatus === 401) {
+        unAuthorizedResponse(apiMessage || "Unauthorized access.");
+        return; // Don't proceed further
+      }
+
       return resolve(response.data);
     } catch (err) {
-      const { status } = err.response;
-      if (status === 401) return unAuthorizedResponse();
+      // Only triggered for actual HTTP/network issues
+      console.error("AXIOS ERROR:", err);
       return reject(err);
     }
   });
 }
+
 
 export function postCall(url, params) {
   return new Promise(async (resolve, reject) => {

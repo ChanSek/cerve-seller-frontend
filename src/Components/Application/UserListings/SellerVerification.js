@@ -110,7 +110,7 @@ const SellerVerification = () => {
     { label: "Bank Details", key: "bank" },
     { label: "Review Details", key: "review" },
   ];
-  let userRole = JSON.parse(localStorage.getItem("user"))?.role?.name;
+  const userRole = JSON.parse(localStorage.getItem("user"))?.role?.name;
 
   return (
     <div>
@@ -134,7 +134,7 @@ const SellerVerification = () => {
                     style={{ color: theme.palette.primary.main }}
                     className="font-semibold text-2xl"
                   >
-                    Seller Details
+                    Merchant Details
                   </label>
                 </div>
               </>

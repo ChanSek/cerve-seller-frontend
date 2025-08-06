@@ -18,6 +18,7 @@ import { MoreVert, LockOutlined } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { putCall } from "../../../Api/axios";
 import { Tooltip } from "@material-ui/core";
+import { convertDateInStandardFormat } from "../../../utils/formatting/date.js";
 
 const StyledTableCell = styled(TableCell)({
   "&.MuiTableCell-root": {
@@ -43,15 +44,17 @@ const ThreeDotsMenu = (props) => {
     try {
       switch (action) {
         case "enable":
-          {isProvider 
-            ? (await putCall(`/api/v1/seller/merchantId/${row?.merchantId}/review`, { "updatedField": "isActive", "isActive": true })) 
-            : (await putCall(`/api/v1/seller/subscriberId/${row?.subscriberId}/enable`, { "active": true }))
+          {
+            isProvider
+              ? (await putCall(`/api/v1/seller/merchantId/${row?.merchantId}/review`, { "updatedField": "isActive", "isActive": true }))
+              : (await putCall(`/api/v1/seller/subscriberId/${row?.subscriberId}/enable`, { "active": true }))
           };
           break;
         case "disable":
-          {isProvider 
-            ? (await putCall(`/api/v1/seller/merchantId/${row?.merchantId}/review`, { "updatedField": "isActive", "isActive": false })) 
-            : (await putCall(`/api/v1/seller/subscriberId/${row?.subscriberId}/enable`, { "active": false }))
+          {
+            isProvider
+              ? (await putCall(`/api/v1/seller/merchantId/${row?.merchantId}/review`, { "updatedField": "isActive", "isActive": false }))
+              : (await putCall(`/api/v1/seller/subscriberId/${row?.subscriberId}/enable`, { "active": false }))
           };
           break;
         case "unlock":
@@ -207,6 +210,12 @@ const UserTable = (props) => {
                       return (
                         <TableCell key={column.id} align={column.align}>
                           {row?.organization?.name}
+                        </TableCell>
+                      );
+                    } else if (column.id == "createdAt" || column.id == "updatedAt") {
+                      return (
+                        <TableCell key={column.id} align={column.align}>
+                          {convertDateInStandardFormat(value)}
                         </TableCell>
                       );
                     }

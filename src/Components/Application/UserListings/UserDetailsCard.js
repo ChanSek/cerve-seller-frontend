@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import RenderInput from "../../../utils/RenderInput";
-import verficationFields from "./admin-verification-fields";
+import verficationFields from "./seller-verification-fields";
 import { useParams } from "react-router-dom";
 import useForm from "../../../hooks/useForm";
 import { Button } from "@mui/material";

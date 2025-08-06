@@ -16,6 +16,7 @@ const tabs = [
 
 const settlementCols = [
   { id: "merchantId", label: "Merchant" },
+  { id: "store", label: "Store Name" },
   { id: "totalAmount", label: "Total Amount" },
   { id: "orderCount", label: "Orders" },
   { id: "Action", label: "Action" },

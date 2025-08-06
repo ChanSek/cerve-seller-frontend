@@ -21,7 +21,7 @@ const activityCols = [
     { id: "Action", label: "Action" },
 ];
 
-const Activity = () => {
+const GatewayActivity = () => {
     const theme = useTheme();
     const queryParams = useQueryParams();
     const [view, setView] = useState(queryParams.view || "transactions");
@@ -92,4 +92,4 @@ const Activity = () => {
     );
 };
 
-export default Activity;
+export default GatewayActivity;

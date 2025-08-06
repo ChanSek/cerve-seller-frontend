@@ -159,8 +159,9 @@ export default function ComplaintTable(props) {
 
   const renderColumn = (row, column) => {
     const issue = row.issue;
+    const initiatedBy = row.initiatedBy;
     const value = issue[column.id];
-    const short_description = issue.description.short_desc;
+    const short_description = issue.descriptor?.short_desc;
     switch (column.id) {
       case "issueId":
         return (
@@ -211,6 +212,13 @@ export default function ComplaintTable(props) {
         return (
           <div>
             <span>{short_description}</span>
+            <br />
+          </div>
+        );
+        case "initiatedBy":
+        return (
+          <div>
+            <span>{initiatedBy}</span>
             <br />
           </div>
         );
