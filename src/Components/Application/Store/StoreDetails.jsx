@@ -53,26 +53,26 @@ let storeFields = [
     type: "radio",
     required: false,
   },
-  {
-    id: "default_cancellable",
-    title: "Default cancellable setting",
-    options: [
-      { key: "Cancellable", value: "true" },
-      { key: "Non Cancellable", value: "false" },
-    ],
-    type: "radio",
-    required: false,
-  },
-  {
-    id: "default_returnable",
-    title: "Default returnable setting",
-    options: [
-      { key: "Returnable", value: "true" },
-      { key: "Non Returnable", value: "false" },
-    ],
-    type: "radio",
-    required: false,
-  },
+  // {
+  //   id: "default_cancellable",
+  //   title: "Default cancellable setting",
+  //   options: [
+  //     { key: "Cancellable", value: "true" },
+  //     { key: "Non Cancellable", value: "false" },
+  //   ],
+  //   type: "radio",
+  //   required: false,
+  // },
+  // {
+  //   id: "default_returnable",
+  //   title: "Default returnable setting",
+  //   options: [
+  //     { key: "Returnable", value: "true" },
+  //     { key: "Non Returnable", value: "false" },
+  //   ],
+  //   type: "radio",
+  //   required: false,
+  // },
   {
     id: "logo",
     title: "Logo",

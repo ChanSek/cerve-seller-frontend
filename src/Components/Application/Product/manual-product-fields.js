@@ -93,7 +93,7 @@ export const manualProductFieldDetails = [
     id: "uomValue",
     title: "UOM value",
     placeholder: "UOM value",
-    type: "number",
+    type: "input",
     required: true,
     maxLength: 10,
   },

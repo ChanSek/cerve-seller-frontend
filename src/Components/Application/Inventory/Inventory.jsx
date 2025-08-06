@@ -82,19 +82,19 @@ export default function Inventory() {
       id: "measure",
       label: "Measure",
     },
-    {
-      id: "cancellable",
-      label: "Cancellable",
-      boolean: true,
-      minWidth: 100,
-    },
-    {
-      id: "returnable",
-      label: "Returnable",
-      boolean: true,
-      minWidth: 100,
-    },
-    { id: "variationOn", label: "Variation", minWidth: 100 },
+    // {
+    //   id: "cancellable",
+    //   label: "Cancellable",
+    //   boolean: true,
+    //   minWidth: 100,
+    // },
+    // {
+    //   id: "returnable",
+    //   label: "Returnable",
+    //   boolean: true,
+    //   minWidth: 100,
+    // },
+    // { id: "variationOn", label: "Variation", minWidth: 100 },
     /*{
       id: "customizationGroupId",
       label: "Customization",

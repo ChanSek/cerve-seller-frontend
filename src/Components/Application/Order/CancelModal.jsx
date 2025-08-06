@@ -32,28 +32,28 @@ const CancelModal = (props) => {
     <Dialog open={showModal} onClose={handleCloseModal} maxWidth="xs" fullWidth>
       <DialogTitle>Cancel Order</DialogTitle>
       <DialogContent>
-  <div className="mt-2">
-    <p><b>{data?.title}</b></p>
-    <div className="mt-4">
-      <FormControl fullWidth size="small">
-        <InputLabel id="cancel-reason-label">Reason</InputLabel>
-        <Select
-          labelId="cancel-reason-label"
-          value={reason}
-          label="reason"
-          onChange={(e) => setReason(e.target.value)
-          }
-        >
-          {CANCELATION_REASONS.map((r) => (
-            <MenuItem key={r.key} value={r.key}>
-              {r.value}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </div>
-  </div>
-</DialogContent>
+        <div className="mt-2">
+          <p><b>{data?.title}</b></p>
+          <div className="mt-4">
+            <FormControl fullWidth size="small">
+              <InputLabel id="cancel-reason-label">Reason</InputLabel>
+              <Select
+                labelId="cancel-reason-label"
+                value={reason}
+                label="reason"
+                onChange={(e) => setReason(e.target.value)
+                }
+              >
+                {CANCELATION_REASONS.map((r) => (
+                  <MenuItem key={r.key} value={r.key}>
+                    {r.value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+        </div>
+      </DialogContent>
 
       <DialogActions>
         <Button

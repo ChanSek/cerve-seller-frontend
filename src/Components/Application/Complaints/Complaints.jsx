@@ -8,13 +8,13 @@ import cogoToast from "cogo-toast";
 import AdminComplaintDialog from "./AdminComplaintDialog";
 
 const columns = [
-  { id: "issueId", label: "Issue Id", minWidth: 120, align: "center" },
-  { id: "created_at", label: "Created On", minWidth: 180, align: "center", format: (value) => value.toLocaleString("en-US") },
-  { id: "updated_at", label: "Modified On", minWidth: 180, align: "center", format: (value) => value.toLocaleString("en-US") },
-  { id: "status", label: "Status", minWidth: 140, align: "center", format: (value) => value.toLocaleString("en-US") },
+  { id: "issueId", label: "Issue Id", minWidth: 120, align: "left" },
+  { id: "status", label: "Status", minWidth: 140, align: "left", format: (value) => value.toLocaleString("en-US") },
   // { id: "provider_name", label: "Provider Store Name", minWidth: 130, align: "center", format: (value) => value.toLocaleString("en-US") },
-  { id: "initiatedBy", label: "Initiated By", minWidth: 130, align: "center", format: (value) => value.toLocaleString("en-US") },
-  { id: "short_description", label: "Short Description", minWidth: 170, align: "center", format: (value) => value.toLocaleString("en-US") },
+  { id: "initiatedBy", label: "Initiated By", minWidth: 130, align: "left", format: (value) => value.toLocaleString("en-US") },
+  { id: "short_description", label: "Short Description", minWidth: 170, align: "left", format: (value) => value.toLocaleString("en-US") },
+  { id: "created_at", label: "Created On", minWidth: 180, align: "left", format: (value) => value.toLocaleString("en-US") },
+  { id: "updated_at", label: "Modified On", minWidth: 180, align: "left", format: (value) => value.toLocaleString("en-US") },
 ];
 
 export default function Complaints() {

@@ -5,26 +5,26 @@ const returnFields = [
         id: "orderId",
         label: "Order Id",
         minWidth: 120,
-        align: "center",
+        align: "left",
     }, {
         id: "state",
         label: "Current State",
         minWidth: 120,
-        align: "center",
+        align: "left",
     },
     {
         id: "createdAt",
         label: "Created On",
         minWidth: 180,
         format: (value) => convertDateInStandardFormat(value),
-        align: "center",
+        align: "left",
     },
     {
         id: "updatedAt",
         label: "Modified On",
         minWidth: 180,
         format: (value) => convertDateInStandardFormat(value),
-        align: "center",
+        align: "left",
     },
 ];
 

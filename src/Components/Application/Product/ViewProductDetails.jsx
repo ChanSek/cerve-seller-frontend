@@ -12,6 +12,10 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
+    FormControl, // Added for select
+    InputLabel, // Added for select
+    Select, // Added for select
+    MenuItem, // Added for select
 } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -81,8 +85,11 @@ const formatFSSAINo = (number) => {
 };
 
 // Main Product Details Component
-const ViewProductDetails = ({ productId }) => {
-    const [product, setProduct] = useState(null);
+const ViewProductDetails = ({ productId, prodType }) => {
+    const [productData, setProductData] = useState(null); // Holds the entire data object from API
+    const [commonDetails, setCommonDetails] = useState(null);
+    const [variantSpecificDetails, setVariantSpecificDetails] = useState([]);
+    const [selectedVariant, setSelectedVariant] = useState(null); // Currently selected variant
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [selectedImage, setSelectedImage] = useState('');
@@ -91,17 +98,42 @@ const ViewProductDetails = ({ productId }) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await getCall(`/api/v1/seller/itemId/${productId}/product`);
-            console.log("Product details response: ", response);
-            if (response?.status === 200 && response?.data?.commonDetails) {
-                setProduct(response.data.commonDetails);
-                // Prioritize imageUrls for gallery, then backImage if no imageUrls
-                if (response.data.commonDetails.imageUrls && response.data.commonDetails.imageUrls.length > 0) {
-                    setSelectedImage(response.data.commonDetails.imageUrls[0]);
-                } else if (response.data.commonDetails.backImage) {
-                    setSelectedImage(response.data.commonDetails.backImage);
+            let response = {};
+            if (prodType === "Item") {
+                response = await getCall(`/api/v1/seller/itemId/${productId}/product`);
+            } else if (prodType === "Product") {
+                response = await getCall(`/api/v1/seller/productId/${productId}/product`);
+            }
+            if (response?.status === 200 && response?.data) {
+                setProductData(response.data); // Store the entire data object
+                setCommonDetails(response.data.commonDetails);
+                setVariantSpecificDetails(response.data.variantSpecificDetails || []);
+
+                // Set initial selected variant if available, otherwise use commonDetails if no variants
+                if (response.data.variantSpecificDetails && response.data.variantSpecificDetails.length > 0) {
+                    setSelectedVariant(response.data.variantSpecificDetails[0]);
+                    // Set initial image from the first variant
+                    const firstVariantImages = response.data.variantSpecificDetails[0].imageUrls;
+                    const firstVariantBackImage = response.data.variantSpecificDetails[0].backImage;
+                    if (firstVariantImages && firstVariantImages.length > 0) {
+                        setSelectedImage(firstVariantImages[0]);
+                    } else if (firstVariantBackImage) {
+                        setSelectedImage(firstVariantBackImage);
+                    } else {
+                        setSelectedImage('');
+                    }
+                } else if (response.data.commonDetails) {
+                    // No variants, use commonDetails for display
+                    setSelectedVariant(null); // Explicitly null for non-variant products
+                    if (response.data.commonDetails.imageUrls && response.data.commonDetails.imageUrls.length > 0) {
+                        setSelectedImage(response.data.commonDetails.imageUrls[0]);
+                    } else if (response.data.commonDetails.backImage) {
+                        setSelectedImage(response.data.commonDetails.backImage);
+                    } else {
+                        setSelectedImage('');
+                    }
                 } else {
-                    setSelectedImage('');
+                    setError("Failed to fetch product details: No common details found.");
                 }
             } else {
                 setError("Failed to fetch product details or data is malformed.");
@@ -116,13 +148,34 @@ const ViewProductDetails = ({ productId }) => {
 
     useEffect(() => {
         if (!productId) {
-            setProduct(null);
+            setProductData(null);
+            setCommonDetails(null);
+            setVariantSpecificDetails([]);
+            setSelectedVariant(null);
             setSelectedImage('');
             setError(null); // Clear error when no product is selected
             return;
         }
         fetchProductDetails();
     }, [productId]);
+
+    // Determine the product details to display based on selectedVariant or commonDetails
+    const product = selectedVariant || commonDetails;
+
+    // Determine images to display
+    let imagesToDisplay = [];
+    if (selectedVariant) {
+        imagesToDisplay = selectedVariant.imageUrls || [];
+        if (selectedVariant.backImage && !imagesToDisplay.includes(selectedVariant.backImage)) {
+            imagesToDisplay.push(selectedVariant.backImage);
+        }
+    } else if (commonDetails) {
+        imagesToDisplay = commonDetails.imageUrls || [];
+        if (commonDetails.backImage && !imagesToDisplay.includes(commonDetails.backImage)) {
+            imagesToDisplay.push(commonDetails.backImage);
+        }
+    }
+
 
     if (loading) {
         return (
@@ -143,7 +196,7 @@ const ViewProductDetails = ({ productId }) => {
         );
     }
 
-    if (!product) {
+    if (!product) { // If neither commonDetails nor selectedVariant is available
         return (
             <Box sx={{ padding: 3, textAlign: "center", color: "text.secondary" }}>
                 <Typography variant="h6">Please select an item to view its detailed information.</Typography>
@@ -164,6 +217,22 @@ const ViewProductDetails = ({ productId }) => {
             } />
         </ListItem>
     );
+
+    const handleVariantChange = (event) => {
+        const selectedVariantId = event.target.value;
+        const variant = variantSpecificDetails.find(v => v.productVariantId === selectedVariantId);
+        if (variant) {
+            setSelectedVariant(variant);
+            // Update selected image to the first image of the newly selected variant
+            if (variant.imageUrls && variant.imageUrls.length > 0) {
+                setSelectedImage(variant.imageUrls[0]);
+            } else if (variant.backImage) {
+                setSelectedImage(variant.backImage);
+            } else {
+                setSelectedImage('');
+            }
+        }
+    };
 
     return (
         <Box sx={{ padding: { xs: 2, md: 4 }, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
@@ -189,10 +258,9 @@ const ViewProductDetails = ({ productId }) => {
                         )}
 
                         {/* Thumbnails */}
-                        {(product.imageUrls && product.imageUrls.length > 0) || product.backImage ? (
+                        {imagesToDisplay.length > 0 ? (
                             <ThumbnailContainer>
-                                {/* Display imageUrls first */}
-                                {product.imageUrls && product.imageUrls.map((url, index) => (
+                                {imagesToDisplay.map((url, index) => (
                                     <ThumbnailImage
                                         key={`img-${index}`}
                                         src={url}
@@ -201,78 +269,31 @@ const ViewProductDetails = ({ productId }) => {
                                         onClick={() => setSelectedImage(url)}
                                     />
                                 ))}
-                                {/* Display backImage */}
-                                {product.backImage && !product.imageUrls?.includes(product.backImage) && (
-                                    <ThumbnailImage
-                                        key="back-img"
-                                        src={product.backImage}
-                                        alt="Back View"
-                                        isSelected={product.backImage === selectedImage}
-                                        onClick={() => setSelectedImage(product.backImage)}
-                                    />
-                                )}
                             </ThumbnailContainer>
                         ) : null}
-
-                        {/* Additional Info Section
-                        <Box sx={{ mt: 3, width: '100%' }}>
-                            <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                Additional Info
-                            </Typography>
-                            <List dense>
-                                <ListItem disableGutters>
-                                    <ListItemText primary={
-                                        <Typography variant="body2">
-                                            <strong>Manufacturer:</strong> {product.manufacturerName || 'N/A'}
-                                        </Typography>
-                                    } />
-                                </ListItem>
-                                <ListItem disableGutters>
-                                    <ListItemText primary={
-                                        <Typography variant="body2">
-                                            <strong>FSSAI License:</strong> {formatFSSAINo(product.importerFssaiLicenseNo) || 'N/A'}
-                                        </Typography>
-                                    } />
-                                </ListItem>
-                                <ListItem disableGutters>
-                                    <ListItemText primary={
-                                        <Typography variant="body2">
-                                            <strong>Returnable:</strong> {product.returnable ? 'Yes' : 'No'}
-                                        </Typography>
-                                    } />
-                                </ListItem>
-                                <ListItem disableGutters>
-                                    <ListItemText primary={
-                                        <Typography variant="body2">
-                                            <strong>Cancellable:</strong> {product.cancellable ? 'Yes' : 'No'}
-                                        </Typography>
-                                    } />
-                                </ListItem>
-                            </List>
-                        </Box> */}
 
                         {/* Policies & Availability */}
                         <Box sx={{ my: 2, width: '100%' }}>
                             <Typography variant="h6" fontWeight="bold" gutterBottom>Policies & Availability</Typography>
                             <List dense>
-                                {renderBooleanInfo("Returnable", product.returnable)}
-                                {product.returnable && product.returnWindow && (
+                                {renderBooleanInfo("Returnable", commonDetails.returnable)}
+                                {commonDetails.returnable && commonDetails.returnWindow && (
                                     <ListItem disableGutters sx={{ pl: 4 }}> {/* Indent return window if returnable */}
                                         <ListItemText primary={
                                             <Typography variant="body2" color="text.secondary">
-                                                Return Window: {product.returnWindow}
+                                                Return Window: {commonDetails.returnWindow}
                                             </Typography>
                                         } />
                                     </ListItem>
                                 )}
-                                {renderBooleanInfo("Cancellable", product.cancellable)}
-                                {renderBooleanInfo("Available on COD", product.availableOnCod)}
+                                {renderBooleanInfo("Cancellable", commonDetails.cancellable)}
+                                {renderBooleanInfo("Available on COD", commonDetails.availableOnCod)}
                                 {/* Displayed only if relevant, likely internal */}
-                                {product.published !== undefined && (
-                                    renderBooleanInfo("Published", product.published)
+                                {commonDetails.published !== undefined && (
+                                    renderBooleanInfo("Published", commonDetails.published)
                                 )}
-                                {product.sellerPickupReturn !== undefined && (
-                                    renderBooleanInfo("Seller Pickup Return", product.sellerPickupReturn)
+                                {commonDetails.sellerPickupReturn !== undefined && (
+                                    renderBooleanInfo("Seller Pickup Return", commonDetails.sellerPickupReturn)
                                 )}
                             </List>
                         </Box>
@@ -284,39 +305,59 @@ const ViewProductDetails = ({ productId }) => {
                     {/* Basic Info & Header */}
                     <Box sx={{ pb: 2 }}>
                         <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-                            {product.productName}
+                            {commonDetails.productName}
                         </Typography>
                         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                             <Chip
-                                label={product.vegNonVeg === "VEG" ? "Veg" : "Non-Veg"}
-                                color={product.vegNonVeg === "VEG" ? "success" : "error"}
+                                label={commonDetails.vegNonVeg === "VEG" ? "Veg" : "Non-Veg"}
+                                color={commonDetails.vegNonVeg === "VEG" ? "success" : "error"}
                                 size="small"
                             />
-                            {product.fulfillmentOption && (
+                            {commonDetails.fulfillmentOption && (
                                 <Chip
-                                    label={`Fulfillment: ${product.fulfillmentOption}`}
+                                    label={`Fulfillment: ${commonDetails.fulfillmentOption}`}
                                     size="small"
                                     variant="outlined"
                                 />
                             )}
                         </Stack>
                         <Typography variant="body2" color="text.secondary" sx={{ display: "block" }}>
+                            <strong>Product Code:</strong> {commonDetails.productCode || 'N/A'}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ display: "block" }}>
+                            <strong>Category:</strong> {commonDetails.category || 'N/A'} - {commonDetails.subCategory || 'N/A'}
+                        </Typography>
+
+                        {variantSpecificDetails.length > 1 && (
+                            <FormControl fullWidth sx={{ mt: 2, mb: 2 }}>
+                                <InputLabel id="variant-select-label">Select {productData?.variationOn || 'Variant'}</InputLabel>
+                                <Select
+                                    labelId="variant-select-label"
+                                    value={selectedVariant?.productVariantId || ''}
+                                    label={`Select ${productData?.variationOn || 'Variant'}`}
+                                    onChange={handleVariantChange}
+                                >
+                                    {variantSpecificDetails.map((variant) => (
+                                        <MenuItem key={variant.productVariantId} value={variant.productVariantId}>
+                                            {variant.uomValue} {commonDetails.uom}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        )}
+                        {/* Display variant-specific SKU or common SKU if no variants selected */}
+                        <Typography variant="body2" color="text.secondary" sx={{ display: "block" }}>
                             <strong>SKU:</strong> {product.sku || 'N/A'}
                         </Typography>
+                        {/* Display variant-specific UOM value, but common UOM unit */}
                         <Typography variant="body2" color="text.secondary" sx={{ display: "block" }}>
-                            <strong>Product Code:</strong> {product.productCode || 'N/A'}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ display: "block" }}>
-                            <strong>Category:</strong> {product.category || 'N/A'} - {product.subCategory || 'N/A'}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ display: "block" }}>
-                            <strong>Unit:</strong> {product.uomValue || 'N/A'} {product.uom || 'Unit'}
+                            <strong>Unit:</strong> {product.uomValue || 'N/A'} {commonDetails.uom || 'Unit'}
                         </Typography>
                     </Box>
 
                     <Divider sx={{ my: 2 }} />
 
-                    {/* Price and Availability */}
+                    {/* Price and Availability (now reflecting selectedVariant) */}
                     <Box sx={{ my: 2 }}>
                         <Typography variant="h5" color="primary.main" fontWeight="bold">
                             ₹{parseFloat(product.price).toFixed(2) || 'N/A'}
@@ -327,13 +368,13 @@ const ViewProductDetails = ({ productId }) => {
                             )}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            Inclusive of GST ({product.gstPercentage || 0}%)
+                            Inclusive of GST ({commonDetails.gstPercentage || 0}%)
                         </Typography>
                         <Typography variant="h6" sx={{ mt: 2 }}>
                             Available Quantity: {product.availableQty || 0}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            Min Qty: {product.minAllowedQty || 0}, Max Qty: {product.maxAllowedQty || 0}
+                            Min Qty: {commonDetails.minAllowedQty || 0}, Max Qty: {commonDetails.maxAllowedQty || 0}
                         </Typography>
                     </Box>
 
@@ -343,7 +384,7 @@ const ViewProductDetails = ({ productId }) => {
                     <Box sx={{ my: 2 }}>
                         <Typography variant="h6" fontWeight="bold" gutterBottom>Product Description</Typography>
                         <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                            {product.longDescription || product.description || 'No description available.'}
+                            {commonDetails.longDescription || commonDetails.description || 'No description available.'}
                         </Typography>
                     </Box>
 
@@ -356,42 +397,42 @@ const ViewProductDetails = ({ productId }) => {
                             <ListItem disableGutters>
                                 <ListItemText primary={
                                     <Typography variant="body2">
-                                        <strong>Manufacturer:</strong> {product.manufacturerName || 'N/A'}
+                                        <strong>Manufacturer:</strong> {commonDetails.manufacturerName || 'N/A'}
                                     </Typography>
                                 } />
                             </ListItem>
                             <ListItem disableGutters>
                                 <ListItemText primary={
                                     <Typography variant="body2">
-                                        <strong>Manufacturer Address:</strong> {product.manufacturerAddress || 'N/A'}
+                                        <strong>Manufacturer Address:</strong> {commonDetails.manufacturerAddress || 'N/A'}
                                     </Typography>
                                 } />
                             </ListItem>
                             <ListItem disableGutters>
                                 <ListItemText primary={
                                     <Typography variant="body2">
-                                        <strong>Manufactured Date:</strong> {product.manufacturedDate || 'N/A'}
+                                        <strong>Manufactured Date:</strong> {commonDetails.manufacturedDate || 'N/A'}
                                     </Typography>
                                 } />
                             </ListItem>
                             <ListItem disableGutters>
                                 <ListItemText primary={
                                     <Typography variant="body2">
-                                        <strong>Packer Name:</strong> {product.packerName || 'N/A'}
+                                        <strong>Packer Name:</strong> {commonDetails.packerName || 'N/A'}
                                     </Typography>
                                 } />
                             </ListItem>
                             <ListItem disableGutters>
                                 <ListItemText primary={
                                     <Typography variant="body2">
-                                        <strong>Manufacturing/Packing/Import Date:</strong> {product.manufacturePackingImport || 'N/A'}
+                                        <strong>Manufacturing/Packing/Import Date:</strong> {commonDetails.manufacturePackingImport || 'N/A'}
                                     </Typography>
                                 } />
                             </ListItem>
                             <ListItem disableGutters>
                                 <ListItemText primary={
                                     <Typography variant="body2">
-                                        <strong>Generic Name of Commodity:</strong> {product.genericNameOfCommodity || 'N/A'}
+                                        <strong>Generic Name of Commodity:</strong> {commonDetails.genericNameOfCommodity || 'N/A'}
                                     </Typography>
                                 } />
                             </ListItem>
@@ -407,47 +448,47 @@ const ViewProductDetails = ({ productId }) => {
                             <ListItem disableGutters>
                                 <ListItemText primary={
                                     <Typography variant="body2">
-                                        <strong>Instructions:</strong> {product.instructions || 'N/A'}
+                                        <strong>Instructions:</strong> {commonDetails.instructions || 'N/A'}
                                     </Typography>
                                 } />
                             </ListItem>
                             <ListItem disableGutters>
                                 <ListItemText primary={
                                     <Typography variant="body2">
-                                        <strong>Nutritional Info:</strong> {product.nutritionalInfo || 'N/A'}
+                                        <strong>Nutritional Info:</strong> {commonDetails.nutritionalInfo || 'N/A'}
                                     </Typography>
                                 } />
                             </ListItem>
                             <ListItem disableGutters>
                                 <ListItemText primary={
                                     <Typography variant="body2">
-                                        <strong>Additives:</strong> {product.additiveInfo || 'N/A'}
+                                        <strong>Additives:</strong> {commonDetails.additiveInfo || 'N/A'}
                                     </Typography>
                                 } />
                             </ListItem>
-                            {product.importerFssaiLicenseNo && (
+                            {commonDetails.importerFssaiLicenseNo && (
                                 <ListItem disableGutters>
                                     <ListItemText primary={
                                         <Typography variant="body2">
-                                            <strong>Importer FSSAI License No:</strong> {formatFSSAINo(product.importerFssaiLicenseNo)}
+                                            <strong>Importer FSSAI License No:</strong> {formatFSSAINo(commonDetails.importerFssaiLicenseNo)}
                                         </Typography>
                                     } />
                                 </ListItem>
                             )}
-                            {product.brandOwnerFssaiLicenseNo && (
+                            {commonDetails.brandOwnerFssaiLicenseNo && (
                                 <ListItem disableGutters>
                                     <ListItemText primary={
                                         <Typography variant="body2">
-                                            <strong>Brand Owner FSSAI License No:</strong> {formatFSSAINo(product.brandOwnerFssaiLicenseNo)}
+                                            <strong>Brand Owner FSSAI License No:</strong> {formatFSSAINo(commonDetails.brandOwnerFssaiLicenseNo)}
                                         </Typography>
                                     } />
                                 </ListItem>
                             )}
-                            {product.otherOwnerFssaiLicenseNo && (
+                            {commonDetails.otherOwnerFssaiLicenseNo && (
                                 <ListItem disableGutters>
                                     <ListItemText primary={
                                         <Typography variant="body2">
-                                            <strong>Other Owner FSSAI License No:</strong> {formatFSSAINo(product.otherOwnerFssaiLicenseNo)}
+                                            <strong>Other Owner FSSAI License No:</strong> {formatFSSAINo(commonDetails.otherOwnerFssaiLicenseNo)}
                                         </Typography>
                                     } />
                                 </ListItem>

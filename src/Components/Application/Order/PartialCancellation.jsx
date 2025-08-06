@@ -22,7 +22,7 @@ import cogoToast from "cogo-toast";
 import { postCall } from "../../../Api/axios";
 import ViewProductDetails from '../Product/ViewProductDetails';
 
-const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate }) => {
+const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate, isSuperAdmin }) => {
     const [selectedItems, setSelectedItems] = useState([]);
     const [quantityDialog, setQuantityDialog] = useState({ open: false, item: null });
     const [selectedProductId, setSelectedProductId] = useState(null);
@@ -134,21 +134,21 @@ const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate
                             </Box>
 
                             {/* Partial Cancel Button */}
-                            <Button
+                            {!isSuperAdmin && <Button
                                 variant="contained"
                                 color="primary"
                                 onClick={cancelItems}
                                 disabled={selectedItems.length <= 0}
                             >
                                 Cancel Items
-                            </Button>
+                            </Button>}
                         </Box>
 
                         <TableContainer component={Paper} elevation={1} sx={{ mb: 2 }}>
                             <Table size="small" aria-label="invoice table">
                                 <TableHead sx={{ bgcolor: 'action.hover' }}>
                                     <TableRow>
-                                        <TableCell sx={{ fontWeight: 'bold' }}>Select</TableCell>
+                                        {!isSuperAdmin && <TableCell sx={{ fontWeight: 'bold' }}>Select</TableCell>}
                                         <TableCell sx={{ fontWeight: 'bold' }}>Description</TableCell>
                                         <TableCell align="right" sx={{ fontWeight: 'bold' }}>Qty</TableCell>
                                         <TableCell align="right" sx={{ fontWeight: 'bold' }}>Unit Price (₹)</TableCell>
@@ -174,7 +174,7 @@ const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate
 
                                         return (
                                             <TableRow key={itemId}>
-                                                <TableCell>
+                                                {!isSuperAdmin && <TableCell>
                                                     <Checkbox
                                                         checked={selectedItems.some((i) => i.itemId === itemId)}
                                                         onChange={(e) =>
@@ -185,7 +185,7 @@ const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate
                                                         }
                                                         disabled={!canSelect}
                                                     />
-                                                </TableCell>
+                                                </TableCell>}
                                                 {titleType === "item" && <TableCell><a
                                                     href="#"
                                                     onClick={(e) => {
@@ -210,15 +210,25 @@ const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate
                         {/* Product Details Dialog */}
                         {selectedProductId && (
                             <Dialog open={dialogOpen} onClose={handleClose} maxWidth="md" fullWidth>
-                                {/* <DialogTitle>{selectedProduct.productName}</DialogTitle> */}
-                                <DialogContent>
-                                    <ViewProductDetails productId={selectedProductId} />
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={handleClose} color="primary" variant="contained">
+                                <DialogTitle>
+                                    Product Details
+                                    <Button
+                                        onClick={handleClose}
+                                        style={{
+                                            position: "absolute",
+                                            right: "16px",
+                                            top: "8px",
+                                        }}
+                                        size="small"
+                                        variant="text"
+                                    >
                                         Close
                                     </Button>
-                                </DialogActions>
+                                </DialogTitle>
+                                <DialogContent>
+                                    <ViewProductDetails productId={selectedProductId} prodType="Item" />
+                                </DialogContent>
+                                <DialogActions></DialogActions>
                             </Dialog>
                         )}
                     </>

@@ -6,11 +6,11 @@ import {
   Typography,
   Button,
   Stack,
-  CircularProgress,
+  CircularProgress, Tooltip, Link, Box
 } from "@mui/material";
-import FulfilmentState from "./FulfilmentState";
 import PartialCancellation from "./PartialCancellation";
 import { convertDateInStandardFormat } from "../../../utils/formatting/date";
+import LogisticUpdates from "./LogisticUpdates";
 
 const InfoRow = ({ label, value }) => (
   <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
@@ -34,6 +34,8 @@ const OrderSummaryCard = ({
   loading,
   allowPartialCancel,
   fetchOrder,
+  isSuperAdmin,
+  orderFulfilment
 }) => (
   <Grid container spacing={3} mb={2}>
     {/* Order Summary Card (Left 50%) */}
@@ -42,50 +44,74 @@ const OrderSummaryCard = ({
         <CardContent>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">Order Summary</Typography>
-            <Stack direction="row" spacing={1}>
-              {/* Accept Button — ONLY if state is 'Created' */}
-              {order?.state === "Created" && (
-                <Button
-                  variant="contained"
-                  onClick={() => onAccept(order?._id)}
-                  disabled={loading.accept_order_loading}
-                >
-                  {loading.accept_order_loading
-                    ? <CircularProgress size={18} sx={{ color: "white" }} />
-                    : "Accept"}
-                </Button>
-              )}
-              {/* Update Status — if NOT 'Created' or 'Completed' */}
-              {(
-                order?.state !== "Created" &&
-                order?.state !== "Completed" &&
-                order?.state !== "Cancelled"
-              ) || order?.fulfillments?.[order.fulfillments.length - 1]?.state?.descriptor?.code === 'RTO-Initiated' ? (
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={() => onUpdate(order)}
-                  disabled={loading.update_order_loading}
-                >
-                  {loading.update_order_loading
-                    ? <CircularProgress size={18} sx={{ color: "white" }} />
-                    : "Update Status"}
-                </Button>
-              ) : null}
-              {/* Cancel — unless already cancelled */}
-              {order?.state !== "Completed" && order?.state !== "Cancelled" && (
-                <Button
-                  variant="contained"
-                  color="error"
-                  onClick={() => onCancel(order?._id)}
-                  disabled={loading.cancel_order_loading}
-                >
-                  {loading.cancel_order_loading
-                    ? <CircularProgress size={18} sx={{ color: "white" }} />
-                    : "Cancel"}
-                </Button>
-              )}
-            </Stack>
+            {!isSuperAdmin && (
+              <Stack direction="row" spacing={1}>
+                {/* Accept Button — ONLY if state is 'Created' */}
+                {order?.state === "Created" && (
+                  <Button
+                    variant="contained"
+                    onClick={() => onAccept(order?.orderId, 'Accept')}
+                    disabled={loading.accept_order_loading}
+                  >
+                    {loading.accept_order_loading
+                      ? <CircularProgress size={18} sx={{ color: "white" }} />
+                      : "Accept"}
+                  </Button>
+                )}
+                {order?.state === "Accepted" && (
+                  <Button
+                    variant="contained"
+                    onClick={() => onAccept(order?.orderId, 'Packed')}
+                    disabled={loading.accept_order_loading}
+                  >
+                    {loading.accept_order_loading
+                      ? <CircularProgress size={18} sx={{ color: "white" }} />
+                      : "Packed"}
+                  </Button>
+                )}
+                {!(orderFulfilment?.awbNumber || orderFulfilment?.sfxOrderId) && order?.state === "In-progress" && order?.fulfillments?.[order.fulfillments.length - 1]?.state?.descriptor?.code === "Packed" && (
+                  <Button
+                    variant="contained"
+                    onClick={() => onAccept(order?.orderId, 'Request-Order-Pickup')}
+                    disabled={loading.accept_order_loading}
+                  >
+                    {loading.accept_order_loading
+                      ? <CircularProgress size={18} sx={{ color: "white" }} />
+                      : "Request Pickup"}
+                  </Button>
+                )}
+                {/* Update Status — if NOT 'Created' or 'Completed' */}
+                {/* {(order?.state !== "Created" &&
+                  order?.state !== "Completed" &&
+                  order?.state !== "Cancelled") ||
+                  order?.fulfillments?.[order.fulfillments.length - 1]?.state?.descriptor?.code === 'RTO-Initiated' ? (
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => onUpdate(order)}
+                    disabled={loading.update_order_loading}
+                  >
+                    {loading.update_order_loading
+                      ? <CircularProgress size={18} sx={{ color: "white" }} />
+                      : "Update Status"}
+                  </Button>
+                ) : null} */}
+
+                {/* Cancel Button — unless already completed or cancelled */}
+                {order?.state !== "Completed" && order?.state !== "Cancelled" && (
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => onCancel(order?._id)}
+                    disabled={loading.cancel_order_loading}
+                  >
+                    {loading.cancel_order_loading
+                      ? <CircularProgress size={18} sx={{ color: "white" }} />
+                      : "Cancel"}
+                  </Button>
+                )}
+              </Stack>
+            )}
           </Stack>
           {/* Order Summary Info */}
           <InfoRow
@@ -101,8 +127,58 @@ const OrderSummaryCard = ({
           />
           <InfoRow
             label="Delivery State"
-            value={<FulfilmentState data={stateTransition} currentState={mainDelivery?.state?.descriptor?.code} />}
+            value={<LogisticUpdates trackingDetails={orderFulfilment?.trackingDetails} statusDisplay={orderFulfilment?.statusDisplay} />}
           />
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+            <Typography
+              variant="body2"
+              fontWeight={500}
+              sx={{ minWidth: 160, color: "text.secondary" }}
+            >
+              Track Shipment
+            </Typography>
+
+            {orderFulfilment?.awbNumber
+              || orderFulfilment?.sfxOrderId ? (
+              orderFulfilment?.trackingUrl ? (
+                <Tooltip title="Click on Shipment Number to track">
+                  <Link
+                    href={orderFulfilment.trackingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    underline="hover"
+                    variant="body2"
+                    sx={{
+                      cursor: "pointer",
+                      display: "inline-block",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {orderFulfilment.awbNumber || orderFulfilment.sfxOrderId}
+                  </Link>
+                </Tooltip>
+              ) : (
+                <Tooltip title="Generated Logistic Shipment Number">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      display: "inline-block",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {orderFulfilment.awbNumber || orderFulfilment.sfxOrderId}
+                  </Typography></Tooltip>
+              )
+            ) : (
+              <Typography variant="body2" color="text.disabled">
+                —
+              </Typography>
+            )}
+          </Box>
           <InfoRow label="Payment Method" value={order?.payment?.type} />
           <InfoRow label="Buyer Name" value={order?.billing?.name} />
         </CardContent>
@@ -123,6 +199,7 @@ const OrderSummaryCard = ({
             allowPartialCancel={allowPartialCancel}
             quote={quote}
             onOrderUpdate={fetchOrder}
+            isSuperAdmin={isSuperAdmin}
           />
         </CardContent>
       </Card>

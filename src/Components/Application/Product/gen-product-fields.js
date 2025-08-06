@@ -1,5 +1,64 @@
 import { countries } from "../../../Constants/countries";
 
+export const variantProductFieldDetails = [
+  {
+    id: "price",
+    title: "MRP",
+    placeholder: "MRP",
+    type: "number",
+    required: true,
+    valueInDecimal: true,
+  },
+  {
+    id: "purchasePrice",
+    title: "Selling Price",
+    placeholder: "Selling Price",
+    type: "number",
+    required: true,
+    valueInDecimal: true,
+  },
+  {
+    id: "availableQty",
+    title: "Quantity",
+    placeholder: "Quantity",
+    type: "number",
+    maxLength: 10,
+    required: true,
+  },
+  {
+    id: "uomValue",
+    title: "UOM value",
+    placeholder: "UOM value",
+    type: "input",
+    required: true,
+    maxLength: 10,
+  },
+  {
+    id: "sku",
+    title: "SKU",
+    placeholder: "SKU",
+    type: "input",
+    maxLength: 50,
+    required: true,
+    isDisabled: true,
+  },
+  {
+    id: "imageUrls",
+    title: "Images (Select minimum 3 files with maximum size of 2Mb for each file)",
+    type: "upload",
+    multiple: true,
+    file_type: "product_image",
+    required: true,
+  },
+  {
+    id: "backImage",
+    title: "Image of back of the product",
+    type: "upload",
+    file_type: "product_image",
+    required: true,
+  }
+]
+
 export const allProductFieldDetails = [
   {
     id: "subCategory",
@@ -92,7 +151,7 @@ export const allProductFieldDetails = [
     id: "uomValue",
     title: "UOM value",
     placeholder: "UOM value",
-    type: "number",
+    type: "input",
     required: true,
     maxLength: 10,
   },
