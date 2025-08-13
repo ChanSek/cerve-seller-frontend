@@ -85,7 +85,7 @@ const formatFSSAINo = (number) => {
 };
 
 // Main Product Details Component
-const ViewProductDetails = ({ productId, prodType }) => {
+const ViewProductDetails = ({ productId, prodType, category }) => {
     const [productData, setProductData] = useState(null); // Holds the entire data object from API
     const [commonDetails, setCommonDetails] = useState(null);
     const [variantSpecificDetails, setVariantSpecificDetails] = useState([]);
@@ -100,9 +100,9 @@ const ViewProductDetails = ({ productId, prodType }) => {
         try {
             let response = {};
             if (prodType === "Item") {
-                response = await getCall(`/api/v1/seller/itemId/${productId}/product`);
+                response = await getCall(`/api/v1/seller/itemId/${category}/${productId}/product`);
             } else if (prodType === "Product") {
-                response = await getCall(`/api/v1/seller/productId/${productId}/product`);
+                response = await getCall(`/api/v1/seller/productId/${category}/${productId}/product`);
             }
             if (response?.status === 200 && response?.data) {
                 setProductData(response.data); // Store the entire data object
@@ -308,11 +308,11 @@ const ViewProductDetails = ({ productId, prodType }) => {
                             {commonDetails.productName}
                         </Typography>
                         <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                            <Chip
+                            {commonDetails.vegNonVeg && <Chip
                                 label={commonDetails.vegNonVeg === "VEG" ? "Veg" : "Non-Veg"}
                                 color={commonDetails.vegNonVeg === "VEG" ? "success" : "error"}
                                 size="small"
-                            />
+                            />}
                             {commonDetails.fulfillmentOption && (
                                 <Chip
                                     label={`Fulfillment: ${commonDetails.fulfillmentOption}`}

@@ -233,11 +233,11 @@ const AddGenericProduct = ({
         },
       };
 
-      if (variationOn !== "none") {
+      if (variationOn !== "NONE") {
         data["variantSpecificDetails"] = variant_data;
         data["variationOn"] = variationOn?.toUpperCase();
       } else {
-        data["variationOn"] = "None";
+        data["variationOn"] = "NONE";
       }
 
       //await cancellablePromise(postCall(api_url, data));
@@ -358,7 +358,6 @@ const AddGenericProduct = ({
     )
       .then(async (resp) => {
         if (resp.data.commonDetails) {
-          console.log("Data "+JSON.stringify(resp.data.commonDetails));
           setFormValues({ ...resp.data.commonDetails });
         }
       })

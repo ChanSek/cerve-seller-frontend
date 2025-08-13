@@ -22,11 +22,12 @@ import cogoToast from "cogo-toast";
 import { postCall } from "../../../Api/axios";
 import ViewProductDetails from '../Product/ViewProductDetails';
 
-const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate, isSuperAdmin }) => {
+const PartialCancellation = ({ orderId, quote, category, allowPartialCancel, onOrderUpdate, isSuperAdmin }) => {
     const [selectedItems, setSelectedItems] = useState([]);
     const [quantityDialog, setQuantityDialog] = useState({ open: false, item: null });
     const [selectedProductId, setSelectedProductId] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [isCancelling, setIsCancelling] = useState(false);
 
     useEffect(() => {
         if (!allowPartialCancel) {
@@ -35,19 +36,26 @@ const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate
     }, [allowPartialCancel]);
 
     const cancelItems = async () => {
-        const url = `/api/v1/seller/order/${orderId}/item/cancel`;
+        if (!selectedItems || selectedItems.length === 0) {
+            cogoToast.warn("No items selected to cancel.");
+            return;
+        }
 
-        // Prepare the payload as a list of items
+        const url = `/api/v1/seller/order/${orderId}/item/cancel`;
+        const DEFAULT_CANCELLATION_REASON = "002";
+
         const payload = {
-            cancelItems: selectedItems.map((item) => ({
-                cancellation_reason_id: "002", // Fixed reason ID
-                id: item.itemId,             // Item ID
-                quantity: item.quantity,     // Quantity to cancel
-            })),
+            cancelItems: selectedItems
+                .filter(item => item.itemId && item.quantity)
+                .map((item) => ({
+                    cancellation_reason_id: DEFAULT_CANCELLATION_REASON,
+                    id: item.itemId,
+                    quantity: item.quantity,
+                })),
         };
 
+        setIsCancelling(true); // 🔄 Start loading
         try {
-            // Make the API call with the list of items
             await postCall(url, payload);
             await new Promise(resolve => setTimeout(resolve, 1000));
             onOrderUpdate();
@@ -55,6 +63,10 @@ const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate
         } catch (error) {
             console.error("Error cancelling items:", error);
             cogoToast.error("Failed to cancel products. Please try again.");
+        } finally {
+            setIsCancelling(false); // ✅ Stop loading
+            setSelectedItems([]);   // ✅ Clear selected
+            setSelectedProductId(null);
         }
     };
 
@@ -138,9 +150,9 @@ const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate
                                 variant="contained"
                                 color="primary"
                                 onClick={cancelItems}
-                                disabled={selectedItems.length <= 0}
+                                disabled={selectedItems.length <= 0 || isCancelling}
                             >
-                                Cancel Items
+                                {isCancelling ? "Cancelling..." : "Cancel Items"}
                             </Button>}
                         </Box>
 
@@ -226,7 +238,7 @@ const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate
                                     </Button>
                                 </DialogTitle>
                                 <DialogContent>
-                                    <ViewProductDetails productId={selectedProductId} prodType="Item" />
+                                    <ViewProductDetails productId={selectedProductId} category={category} prodType="Item" />
                                 </DialogContent>
                                 <DialogActions></DialogActions>
                             </Dialog>
@@ -322,7 +334,7 @@ const PartialCancellation = ({ orderId, quote, allowPartialCancel, onOrderUpdate
                         Cancel
                     </Button>
                     <Button onClick={handleQuantityConfirm} color="primary">
-                        Confirm
+                        Add To Cancel
                     </Button>
                 </DialogActions>
             </Dialog>

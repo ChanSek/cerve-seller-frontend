@@ -358,7 +358,7 @@ const RenderInput = (props) => {
   } else if (item.type === "select") {
     //  console.log("state[item.id]=====>", item.id, "=====>", state[item.id]);
 
-    return (
+     return (
       <div className={props.containerClasses !== undefined ? `${props.containerClasses}` : "py-1 flex flex-col"}>
         <label
           className={
@@ -375,7 +375,6 @@ const RenderInput = (props) => {
             sx={props.inputStyles && props.inputStyles}
             disableClearable={item.disableClearable !== undefined ? item.disableClearable : false}
             disabled={item?.isDisabled || previewOnly || false}
-            // filterSelectedOptions
             size="small"
             options={item?.options}
             getOptionLabel={(option) => option?.key}
@@ -402,6 +401,20 @@ const RenderInput = (props) => {
                 }
               });
             }}
+
+            // ✅ Highlight options in actual color
+            renderOption={(props, option) => (
+              <li {...props}>
+                {item.id.toLowerCase().includes("color") || item.id.toLowerCase().includes("colour") ? (
+                  <span style={{ color: option.value, fontWeight: "bold", textTransform: "capitalize" }}>
+                    {option.key}
+                  </span>
+                ) : (
+                  option.key
+                )}
+              </li>
+            )}
+
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -412,6 +425,7 @@ const RenderInput = (props) => {
               />
             )}
           />
+
         </FormControl>
       </div>
     );
@@ -914,7 +928,7 @@ const RenderInput = (props) => {
                         [item.id]: updatedValue,
                         uploaded_urls: [],
                       };
-                      stateHandler(updatedState); // ✅ works for both formData and variant.data
+                      stateHandler(updatedState);
                     } else {
                       // Handle single image upload
                       const reader = new FileReader();
@@ -929,7 +943,7 @@ const RenderInput = (props) => {
                             [item.id]: tempUrl,
                           },
                         };
-                        stateHandler(updatedState); // ✅ same here
+                        stateHandler(updatedState);
                       };
                       reader.readAsDataURL(file);
                     }

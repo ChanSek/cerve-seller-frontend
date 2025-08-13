@@ -52,7 +52,7 @@ export const variantProductFieldDetails = [
   },
   {
     id: "backImage",
-    title: "Image of back of the product",
+    title: "Product Thumbnail",
     type: "upload",
     file_type: "product_image",
     required: true,
@@ -206,8 +206,8 @@ export const allProductFieldDetails = [
     title: "Product Code (EAN / ISBN / GTIN / HSN / Others)",
     placeholder: "Product Code",
     type: "input",
-    required: false,
-    isDisabled: true,
+    required: true,
+    isDisabled: false,
   },
   {
     id: "brandOwnerFssaiLicenseNo",
@@ -216,7 +216,7 @@ export const allProductFieldDetails = [
     type: "number",
     maxLength: 14,
     required: false,
-    isDisabled: true,
+    isDisabled: false,
   },
   {
     id: "manufacturerName",
@@ -272,9 +272,14 @@ export const allProductFieldDetails = [
   },
   {
     id: "backImage",
-    title: "Image of back of the product",
+    title: "Product Thumbnail",
     type: "upload",
     file_type: "product_image",
     required: true,
   },
 ];
+
+export const categorySpecificFields = {
+ "RET10":["subCategory","productName","price","purchasePrice","gstPercentage","availableQty","minAllowedQty","maxAllowedQty","uom","uomValue","longDescription","fulfillmentOption","countryOfOrigin","vegNonVeg","sku","productCode","brandOwnerFssaiLicenseNo","manufacturerName","manufacturerAddress","nutritionalInfo","additiveInfo","instructions","ingredientsInfo","imageUrls","backImage"],
+ "RET12":["subCategory","productName","price","purchasePrice","gstPercentage","availableQty","minAllowedQty","maxAllowedQty","uom","uomValue","longDescription","fulfillmentOption","countryOfOrigin","sku","productCode","brandOwnerFssaiLicenseNo","manufacturerName","manufacturerAddress","instructions","imageUrls","backImage"],
+};

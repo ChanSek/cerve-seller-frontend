@@ -346,7 +346,7 @@ export const allProductFieldDetails = [
   },
   {
     id: "backImage",
-    title: "Image of back of the product",
+    title: "Product Thumbnail",
     type: "upload",
     //  multiple: false,
     file_type: "product_image",

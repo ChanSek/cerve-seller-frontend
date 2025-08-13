@@ -11,11 +11,9 @@ const AddAdminDetails = ({ isOpen, onClose, onSave, selectedSection, initialData
     const [formData, setFormData] = useState({});
 
     useEffect(() => {
-        console.log("initialData "+initialData);
         if (initialData) {
             setFormData((prev) => {
                 const newFormData = { ...prev };
-console.log("initialData "+initialData);
                 // Handle basicDetail: Prefer initialData, or default to prev
                 if (initialData.basicDetail) {
                     newFormData.basicDetail = { ...prev.basicDetail, ...initialData.basicDetail };
@@ -89,7 +87,6 @@ console.log("initialData "+initialData);
 
     const validate = () => {
         const formErrors = {};
-        // console.log("formData for validation ", formData);
         if (selectedSection === "basic") {
             basicFields.forEach(({ id, required }) => {
                 if (required && (!formData.basicDetail || !formData.basicDetail[id]?.trim())) {
@@ -122,10 +119,8 @@ console.log("initialData "+initialData);
     };
 
     const onChange = useCallback((selected, updatedData) => {
-        // console.log("onChange updatedData ", updatedData, " for selected:", selected);
         setFormData((prev) => {
             const updatedForm = { ...prev };
-            console.log("updatedData ", updatedData);
             if (selected === "basicFields") { // This 'selected' string needs to match what you pass from RenderInput
                 updatedForm.basicDetail = {
                     ...prev.basicDetail,

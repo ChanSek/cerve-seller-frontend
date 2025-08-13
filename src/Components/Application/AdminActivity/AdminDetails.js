@@ -34,7 +34,6 @@ const AdminDetails = () => {
     }
 
     if (type === "bankDetails" && Array.isArray(array)) {
-      console.log("array for bankDetails ", array);
 
       // Helper function to find a value by code
       const findValueByCode = (code) => {
@@ -89,7 +88,6 @@ const AdminDetails = () => {
           default:
             currentInitialData = {};
         }
-        console.log("currentInitialData +++++++++++++++++++ ", currentInitialData);
         setInitialFormData(currentInitialData);
       } else {
         setTabData([]);
@@ -129,8 +127,6 @@ const AdminDetails = () => {
   }
 
   const handleSave = async (formData) => {
-    console.log("Form Data Saved:", formData);
-    console.log("selectedSection " + selectedSection);
     let dataToSend = [];
     let api_url = '/api/v1/seller/props/update?key=';
 

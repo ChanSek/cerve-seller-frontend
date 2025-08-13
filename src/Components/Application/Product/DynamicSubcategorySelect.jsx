@@ -15,7 +15,6 @@ const DynamicSubcategorySelect = ({ item, value, onChange, error }) => {
     try {
       const url = `/api/v1/seller/product/search?keyword=${encodeURIComponent(keyword)}`;
       const result = await getCall(url);
-      console.log("result.data " + JSON.stringify(result.data));
       return result.data;
     } catch (error) {
       console.log(error);
