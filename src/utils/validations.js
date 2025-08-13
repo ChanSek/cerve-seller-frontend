@@ -46,7 +46,7 @@ export const isValidFSSAI = (value) => {
 }
 
 export const isValidIFSC = (value) => {
-  return /^[A-Z]{4}0[0-9]{6}$/.test(value);
+  return /^[A-Z]{4}0[A-Z0-9]{6}$/.test(value);
 }
 
 export const isAlphaNumericOnly = (value) => {
@@ -58,7 +58,7 @@ export function isObjEmpty(obj) {
 }
 
 export const isValidBankAccountNumber = (str) => {
-  return /^\d{9,18}$/.test(str) && !/(.)\1{3,}/.test(str);
+  return /^\d{9,18}$/.test(str) && !/(.)\1{5,}/.test(str);
 }
 
 export const isValidChars = (value) => {

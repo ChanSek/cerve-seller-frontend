@@ -165,7 +165,6 @@ const AdminDetailsCard = ({ selectedTab, details }) => {
         break;
 
       case "accountNumber":
-        console.log("value "+value);
         if (value && value.toString().length < 9 || value.toString().length > 18) {
           errors[field.id] = "Account Number Between 9 and 18";
         }else if (value && !isValidBankAccountNumber(value)) {

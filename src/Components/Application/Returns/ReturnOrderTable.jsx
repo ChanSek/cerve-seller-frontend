@@ -33,10 +33,12 @@ export default function InventoryTable(props) {
   } = props;
 
   const [selectedReturnId, setSelectedReturnId] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
 
-  const handleRowClick = (id) => {
+  const handleRowClick = (id,category) => {
     setSelectedReturnId(id);
+    setSelectedCategory(category);
     setOpenDialog(true);
   };
 
@@ -97,7 +99,7 @@ export default function InventoryTable(props) {
                   hover
                   key={index}
                   style={{ cursor: "pointer" }}
-                  onClick={() => handleRowClick(row?.order)}
+                  onClick={() => handleRowClick(row?.order,row?.category)}
                 >
                   {columns.map((column) => {
                     const value = row[column.id];
@@ -128,6 +130,7 @@ export default function InventoryTable(props) {
         <ReturnDetails
           id={selectedReturnId}
           open={openDialog}
+          category={selectedCategory}
           onClose={handleDialogClose}
         />
       )}

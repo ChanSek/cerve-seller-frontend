@@ -101,7 +101,6 @@ export default function Orders() {
   }, []);
 
   const getOrders = () => {
-    console.log("current tab "+currentTab);
     if (!user) {
       console.error("User not found!");
       return;

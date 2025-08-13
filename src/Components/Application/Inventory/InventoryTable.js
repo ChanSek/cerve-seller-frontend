@@ -95,6 +95,7 @@ export default function InventoryTable(props) {
     customizationGroups = [],
     storeId,
     data,
+    category
   } = props;
   const navigate = useNavigate();
 
@@ -159,7 +160,7 @@ export default function InventoryTable(props) {
 
     const handlePublishState = async (product_id, published) => {
       try {
-        const url = `/api/v1/seller/productId/${product_id}/publish`;
+        const url = `/api/v1/seller/productId/${category}/${product_id}/publish`;
         await putCall(url, { published: !published });
         cogoToast.success(`Product ${published ? "unpublished" : "published"} successfully!`);
         onRefresh();
@@ -286,7 +287,6 @@ export default function InventoryTable(props) {
   };
 
   const handleProductClick = (productId) => {
-    console.log("Viewing product ID:", productId);
     setProductToViewId(productId);
     setViewProductDialogOpen(true);
   };
@@ -507,7 +507,7 @@ export default function InventoryTable(props) {
             </Button>
           </DialogTitle>
           <DialogContent dividers>
-            <ViewProductDetails productId={productToViewId} prodType="Product" />
+            <ViewProductDetails productId={productToViewId} category={category} prodType="Product" />
           </DialogContent>
           <DialogActions></DialogActions>
         </Dialog>

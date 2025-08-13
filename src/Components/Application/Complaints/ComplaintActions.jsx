@@ -134,7 +134,6 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
             description: descripton,
             rating: rating,
         };
-        console.log("body ", body);
         const apiUrl = `/api/v1/seller/complaint/${complaintId}/resolution/update`;
         try {
             const res = await postCall(apiUrl, body);

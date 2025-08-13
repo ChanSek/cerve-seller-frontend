@@ -77,7 +77,6 @@ const AdminComplaintDialog = ({open, onClose}) => {
         let issue_data = Object.assign({}, formData);
         let api_url = `/api/v1/seller/complaint/create`;
         const res = await postCall(api_url, issue_data);
-        console.log("res ",res);
         if (res.status && res.status !== 200) {
             cogoToast.error(res.message, { hideAfter: 5 });
         }

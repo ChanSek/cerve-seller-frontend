@@ -72,7 +72,6 @@ const MultiResolutionModal = ({ complaintId, open, onClose,refreshComplaints }) 
         if (!resolution.selectedAction) {
             errors.selectedAction = "Please select an action.";
         } else {
-            console.log("========= " + resolution.selectedAction);
             if (resolution.selectedAction === "refundIssue") {
                 if (!resolution.refundAmount.trim()) {
                     errors.refundAmount = "Please enter refund amount";
@@ -100,7 +99,6 @@ const MultiResolutionModal = ({ complaintId, open, onClose,refreshComplaints }) 
     const handleFinalSubmit = async () => {
         let isValid = true;
         const errorMessages = [];
-        console.log("resolutions---------->>>>>>>>>> ", resolutions)
         if(!resolutions || resolutions.length == 0){
             cogoToast.error("Please add atleast one resolution");
             return;

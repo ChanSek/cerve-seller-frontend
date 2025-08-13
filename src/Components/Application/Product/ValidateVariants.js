@@ -9,7 +9,7 @@ export const validateVariantForm = (variants, fields, setVariantErrors) => {
         fields.forEach((field) => {
             const { id, title, required, maxLength, min, type, valueInDecimal } = field;
             const value = data[id];
-
+            if (id === "sku") return;
             // Required field check
             if (
                 required &&
@@ -84,7 +84,7 @@ export const validateVariantForm = (variants, fields, setVariantErrors) => {
 
         newErrors[index] = variantErrors;
     });
-console.log("newErrors ",newErrors);
+    console.log("newErrors ", newErrors);
     setVariantErrors(newErrors);
     return isValid;
 };

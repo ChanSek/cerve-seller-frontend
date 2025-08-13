@@ -82,36 +82,6 @@ export default function Inventory() {
       id: "measure",
       label: "Measure",
     },
-    // {
-    //   id: "cancellable",
-    //   label: "Cancellable",
-    //   boolean: true,
-    //   minWidth: 100,
-    // },
-    // {
-    //   id: "returnable",
-    //   label: "Returnable",
-    //   boolean: true,
-    //   minWidth: 100,
-    // },
-    // { id: "variationOn", label: "Variation", minWidth: 100 },
-    /*{
-      id: "customizationGroupId",
-      label: "Customization",
-      format: (value) => {
-        for (let i = 0; i < customizationGroups.length; i++) {
-          if (customizationGroups[i]._id === value) {
-            console.log("customizationGroupId", customizationGroups[i]);
-            if (customizationGroups[i].description) {
-              return `${customizationGroups[i].name} ( ${customizationGroups[i].description} )`;
-            } else {
-              return `${customizationGroups[i].name}`;
-            }
-          }
-        }
-        return "-";
-      },
-    },*/
     {
       id: "published",
       label: "Published",
@@ -132,20 +102,6 @@ export default function Inventory() {
     stock: false,
   });
 
-  const [customizationGroups, setCustomizationGroups] = useState([]);
-
-  const [showCustomizationModal, setShowCustomizationModal] = useState(false);
-  const [customizationId, setCustomizationId] = useState(null);
-  const [newCustomizationData, setNewCustomizationData] = useState({
-    productName: "",
-    MRP: 0,
-    UOM: "",
-    UOMValue: "",
-    quantity: "",
-    maxAllowedQty: "",
-    vegNonVeg: "veg",
-  });
-
   const getProducts = async (storeId) => {
     try {
       const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
@@ -158,7 +114,12 @@ export default function Inventory() {
 
   const getTempProducts = async () => {
     try {
-      const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}&${queryString}`));
+      const baseUrl = `/api/v1/seller/storeId/${storeId}/products`;
+      const paginationParams = `pageSize=${rowsPerPage}&fromIndex=${page}`;
+      const queryParams = queryString ? `&${queryString}` : "";
+      const finalUrl = `${baseUrl}?${paginationParams}${queryParams}`;
+
+      const res = await cancellablePromise(getCall(finalUrl));
       setProducts(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
@@ -178,60 +139,9 @@ export default function Inventory() {
     return res[0];
   };
 
-  const fetchCustomizationGroups = async () => {
-    const url = `/api/v1/customizationGroups?limit=10&offset=0`;
-
+  const getProductCategory = async () => {
     try {
-      const res = await getCall(url);
-      setCustomizationGroups(res.data);
-      return res.data;
-    } catch (error) {
-      console.log("Error fetching customziation groups:", error);
-    }
-  };
-
-  const fetchCustomizationItem = async (id) => {
-    setCustomizationId(id);
-    try {
-      const url = `/api/v1/product/customization/${id}`;
-      const res = await getCall(url);
-      setNewCustomizationData(res);
-    } catch (error) {
-      console.log("Error fetching customization item: ", error);
-    }
-  };
-
-  const handleAddCustomization = async () => {
-    try {
-      const url = `/api/v1/product/customization`;
-
-      const res = await postCall(url, newCustomizationData);
-      console.log("handleAddCustomization: ", res);
-      setNewCustomizationData({ MRP: 0 });
-      setShowCustomizationModal(false);
-      getProducts();
-    } catch (error) { }
-  };
-
-  const handleUpdateCustomization = async () => {
-    try {
-      const url = `/api/v1/product/customization/${customizationId}`;
-      fieldsToDelete.forEach((field) => {
-        if (newCustomizationData.hasOwnProperty(field)) {
-          delete newCustomizationData[field];
-        }
-      });
-      const res = await putCall(url, newCustomizationData);
-      setNewCustomizationData({ MRP: 0 });
-      setCustomizationId(null);
-      setShowCustomizationModal(false);
-      getProducts();
-    } catch (error) { }
-  };
-
-  const getProductCategory = async (categoryId) => {
-    try {
-      const url = `/api/v1/seller/reference/category/${categoryId}`;
+      const url = `/api/v1/seller/reference/category/${category}`;
       const result = await getCall(url);
       return result.data;
     } catch (error) {
@@ -242,7 +152,7 @@ export default function Inventory() {
   useEffect(() => {
     let data = [...filterFields]; // Create a copy of the fields array
     const subCategoryIndex = data.findIndex((item) => item.id === "category");
-    getProductCategory('RET10').then((categoryList) => {
+    getProductCategory().then((categoryList) => {
       data[subCategoryIndex].options = categoryList;
       setCategoryOptions(categoryList);
     });
@@ -269,7 +179,6 @@ export default function Inventory() {
                 } else {
                   setStoreId(org.data.storeId);
                   setCategory(org.data.category);
-                  getProducts(org.data.storeId);
                 }
               });
             }
@@ -281,7 +190,6 @@ export default function Inventory() {
         }
       }
     });
-    //fetchCustomizationGroups();
   }, []);
 
   useEffect(() => {
@@ -335,13 +243,15 @@ export default function Inventory() {
             Inventory
           </label>
           <div className="flex flex-col sm:flex-row">
-            <div className="mb-2 sm:mb-0 sm:mr-4">
-              {/* <Button
+            {/* <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
                 variant="contained"
                 icon={<AddIcon />}
-                title="ADD PRODUCT"
+                title="ADD Old PRODUCT"
                 onClick={() => navigate("/application/add-products")}
-              /> */}
+              />
+            </div> */}
+            <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
                 variant="contained"
                 icon={<AddIcon />}
@@ -350,7 +260,7 @@ export default function Inventory() {
               >
                 ADD PRODUCT
               </Button>
-              <AddProductDialog storeId={storeId} category={category} open={open} onClose={() => setOpen(false)} refreshProducts={handleRefresh}/>
+              <AddProductDialog storeId={storeId} category={category} open={open} onClose={() => setOpen(false)} refreshProducts={handleRefresh} />
             </div>
             <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
@@ -384,37 +294,12 @@ export default function Inventory() {
           onRefresh={handleRefresh}
           totalRecords={totalRecords}
           page={page}
+          category={category}
           rowsPerPage={rowsPerPage}
-          customizationGroups={customizationGroups}
-          setShowCustomizationModal={setShowCustomizationModal}
           getProducts={getProducts}
           storeId={storeId}
-          //fetchCustomizationItem={fetchCustomizationItem}
           handlePageChange={(val) => setPage(val)}
           handleRowsPerPageChange={(val) => setRowsPerPage(val)}
-        />
-
-        <AddCustomization
-          mode={!customizationId ? "add" : "edit"}
-          showModal={showCustomizationModal}
-          handleCloseModal={() => {
-            setNewCustomizationData({
-              productName: "",
-              MRP: 0,
-              UOM: "",
-              UOMValue: "",
-              quantity: "",
-              maxAllowedQty: "",
-            });
-            setShowCustomizationModal(false);
-            setCustomizationId(null);
-          }}
-          newCustomizationData={newCustomizationData}
-          setNewCustomizationData={setNewCustomizationData}
-          handleAddCustomization={() => {
-            if (customizationId) handleUpdateCustomization();
-            else handleAddCustomization();
-          }}
         />
       </div>
     </>
