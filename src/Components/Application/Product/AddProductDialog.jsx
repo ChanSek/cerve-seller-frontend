@@ -363,7 +363,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             return;
         }
 
-        const isNewProduct = selectedProduct.id === -999;
+        const isNewProduct = selectedProduct.pid === -999;
         let filteredFields = allProductFieldDetails.filter(field => field.id !== "sku");
 
         if (isNewProduct) {
@@ -402,7 +402,15 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                 }));
             }
         } else {
-            await setMasterProduct(selectedProduct);
+            // Convert ProductResult to expected format for setMasterProduct
+            const productForMaster = {
+                id: selectedProduct.pid,
+                name: selectedProduct.name,
+                brand: selectedProduct.brand,
+                thumbnailUrl: selectedProduct.thumbnailUrl,
+                mrp: selectedProduct.mrp
+            };
+            await setMasterProduct(productForMaster);
         }
 
         setFields(filteredFields);
@@ -433,7 +441,11 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             try {
                 const url = `/api/v1/seller/product/search?category=${category}&keyword=${encodeURIComponent(searchText)}`;
                 const result = await getCall(url);
-                setProductOptions(result.data.length ? result.data : [{ id: -999, name: "\u2795 Add New Product" }]);
+                // Sort results by score in descending order (highest score first)
+                const sortedData = result.data.length ? 
+                    result.data.sort((a, b) => (b.score || 0) - (a.score || 0)) : 
+                    [];
+                setProductOptions(sortedData.length ? sortedData : [{ pid: -999, name: "\u2795 Add New Product" }]);
             } catch (e) {
                 console.error(e);
                 setProductOptions([]);
@@ -637,12 +649,44 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                             loading={loadingOptions}
                             getOptionLabel={(opt) => {
                                 if (typeof opt === 'string') return opt;
+                                // Handle ProductResult format
+                                if (opt.pid) {
+                                    return opt.name || '';
+                                }
+                                // Handle legacy format for backward compatibility
                                 return opt?.name?.split('#!#')[0] || '';
                             }}
                             filterOptions={(x) => x}
                             onInputChange={(_, val, reason) => reason === 'input' && setSearchText(val)}
                             onChange={handleProductSelect}
                             renderOption={(props, option) => {
+                                // Handle ProductResult format
+                                if (option.pid) {
+                                    return (
+                                        <li {...props}>
+                                            <div style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0' }}>
+                                                {option.thumbnailUrl && (
+                                                    <img
+                                                        src={option.thumbnailUrl}
+                                                        alt={option.name}
+                                                        width={40}
+                                                        height={40}
+                                                        style={{ objectFit: 'cover', borderRadius: 4 }}
+                                                        onError={(e) => { e.target.style.display = 'none'; }}
+                                                    />
+                                                )}
+                                                <div>
+                                                    <div style={{ fontWeight: 'bold' }}>{option.name}</div>
+                                                    <div style={{ fontSize: 12, color: '#555' }}>
+                                                        {option.brand} {option.mrp && `| ₹${option.mrp}`}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    );
+                                }
+
+                                // Handle legacy format and special options
                                 const name = typeof option === 'string' ? option : option?.name || '';
 
                                 if (!name.includes('#!#')) {
@@ -664,7 +708,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                                 width={40}
                                                 height={40}
                                                 style={{ objectFit: 'cover', borderRadius: 4 }}
-                                                onError={(e) => { e.target.style.display = 'none'; }} // optional fallback
+                                                onError={(e) => { e.target.style.display = 'none'; }}
                                             />
                                             <div>
                                                 <div style={{ fontWeight: 'bold' }}>{productName}</div>
