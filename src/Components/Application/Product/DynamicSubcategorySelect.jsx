@@ -26,7 +26,9 @@ const DynamicSubcategorySelect = ({ item, value, onChange, error }) => {
       const response = getProductNames(keyword);
       const data = await response;
       if (Array.isArray(data)) {
-        setOptions(data); // ✅ Correct format
+        // Sort results by score in descending order (highest score first)
+        const sortedData = data.sort((a, b) => (b.score || 0) - (a.score || 0));
+        setOptions(sortedData); // ✅ Correct format
       } else {
         console.warn("Unexpected data format:", data);
         setOptions([]);  // Fallback
@@ -48,7 +50,7 @@ const DynamicSubcategorySelect = ({ item, value, onChange, error }) => {
       loading={loading}
       value={value || null}
       getOptionLabel={(option) => option.name || ""}
-      isOptionEqualToValue={(option, val) => option.id === val.id}
+      isOptionEqualToValue={(option, val) => option.pid === val.pid}
       onInputChange={(e, inputValue) => {
         if (inputValue) debouncedFetch(inputValue);
       }}
