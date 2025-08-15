@@ -8,6 +8,7 @@ import useCancellablePromise from "../../../Api/cancelRequest";
 import { isObjEmpty } from "../../../utils/validations";
 import { useTheme } from "@mui/material/styles";
 import AddProductDialog from "../Product/AddProductDialog";
+import SelectProductDialog from "../Product/SelectProductDialog";
 import FilterComponent from "../../Shared/FilterComponent";
 import AddCustomization from "../Product/AddCustomization";
 import downloadExcel from "../Inventory/DownloadExcel";
@@ -29,6 +30,7 @@ export default function Inventory() {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [queryString, setQueryString] = useState('');
   const [open, setOpen] = useState(false);
+  const [selectOpen, setSelectOpen] = useState(false);
   const filterFields = [
     {
       id: "category",
@@ -255,12 +257,23 @@ export default function Inventory() {
               <Button
                 variant="contained"
                 icon={<AddIcon />}
+                title="SELECT PRODUCT"
+                onClick={() => setSelectOpen(true)}
+              >
+                SELECT PRODUCT
+              </Button>
+            </div>
+            <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
+                variant="contained"
+                icon={<AddIcon />}
                 title="ADD PRODUCT"
                 onClick={() => setOpen(true)}
               >
                 ADD PRODUCT
               </Button>
               <AddProductDialog storeId={storeId} category={category} open={open} onClose={() => setOpen(false)} refreshProducts={handleRefresh} />
+              <SelectProductDialog storeId={storeId} category={category} open={selectOpen} onClose={() => setSelectOpen(false)} refreshProducts={handleRefresh} />
             </div>
             <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
