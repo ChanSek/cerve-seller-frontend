@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "@mui/material";
+import { Button, Box } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import RenderInput from "../../../utils/RenderInput";
 import { areObjectsEqual } from "../../../utils/validations";
@@ -21,7 +21,7 @@ const defaultStoreTimings = [
     },
 ];
 
-const StoreDetails = ({ isFromUserListing = false }) => {
+const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) => {
     const theme = useTheme();
     const navigate = useNavigate();
     const params = useParams();
@@ -155,7 +155,10 @@ const StoreDetails = ({ isFromUserListing = false }) => {
 
     const getOrgDetails = async (id) => {
         try {
-            const url = `/api/v1/seller/merchantId/${id}/merchant?providerDetails=Y`;
+            let url = `/api/v1/seller/merchantId/${id}/merchant?providerDetails=Y`;
+            if (storeId) {
+                url = `/api/v1/seller/merchantId/${id}/merchant?providerDetails=Y&storeId=${storeId}`;
+            }
             const result = await getCall(url);
             const res = result.data;
             if (res?.providerDetail?.storeDetails?.deliveryTime) {
@@ -266,46 +269,9 @@ const StoreDetails = ({ isFromUserListing = false }) => {
         if (supportedFulfillments.delivery) {
             let deliveryDetails = {
                 id: "f1",
-                type: "Delivery",
-                contact: {
-                    email: "",
-                    phone: "",
-                },
-                storeTimings: fulfillmentDetails.deliveryDetails.storeTimings,
+                type: "Delivery"
             };
             fulfillments.push(deliveryDetails);
-        }
-
-        if (supportedFulfillments.selfPickup) {
-            let selfPickupDetails = {
-                id: "f2",
-                type: "Self-Pickup",
-                contact: {
-                    email: fulfillmentDetails.selfPickupDetails.selfPickupEmail,
-                    phone: fulfillmentDetails.selfPickupDetails.selfPickupMobile,
-                },
-                storeTimings: fulfillmentDetails.selfPickupDetails.storeTimings,
-            };
-            fulfillments.push(selfPickupDetails);
-        }
-
-        if (supportedFulfillments.deliveryAndSelfPickup) {
-            let deliveryAndSelfPickupDetails = {
-                id: "f3",
-                type: "Delivery and Pickup",
-                contact: {
-                    delivery: {
-                        email: fulfillmentDetails.deliveryAndSelfPickupDetails.deliveryEmail,
-                        phone: fulfillmentDetails.deliveryAndSelfPickupDetails.deliveryMobile,
-                    },
-                    pickup: {
-                        email: fulfillmentDetails.deliveryAndSelfPickupDetails.selfPickupEmail,
-                        phone: fulfillmentDetails.deliveryAndSelfPickupDetails.selfPickupMobile,
-                    },
-                },
-                storeTimings: fulfillmentDetails.deliveryAndSelfPickupDetails.storeTimings,
-            };
-            fulfillments.push(deliveryAndSelfPickupDetails);
         }
 
         return fulfillments;
@@ -326,6 +292,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
     const onUpdate = () => {
         const isFormValid = runValidation();
         console.log("isFormValid ", isFormValid);
+        console.log("errors ", errors);
         if (!isFormValid) return;
         console.log("anyChangeInData ", isFormValid);
         if (!anyChangeInData()) return;
@@ -380,7 +347,7 @@ const StoreDetails = ({ isFromUserListing = false }) => {
         let storeTimes = getStoreTimingsPayloadFormat();
 
         let payload = {
-            category: category,
+            category: selectedCategory,
             locationAvailabilityPANIndia: locationAvailability,
             storeAvailability: storeDetails.location_availability,
             defaultCancellable: eval(default_cancellable),
@@ -488,90 +455,78 @@ const StoreDetails = ({ isFromUserListing = false }) => {
     let userRole = 'Organization Admin';//JSON.parse(localStorage.getItem("user"))?.role?.name;
 
     return (
-        <div>
-            <div className="container mx-auto my-8">
-                <div className="w-full bg-white px-4 py-4 rounded-md h-full overflow-auto" style={{ minHeight: "95%", maxHeight: "100%" }}>
-                    <div className="m-auto w-10/12 md:w-3/4 h-max">
-                        <BackNavigationButton
-                            onClick={() => {
-                                userRole === "Super Admin"
-                                    ? navigate("/application/user-listings?view=provider")
-                                    : navigate("/application/inventory");
-                            }}
-                        />
-                        <div className="mb-4 flex flex-col md:flex-row justify-between items-left">
-                            <label
-                                style={{ color: theme.palette.primary.main }}
-                                className="font-semibold text-2xl"
-                            >
-                                Store Details
-                            </label>
-                        </div>
-                        {/* Grouped Location & Address Section */}
-                        <GeoAddressSection
-                            fields={storeDetailFields}
-                            storeDetails={storeDetails}
-                            setStoreDetails={setStoreDetails}
-                            errors={errors}
-                        />
-                        {/* Remaining fields */}
-                        {storeDetailFields
-                            .filter(
-                                (item) =>
-                                    ![
-                                        "location",
-                                        "country",
-                                        "state",
-                                        "city",
-                                        "building",
-                                        "street",
-                                        "area_code",
-                                        "locality",
-                                    ].includes(item.id)
-                            )
-                            .map((item) => (
-                                <RenderInput
-                                    key={item.id}
-                                    item={{
-                                        ...item,
-                                        error: !!errors?.[item.id],
-                                        helperText: errors?.[item.id] || "",
-                                    }}
-                                    state={storeDetails}
-                                    stateHandler={setStoreDetails}
-                                />
-                            ))}
+        <Box
+            sx={{
+                border: '2px solid #e0e0e0',
+                borderRadius: '12px',
+                padding: '24px',
+                backgroundColor: '#fff',
+                boxShadow: 2,
+                marginTop: '20px',
+            }}
+        >
+            <BackNavigationButton />
+            {/* Grouped Location & Address Section */}
+            <GeoAddressSection
+                fields={storeDetailFields}
+                storeDetails={storeDetails}
+                setStoreDetails={setStoreDetails}
+                errors={errors}
+            />
 
-                        {!isFromUserListing && (
-                            <StoreTimingSection
-                                storeStatus={storeStatus}
-                                setStoreStatus={setStoreStatus}
-                                storeTimings={storeTimings}
-                                setStoreTimings={setStoreTimings}
-                                temporaryClosedTimings={temporaryClosedTimings}
-                                setTemporaryClosedTimings={setTemporaryClosedTimings}
-                                temporaryClosedDays={temporaryClosedDays}
-                                setTemporaryClosedDays={setTemporaryClosedDays}
-                                errors={errors}
-                            />
+            {/* Remaining fields */}
+            {storeDetailFields
+                .filter(
+                    (item) =>
+                        ![
+                            "location",
+                            "country",
+                            "state",
+                            "city",
+                            "building",
+                            "street",
+                            "area_code",
+                            "locality",
+                        ].includes(item.id)
+                )
+                .map((item) => (
+                    <RenderInput
+                        key={item.id}
+                        item={{
+                            ...item,
+                            error: !!errors?.[item.id],
+                            helperText: errors?.[item.id] || "",
+                        }}
+                        state={storeDetails}
+                        stateHandler={setStoreDetails}
+                    />
+                ))}
 
-                        )}
+            {!isFromUserListing && (
+                <StoreTimingSection
+                    storeStatus={storeStatus}
+                    setStoreStatus={setStoreStatus}
+                    storeTimings={storeTimings}
+                    setStoreTimings={setStoreTimings}
+                    temporaryClosedTimings={temporaryClosedTimings}
+                    setTemporaryClosedTimings={setTemporaryClosedTimings}
+                    temporaryClosedDays={temporaryClosedDays}
+                    setTemporaryClosedDays={setTemporaryClosedDays}
+                    errors={errors}
+                />
+            )}
 
-                        <div className="flex mt-16">
-                            <Button
-                                style={{ marginRight: 10 }}
-                                variant="contained"
-                                onClick={onUpdate}
-                                disabled={!anyChangeInData()}
-                            >
-                                Update Store
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+            <div className="flex mt-16">
+                <Button
+                    style={{ marginRight: 10 }}
+                    variant="contained"
+                    onClick={onUpdate}
+                    disabled={!anyChangeInData()}
+                >
+                    Update Store
+                </Button>
             </div>
-
-        </div>
+        </Box>
     );
 };
 

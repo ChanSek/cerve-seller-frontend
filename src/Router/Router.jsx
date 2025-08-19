@@ -33,6 +33,7 @@ import NewSeller from "../Components/OnBoarding/new-seller-account";
 import ActivateSeller from "../Components/OnBoarding/activateSeller";
 import SellerVerification from "../Components/Application/UserListings/SellerVerification.js";
 import ReturnDetails from "../Components/Application/Returns/ReturnDetails.jsx";
+import MallGrid from "../Components/Application/VirtualMall/MallGrid.jsx";
 
 export default function OndcRoutes() {
   return (
@@ -255,11 +256,19 @@ export default function OndcRoutes() {
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/application/store-details/:id"
           element={
             <PrivateRoute>
               <StoreDetails />
+            </PrivateRoute>
+          }
+        /> */}
+        <Route
+          path="/application/store-details/:id"
+          element={
+            <PrivateRoute>
+              <MallGrid />
             </PrivateRoute>
           }
         />

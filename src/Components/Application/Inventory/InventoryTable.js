@@ -372,7 +372,7 @@ export default function InventoryTable(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.length === 0 ? (
+            {data?.length === 0 ? (
               <TableRow>
                 <StyledTableBodyCell colSpan={columns.length + 1} align="center">
                   <Typography variant="subtitle1" color="text.secondary" sx={{ py: 3 }}>
@@ -381,7 +381,7 @@ export default function InventoryTable(props) {
                 </StyledTableBodyCell>
               </TableRow>
             ) : (
-              data.map((item, index) => (
+              data?.map((item, index) => (
                 <Fragment key={item._id || `product-${index}`}>
                   {item.variantSpecificDetails.map((variant, idx) => (
                     <TableRow

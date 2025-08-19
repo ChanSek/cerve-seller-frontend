@@ -159,7 +159,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
         });
     };
     useEffect(() => {
-        if (category === 'RET12' && formData.subCategory) {
+        if (category !== 'RET10' && formData.subCategory) {
             setVitalFormData(vitalFormObj);
             const sub_category = formData.subCategory;
             let category_data = allProperties[category];
@@ -175,7 +175,6 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                     return acc;
                 }, {});
 
-                // ✅ Apply size options if 'size' field is present
                 const sizeOptions = getSizeOptions(sub_category);
                 properties = properties.map((field) =>
                     field.id === "size"
@@ -279,7 +278,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
 
             // Populate common details, but we will GENERATE SKU on submission
             setFormData(commonDetails);
-            if (category === "RET12") {
+            if (category !== "RET10") {
                 var vitalFormObj = convertAttributesToJson(commonDetails.attributes);
                 setVitalFormObj(vitalFormObj);
                 setSelectedIds(variationAttributes);
@@ -331,8 +330,9 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     }, [category]);
 
     const setMasterProduct = useCallback(async (product) => {
+        console.log("category ",category);
         try {
-            const res = await getCall(`/api/v1/seller/product/master/${product.id}`);
+            const res = await getCall(`/api/v1/seller/product/master/${category}/${product.id}`);
             let details = res.data.commonDetails || {};
             let variantDetails = res.data.variantSpecificDetails || [];
             ["additiveInfo", "instructions", "nutritionalInfo", "manufacturerName", "manufacturerAddress", "ingredientsInfo"]
@@ -392,7 +392,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                     isDisabled: true
                 };
             }
-            if (category === "RET12") {
+            if (category !== "RET10") {
                 const uomIndex = filteredFields.findIndex(item => item.id === "uom");
                 if (uomIndex !== -1) {
                     filteredFields[uomIndex] = {
@@ -428,7 +428,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             const fieldsForCategory = categorySpecificFields[category] || [];
             const updatedFields = allProductFieldDetails
                 .filter(field => fieldsForCategory.includes(field.id))
-            if (category === "RET12") {
+            if (category !== "RET10") {
                 const uomIndex = updatedFields.findIndex(item => item.id === "uom");
                 if (uomIndex !== -1) {
                     updatedFields[uomIndex] = {
@@ -650,7 +650,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                 const apiUrl = `/api/v1/seller/productId/${category}/${currentProductId}/product`;
                 res = await putCall(apiUrl, payload);
             } else {
-                const apiUrl = `/api/v1/seller/storeId/${storeId}/product`;
+                const apiUrl = `/api/v1/seller/storeId/${category}/${storeId}/product`;
                 res = await postCall(apiUrl, payload);
             }
 
@@ -694,7 +694,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
         });
     };
     const getPlaceholder = (category) => {
-        return category === "RET12" ? "e.g., Garments, Top" : "e.g., Atta, Ashirvad";
+        return "Type any product name here";
     };
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -862,7 +862,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
 
                 {isProductSelected && (
                     <>
-                        {hasVariants && category === "RET12" && !isEditMode && (
+                        {hasVariants && category !== "RET10" && !isEditMode && (
                             <Box sx={{ mb: 2 }}>
                                 <Typography variant="subtitle1" sx={{ mb: 1 }}>
                                     Select attributes for variant:
@@ -909,17 +909,17 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                         >
                             <Tab label="Product Details" {...a11yProps(0)} />
 
-                            {category === "RET12" && (
+                            {category !== "RET10" && (
                                 <Tab
                                     label="Vital Info"
-                                    {...a11yProps(category === "RET12" ? 1 : null)}
+                                    {...a11yProps(category !== "RET10" ? 1 : null)}
                                     disabled={!enableVitalInfo}
                                 />
                             )}
 
                             <Tab
                                 label="Variants"
-                                {...a11yProps(category === "RET12" ? 2 : 1)}
+                                {...a11yProps(category !== "RET10" ? 2 : 1)}
                                 disabled={!hasVariants}
                             />
                         </Tabs>
@@ -952,7 +952,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                 </Box>
                             </Box>
                         </TabPanel>
-                        {category === "RET12" && <TabPanel value={activeTab} index={1}>
+                        {category !== "RET10" && <TabPanel value={activeTab} index={1}>
                             {filteredAttributes.length === 0 && enableVitalInfo ? (
                                 <Box className="variant-empty">
                                     <Typography variant="h6">No attributes found</Typography>
@@ -970,7 +970,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                 />
                             )}
                         </TabPanel>}
-                        <TabPanel value={activeTab} index={category === "RET12" ? 2 : 1}>
+                        <TabPanel value={activeTab} index={category !== "RET10" ? 2 : 1}>
                             {variants.length === 0 && hasVariants ? (
                                 <Box className="variant-empty">
                                     <Typography variant="h6">No variants found. Add a new variant.</Typography>

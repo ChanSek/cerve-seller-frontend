@@ -26394,7 +26394,7 @@ export const allProperties = {
         "Water Purifiers and Coolers": [],
         "Inverter & Stabilizer": []
     },
-    Electronics: {
+    RET14: {
         "Mobile Phone": [
             {
                 "name": "Brand",

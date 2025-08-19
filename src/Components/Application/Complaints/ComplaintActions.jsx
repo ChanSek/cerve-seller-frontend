@@ -453,7 +453,7 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
                                                             <Box key={index} className="image-preview-container">
                                                                 <Box
                                                                     component="img"
-                                                                    src={imgUrl}
+                                                                    src={imgUrl?.url}
                                                                     alt={`Return image ${index + 1}`}
                                                                     sx={{
                                                                         width: 60,
