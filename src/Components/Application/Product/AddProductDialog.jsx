@@ -84,6 +84,12 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     const [searchText, setSearchText] = useState("");
     const [productOptions, setProductOptions] = useState([]);
     const [loadingOptions, setLoadingOptions] = useState(false);
+    // Pagination state for autocomplete (same as SelectProductDialog)
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
+    const [hasMoreResults, setHasMoreResults] = useState(false);
+    const [pageLimit] = useState(20);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [hasVariants, setHasVariants] = useState(false);
     const [variants, setVariants] = useState([]);
@@ -434,27 +440,85 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             setFields(updatedFields);
         }
     }, [isEditMode]);
-    useEffect(() => {
-        if (!searchText || searchText.length < 3) return;
-        const delayDebounce = setTimeout(async () => {
+    
+    // Fetch products using search endpoint with pagination (same as SelectProductDialog)
+    const fetchSearchProducts = useCallback(async (page = 0, keyword = "", append = false) => {
+        if (append) {
+            setLoadingMore(true);
+        } else {
             setLoadingOptions(true);
-            try {
-                const url = `/api/v1/seller/product/search?category=${category}&keyword=${encodeURIComponent(searchText)}`;
-                const result = await getCall(url);
+        }
+        try {
+            const url = `/api/v1/seller/product/search?category=${category}&keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${pageLimit}`;
+            const result = await getCall(url);
+            // Handle new SearchResult structure
+            const searchResult = result.data || {};
+            const products = searchResult.results || [];
+            
+            if (append && page > 0) {
+                // Append to existing results for pagination
+                setProductOptions(prev => {
+                    // Remove the "Add New Product" option if it exists
+                    const filteredPrev = prev.filter(opt => opt.pid !== -999);
+                    const newOptions = [...filteredPrev, ...products];
+                    // Always add "Add New Product" option at the end
+                    newOptions.push({ pid: -999, name: "➕ Add New Product" });
+                    return newOptions;
+                });
+            } else {
+                // Replace results for new search
                 // Sort results by score in descending order (highest score first)
-                const sortedData = result.data.length ? 
-                    result.data.sort((a, b) => (b.score || 0) - (a.score || 0)) : 
+                const sortedProducts = products.length ? 
+                    products.sort((a, b) => (b.score || 0) - (a.score || 0)) : 
                     [];
-                setProductOptions(sortedData.length ? sortedData : [{ pid: -999, name: "\u2795 Add New Product" }]);
-            } catch (e) {
-                console.error(e);
-                setProductOptions([]);
-            } finally {
-                setLoadingOptions(false);
+                const newOptions = [...sortedProducts];
+                // Always add "Add New Product" option at the end
+                newOptions.push({ pid: -999, name: "➕ Add New Product" });
+                setProductOptions(newOptions);
             }
+            
+            // Update pagination state
+            setCurrentPage(page);
+            setTotalCount(searchResult.totalCount || 0);
+            setHasMoreResults(searchResult.hasMoreResults || false);
+        } catch (error) {
+            console.error("Error fetching search products:", error);
+            if (!append) {
+                setProductOptions([{ pid: -999, name: "➕ Add New Product" }]);
+            }
+        } finally {
+            setLoadingOptions(false);
+            setLoadingMore(false);
+        }
+    }, [category, pageLimit]);
+    
+    useEffect(() => {
+        if (!searchText || searchText.length < 3) {
+            setProductOptions([{ pid: -999, name: "➕ Add New Product" }]);
+            setCurrentPage(0);
+            setHasMoreResults(false);
+            return;
+        }
+        const delayDebounce = setTimeout(() => {
+            // Reset pagination and fetch new results for new search
+            setCurrentPage(0);
+            fetchSearchProducts(0, searchText, false);
         }, 400);
         return () => clearTimeout(delayDebounce);
-    }, [searchText]);
+    }, [searchText, fetchSearchProducts]);
+
+    // Handle infinite scroll for autocomplete
+    const handleAutocompleteScroll = useCallback((e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        
+        // Check if user has scrolled to the bottom (with some buffer)
+        if (scrollHeight - scrollTop <= clientHeight + 50) {
+            // Load more data if available and not already loading
+            if (hasMoreResults && !loadingOptions && !loadingMore && searchText && searchText.length >= 3) {
+                fetchSearchProducts(currentPage + 1, searchText, true);
+            }
+        }
+    }, [hasMoreResults, loadingOptions, loadingMore, currentPage, searchText, fetchSearchProducts]);
 
     const handleVariantChange = useCallback((index, updatedData) => {
         setVariants(prev => {
@@ -647,6 +711,10 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                             freeSolo
                             options={productOptions}
                             loading={loadingOptions}
+                            ListboxProps={{
+                                onScroll: handleAutocompleteScroll,
+                                style: { maxHeight: 400, overflow: 'auto' }
+                            }}
                             getOptionLabel={(opt) => {
                                 if (typeof opt === 'string') return opt;
                                 // Handle ProductResult format
@@ -659,30 +727,44 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                             filterOptions={(x) => x}
                             onInputChange={(_, val, reason) => reason === 'input' && setSearchText(val)}
                             onChange={handleProductSelect}
-                            renderOption={(props, option) => {
+                            renderOption={(props, option, { index }) => {
+                                // Check if this is the last item and we're loading more
+                                const isLastItem = index === productOptions.length - 1;
+                                const shouldShowLoader = isLastItem && loadingMore && hasMoreResults;
+                                
                                 // Handle ProductResult format
                                 if (option.pid) {
                                     return (
-                                        <li {...props}>
-                                            <div style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0' }}>
-                                                {option.thumbnailUrl && (
-                                                    <img
-                                                        src={option.thumbnailUrl}
-                                                        alt={option.name}
-                                                        width={40}
-                                                        height={40}
-                                                        style={{ objectFit: 'cover', borderRadius: 4 }}
-                                                        onError={(e) => { e.target.style.display = 'none'; }}
-                                                    />
-                                                )}
-                                                <div>
-                                                    <div style={{ fontWeight: 'bold' }}>{option.name}</div>
-                                                    <div style={{ fontSize: 12, color: '#555' }}>
-                                                        {option.brand} {option.mrp && `| ₹${option.mrp}`}
+                                        <React.Fragment key={option.pid}>
+                                            <li {...props}>
+                                                <div style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0' }}>
+                                                    {option.thumbnailUrl && (
+                                                        <img
+                                                            src={option.thumbnailUrl}
+                                                            alt={option.name}
+                                                            width={40}
+                                                            height={40}
+                                                            style={{ objectFit: 'cover', borderRadius: 4 }}
+                                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <div style={{ fontWeight: 'bold' }}>{option.name}</div>
+                                                        <div style={{ fontSize: 12, color: '#555' }}>
+                                                            {option.brand} {option.mrp && `| ₹${option.mrp}`}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </li>
+                                            </li>
+                                            {shouldShowLoader && (
+                                                <li style={{ padding: '10px', textAlign: 'center', borderTop: '1px solid #eee' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                                                        <CircularProgress size={16} />
+                                                        <span style={{ fontSize: 12, color: '#666' }}>Loading more products...</span>
+                                                    </div>
+                                                </li>
+                                            )}
+                                        </React.Fragment>
                                     );
                                 }
 
@@ -691,33 +773,53 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
 
                                 if (!name.includes('#!#')) {
                                     return (
-                                        <li {...props}>
-                                            <div style={{ padding: '5px 0', fontWeight: 500 }}>{name}</div>
-                                        </li>
+                                        <React.Fragment key={`${name}-${index}`}>
+                                            <li {...props}>
+                                                <div style={{ padding: '5px 0', fontWeight: 500 }}>{name}</div>
+                                            </li>
+                                            {shouldShowLoader && (
+                                                <li style={{ padding: '10px', textAlign: 'center', borderTop: '1px solid #eee' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                                                        <CircularProgress size={16} />
+                                                        <span style={{ fontSize: 12, color: '#666' }}>Loading more products...</span>
+                                                    </div>
+                                                </li>
+                                            )}
+                                        </React.Fragment>
                                     );
                                 }
 
                                 const [productName, imageUrl, brand, manufacturer, uom, uomValue] = name.split('#!#');
 
                                 return (
-                                    <li {...props}>
-                                        <div style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0' }}>
-                                            <img
-                                                src={imageUrl}
-                                                alt={productName}
-                                                width={40}
-                                                height={40}
-                                                style={{ objectFit: 'cover', borderRadius: 4 }}
-                                                onError={(e) => { e.target.style.display = 'none'; }}
-                                            />
-                                            <div>
-                                                <div style={{ fontWeight: 'bold' }}>{productName}</div>
-                                                <div style={{ fontSize: 12, color: '#555' }}>
-                                                    {brand} | {uomValue} {uom}
+                                    <React.Fragment key={`${productName}-${index}`}>
+                                        <li {...props}>
+                                            <div style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0' }}>
+                                                <img
+                                                    src={imageUrl}
+                                                    alt={productName}
+                                                    width={40}
+                                                    height={40}
+                                                    style={{ objectFit: 'cover', borderRadius: 4 }}
+                                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                                />
+                                                <div>
+                                                    <div style={{ fontWeight: 'bold' }}>{productName}</div>
+                                                    <div style={{ fontSize: 12, color: '#555' }}>
+                                                        {brand} | {uomValue} {uom}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </li>
+                                        </li>
+                                        {shouldShowLoader && (
+                                            <li style={{ padding: '10px', textAlign: 'center', borderTop: '1px solid #eee' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                                                    <CircularProgress size={16} />
+                                                    <span style={{ fontSize: 12, color: '#666' }}>Loading more products...</span>
+                                                </div>
+                                            </li>
+                                        )}
+                                    </React.Fragment>
                                 );
                             }}
                             renderInput={(params) => (
