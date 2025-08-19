@@ -15,7 +15,11 @@ export const FILTER_OPTIONS = {
 
 export const PRODUCT_CATEGORY = {
     "RET10": "Grocery",
-    "RET12": "Fashion"
+    "RET12": "Fashion",
+    "RET14": "Electronics",
+    "RET15": "Appliences",
+    "RET16": "HomeAndKitchen",
+    "RET18": "HealthAndWellness"
 }
 
 export const DELIVERY_TYPE_LIST = {

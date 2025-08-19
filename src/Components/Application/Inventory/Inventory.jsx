@@ -11,6 +11,7 @@ import AddProductDialog from "../Product/AddProductDialog";
 import FilterComponent from "../../Shared/FilterComponent";
 import AddCustomization from "../Product/AddCustomization";
 import downloadExcel from "../Inventory/DownloadExcel";
+import { useStore } from "../../../Router/StoreContext";
 
 const fieldsToDelete = [
   "_id",
@@ -29,6 +30,7 @@ export default function Inventory() {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [queryString, setQueryString] = useState('');
   const [open, setOpen] = useState(false);
+  const { store } = useStore();
   const filterFields = [
     {
       id: "category",
@@ -104,7 +106,7 @@ export default function Inventory() {
 
   const getProducts = async (storeId) => {
     try {
-      const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
+      const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${category}/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
       setProducts(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
@@ -114,7 +116,7 @@ export default function Inventory() {
 
   const getTempProducts = async () => {
     try {
-      const baseUrl = `/api/v1/seller/storeId/${storeId}/products`;
+      const baseUrl = `/api/v1/seller/storeId/${category}/${storeId}/products`;
       const paginationParams = `pageSize=${rowsPerPage}&fromIndex=${page}`;
       const queryParams = queryString ? `&${queryString}` : "";
       const finalUrl = `${baseUrl}?${paginationParams}${queryParams}`;
@@ -141,6 +143,8 @@ export default function Inventory() {
 
   const getProductCategory = async () => {
     try {
+      console.log("storeId: ", store?.storeId);
+      console.log("category: ", store?.category);
       const url = `/api/v1/seller/reference/category/${category}`;
       const result = await getCall(url);
       return result.data;
@@ -156,41 +160,52 @@ export default function Inventory() {
       data[subCategoryIndex].options = categoryList;
       setCategoryOptions(categoryList);
     });
-  }, []);
+  }, [category]);
 
   useEffect(() => {
-    const user_id = localStorage.getItem("user_id");
-    getUser(user_id).then((u) => {
-      // roles - Organization Admin, Super Admin
-      if (u?.isSystemGeneratedPassword) {
-        navigate("/initial-steps")
-      } else {
-        if (u.role.name == "Organization Admin") {
-          const merchantId = u?.organization?._id;
-          if (!isObjEmpty(merchantId)) {
-            var isActive = u?.organization?.active;
-            if (!isActive) {
-              navigate(`/user-listings/provider-details/${merchantId}`);
-            } else {
-              getOrgDetails(merchantId).then((org) => {
-                let category = u?.organization?.category;
-                if (!category) {
-                  navigate(`/application/store-details/${merchantId}`);
-                } else {
-                  setStoreId(org.data.storeId);
-                  setCategory(org.data.category);
-                }
-              });
-            }
-          } else {
-            navigate("/add-provider-info")
-          }
-        } else if (u.role.name == "Super Admin") {
-          navigate("/application/user-listings");
+    const userId = localStorage.getItem("user_id");
+
+    // If store is already available from context, use it
+    if (store?.storeId && store?.category) {
+      setStoreId(store.storeId);
+      setCategory(store.category);
+      return;
+    }
+    // Else fetch user and determine path
+    getUser(userId).then((user) => {
+      if (user?.isSystemGeneratedPassword) {
+        navigate("/initial-steps");
+        return;
+      }
+
+      const role = user?.role?.name;
+
+      if (role === "Organization Admin") {
+        const merchantId = user?.organization?._id;
+        const isActive = user?.organization?.active;
+
+        if (!merchantId) {
+          navigate("/add-provider-info");
+          return;
         }
+
+        if (!isActive) {
+          navigate(`/user-listings/provider-details/${merchantId}`);
+          return;
+        }
+
+        const category = user?.organization?.category;
+        if (!category) {
+          navigate(`/application/store-details/${merchantId}`);
+          return;
+        }
+
+      } else if (role === "Super Admin") {
+        navigate("/application/user-listings");
       }
     });
-  }, []);
+  }, [store]);  // Optional: Add store dependency
+
 
   useEffect(() => {
     if (storeId && storeId !== undefined) {
@@ -214,7 +229,7 @@ export default function Inventory() {
     }
 
     if (filters.category != undefined && filters.category !== "") {
-      filterParams.push(`category=${encodeURIComponent(filters.category)}`);
+      filterParams.push(`subCategory=${encodeURIComponent(filters.category)}`);
     }
 
     if (!filters.stock) {
@@ -224,7 +239,7 @@ export default function Inventory() {
     }
 
     const queryString = filterParams.join("&");
-    const url = `/api/v1/seller/storeId/${storeId}/products?${queryString}`;
+    const url = `/api/v1/seller/storeId/${category}/${storeId}/products?${queryString}`;
 
     const res = await cancellablePromise(getCall(url));
     setProducts(res.content);

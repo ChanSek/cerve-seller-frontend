@@ -104,6 +104,7 @@ export default function Login() {
     AddCookie("sellerActive", user?.organization?.active);
     AddCookie("isSuperAdmin", user?.role?.name === "Super Admin");
     localStorage.setItem("user_id", _id);
+    localStorage.setItem("organization_id",user?.organization?._id);
     if (!user.enabled) {
       navigate("/activate");
     } else if (!isObjEmpty(user.organization)) {
