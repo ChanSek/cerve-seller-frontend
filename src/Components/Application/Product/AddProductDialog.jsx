@@ -39,7 +39,8 @@ import { allProperties } from "./categoryProperties";
 import VitalInfoSection from "./ProductVitalInfoSection";
 import { getSizeOptions } from "./categoryProperties";
 import { categorySpecificFields } from "./gen-product-fields";
-import getDefaultProductValues from "./getDefaultProductValues";
+import { highlightText } from "../../../utils/textHighlight";
+simport getDefaultProductValues from "./getDefaultProductValues";
 
 //const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];
 const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];
@@ -755,9 +756,11 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                                         />
                                                     )}
                                                     <div>
-                                                        <div style={{ fontWeight: 'bold' }}>{option.name}</div>
+                                                        <div style={{ fontWeight: 'bold' }}>
+                                                            {highlightText(option.name, searchText)}
+                                                        </div>
                                                         <div style={{ fontSize: 12, color: '#555' }}>
-                                                            {option.brand} {option.mrp && `| ₹${option.mrp}`}
+                                                            {highlightText(option.brand, searchText)} {option.mrp && `| ₹${option.mrp}`}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -810,9 +813,11 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                                     onError={(e) => { e.target.style.display = 'none'; }}
                                                 />
                                                 <div>
-                                                    <div style={{ fontWeight: 'bold' }}>{productName}</div>
+                                                    <div style={{ fontWeight: 'bold' }}>
+                                                        {highlightText(productName, searchText)}
+                                                    </div>
                                                     <div style={{ fontSize: 12, color: '#555' }}>
-                                                        {brand} | {uomValue} {uom}
+                                                        {highlightText(brand, searchText)} | {uomValue} {uom}
                                                     </div>
                                                 </div>
                                             </div>
