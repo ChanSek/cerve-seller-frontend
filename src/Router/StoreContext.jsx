@@ -7,11 +7,9 @@ export const StoreProvider = ({ children }) => {
 
   // On first load, check localStorage
   useEffect(() => {
-    console.log("=============================================")
     const storedStoreId = localStorage.getItem("store_id");
     const storedCategory = localStorage.getItem("store_category");
     const storedLabel = localStorage.getItem("store_label");
- console.log("============================================= storedStoreId ",storedStoreId," - storedCategory ",storedCategory);
     if (storedStoreId && storedCategory) {
       setStore({
         storeId: storedStoreId,

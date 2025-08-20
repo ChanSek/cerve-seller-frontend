@@ -120,8 +120,8 @@ export default function Inventory() {
     try {
       const baseUrl = `/api/v1/seller/storeId/${category}/${storeId}/products`;
       const paginationParams = `pageSize=${rowsPerPage}&fromIndex=${page}`;
-      const queryParams = queryString ? `&${queryString}` : "";
-      const finalUrl = `${baseUrl}?${paginationParams}${queryParams}`;
+      //const queryParams = queryString ? `&${queryString}` : "";
+      const finalUrl = `${baseUrl}?${paginationParams}`;
 
       const res = await cancellablePromise(getCall(finalUrl));
       setProducts(res.content);
@@ -211,6 +211,13 @@ export default function Inventory() {
 
   useEffect(() => {
     if (storeId && storeId !== undefined) {
+      setFilters({
+      name: "",
+      category: null,
+      stock: false,
+    });
+
+    setQueryString("");
       getTempProducts();
     }
   }, [page, rowsPerPage, storeId]);
@@ -220,9 +227,21 @@ export default function Inventory() {
   };
 
   const onReset = () => {
-    setFilters({ name: "", category: null, stock: false });
-    getProducts(storeId);
+    setFilters({
+      name: "",
+      category: null,
+      stock: false,
+    });
+
+    setQueryString("");
+
+    if (storeId) {
+      getProducts(storeId);
+    } else {
+      console.warn("Store ID is missing. Cannot fetch products.");
+    }
   };
+
 
   const onFilter = async () => {
     const filterParams = [];
