@@ -1364,3 +1364,45 @@ export const FIELD_NOT_ALLOWED_BASED_ON_PROTOCOL_KEY = {
     "monthYearOfManufacturePackingImport",
   ],
 };
+
+// GST options for product selection
+export const GST_OPTIONS = [
+    { value: 0, label: "0%" },
+    { value: 5, label: "5%" },
+    { value: 12, label: "12%" },
+    { value: 18, label: "18%" },
+    { value: 28, label: "28%" }
+];
+
+// Subcategories for filtering in product selection dialog (alphabetically sorted)
+export const GROCERY_SUB_CATEGORIES = [
+    "Atta, Flours and Sooji",
+    "Bakery, Cakes & Dairy",
+    "Cereals and Breakfast",
+    "Chocolates and Biscuits",
+    "Cleaning & Household",
+    "Cooking and Baking Needs",
+    "Dairy and Cheese",
+    "Dals and Pulses",
+    "Eggs, Meat & Fish",
+    "Energy and Soft Drinks",
+    "Frozen Snacks",
+    "Frozen Vegetables",
+    "Fruit Juices and Fruit Drinks",
+    "Fruits and Vegetables",
+    "Indian Sweets",
+    "Masala & Seasoning",
+    "Oil & Ghee",
+    "Pasta, Soup and Noodles",
+    "Pet Care",
+    "Pickles and Chutney",
+    "Ready to Cook and Eat",
+    "Rice and Rice Products",
+    "Salt, Sugar and Jaggery",
+    "Sauces, Spreads and Dips",
+    "Snacks and Namkeen",
+    "Snacks, Dry Fruits, Nuts",
+    "Tea and Coffee",
+    "Tinned and Processed Food",
+    "Water"
+];
