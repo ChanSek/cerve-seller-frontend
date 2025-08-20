@@ -141,6 +141,7 @@ export const allProductFieldDetails = [
       { key: "unit", value: "UNIT" },
       { key: "dozen", value: "DOZEN" },
       { key: "gram", value: "GRAM" },
+      { key: "pieces", value: "PIECES" },
       { key: "kilogram", value: "KILOGRAM" },
       { key: "tonne", value: "TONNE" },
       { key: "litre", value: "LITRE" },
@@ -160,7 +161,7 @@ export const allProductFieldDetails = [
     title: "Description",
     placeholder: "Description",
     type: "input",
-    required: true,
+    required: false,
     multiline: true,
   },
   {
@@ -264,7 +265,7 @@ export const allProductFieldDetails = [
   },
   {
     id: "imageUrls",
-    title: "Images (Select minimum 3 files with maximum size of 2Mb for each file)",
+    title: "Images (Select minimum 1 files with maximum size of 2Mb for each file)",
     type: "upload",
     multiple: true,
     file_type: "product_image",
@@ -275,7 +276,7 @@ export const allProductFieldDetails = [
     title: "Product Thumbnail",
     type: "upload",
     file_type: "product_image",
-    required: true,
+    required: false,
   },
 ];
 

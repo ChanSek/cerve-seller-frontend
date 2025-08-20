@@ -40,6 +40,7 @@ import VitalInfoSection from "./ProductVitalInfoSection";
 import { getSizeOptions } from "./categoryProperties";
 import { categorySpecificFields } from "./gen-product-fields";
 import { highlightText } from "../../../utils/textHighlight";
+simport getDefaultProductValues from "./getDefaultProductValues";
 
 //const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];
 const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];
@@ -331,7 +332,6 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     }, [category]);
 
     const setMasterProduct = useCallback(async (product) => {
-        console.log("category ",category);
         try {
             const res = await getCall(`/api/v1/seller/product/master/${category}/${product.id}`);
             let details = res.data.commonDetails || {};
@@ -387,28 +387,34 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                 };
             }
             const uomIndex = filteredFields.findIndex(item => item.id === "uom");
-            if (uomIndex !== -1) {
-                filteredFields[uomIndex] = {
-                    ...filteredFields[uomIndex],
-                    isDisabled: true
-                };
-            }
+            const defaultValues = getDefaultProductValues(filteredFields);
+            // Apply category-specific adjustments
             if (category !== "RET10") {
-                const uomIndex = filteredFields.findIndex(item => item.id === "uom");
                 if (uomIndex !== -1) {
                     filteredFields[uomIndex] = {
                         ...filteredFields[uomIndex],
                         isDisabled: true
                     };
                 }
-
-                setFormData(prev => ({
-                    ...prev,
-                    fulfillmentOption: "Delivery",
-                    uom: "UNIT"
-                }));
+                defaultValues.fulfillmentOption = "Delivery";
+                defaultValues.uom = "UNIT";
             }
+
+            // Filter out null/empty/undefined values from defaultValues
+            const nonEmptyDefaults = Object.entries(defaultValues).reduce((acc, [key, value]) => {
+                if (value !== null && value !== undefined && value !== "") {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
+
+            // Set form data with only valid values
+            setFormData(prev => ({
+                ...prev,
+                ...nonEmptyDefaults,
+            }));
         } else {
+            console.log("2");
             // Convert ProductResult to expected format for setMasterProduct
             const productForMaster = {
                 id: selectedProduct.pid,
@@ -441,7 +447,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             setFields(updatedFields);
         }
     }, [isEditMode]);
-    
+
     // Fetch products using search endpoint with pagination (same as SelectProductDialog)
     const fetchSearchProducts = useCallback(async (page = 0, keyword = "", append = false) => {
         if (append) {
@@ -455,7 +461,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             // Handle new SearchResult structure
             const searchResult = result.data || {};
             const products = searchResult.results || [];
-            
+
             if (append && page > 0) {
                 // Append to existing results for pagination
                 setProductOptions(prev => {
@@ -469,15 +475,15 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             } else {
                 // Replace results for new search
                 // Sort results by score in descending order (highest score first)
-                const sortedProducts = products.length ? 
-                    products.sort((a, b) => (b.score || 0) - (a.score || 0)) : 
+                const sortedProducts = products.length ?
+                    products.sort((a, b) => (b.score || 0) - (a.score || 0)) :
                     [];
                 const newOptions = [...sortedProducts];
                 // Always add "Add New Product" option at the end
                 newOptions.push({ pid: -999, name: "➕ Add New Product" });
                 setProductOptions(newOptions);
             }
-            
+
             // Update pagination state
             setCurrentPage(page);
             setTotalCount(searchResult.totalCount || 0);
@@ -492,7 +498,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             setLoadingMore(false);
         }
     }, [category, pageLimit]);
-    
+
     useEffect(() => {
         if (!searchText || searchText.length < 3) {
             setProductOptions([{ pid: -999, name: "➕ Add New Product" }]);
@@ -511,7 +517,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     // Handle infinite scroll for autocomplete
     const handleAutocompleteScroll = useCallback((e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.target;
-        
+
         // Check if user has scrolled to the bottom (with some buffer)
         if (scrollHeight - scrollTop <= clientHeight + 50) {
             // Load more data if available and not already loading
@@ -732,7 +738,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                 // Check if this is the last item and we're loading more
                                 const isLastItem = index === productOptions.length - 1;
                                 const shouldShowLoader = isLastItem && loadingMore && hasMoreResults;
-                                
+
                                 // Handle ProductResult format
                                 if (option.pid) {
                                     return (
