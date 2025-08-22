@@ -22,6 +22,14 @@ export const PRODUCT_CATEGORY = {
     "RET18": "HealthAndWellness"
 }
 
+export const PRODUCT_CATEGORY_OPTIONS = [
+  { key: "Grocery", value: "RET10" },
+  { key: "Fashion", value: "RET12" },
+  { key: "Electronics", value: "RET14" },
+  { key: "Appliences", value: "RET15" },
+  { key: "Home & Kitchen", value: "RET16" },
+  { key: "Health & Wellness", value: "RET18" }
+];
 export const DELIVERY_TYPE_LIST = {
   "Immediate Delivery": "Immediate Delivery",
   "Express Delivery": "Express Delivery",

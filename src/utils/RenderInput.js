@@ -601,6 +601,7 @@ const RenderInput = (props) => {
           multiple
           format={item.format || "DD/MM/YYYY"}
           plugins={[<DatePanel />]}
+          minDate={item.disablePast ? moment().startOf("day").toDate() : undefined}
           onChange={(newValue) => {
             stateHandler((prevState) => {
               const newState = {

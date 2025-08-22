@@ -13,6 +13,7 @@ import {
   isValidFSSAI,
   isValidGSTIN,
   isValidChars,
+  isValidAddress,
   isValidDescription,
   hasRepeatedChars,
 } from "../../utils/validations";
@@ -280,7 +281,7 @@ const InviteProvider = () => {
       formErrors.address =
         !formValues.address || formValues.address.trim() === ""
           ? "Registered Address is required"
-          : !isValidChars(formValues.address.trim())
+          : !isValidAddress(formValues.address.trim())
             ? "Please Provide a valid Registered Address"
             : ""
       formErrors.contactEmail =
@@ -447,7 +448,7 @@ const InviteProvider = () => {
             address: "Registered Address is required",
           }));
           return false;
-        } else if (!isValidChars(fieldValue)) {
+        } else if (!isValidAddress(fieldValue)) {
           setErrors((prevErrors) => ({
             ...prevErrors,
             address: "Please Provide a valid Registered Address",

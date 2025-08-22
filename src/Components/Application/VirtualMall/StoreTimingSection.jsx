@@ -12,8 +12,11 @@ const StoreTimingSection = ({
   setTemporaryClosedTimings,
   temporaryClosedDays,
   setTemporaryClosedDays,
+  holidays,              // ✅ coming from parent
+  setHolidays,           // ✅ coming from parent
   errors,
 }) => {
+  console.log("holidays @@@@@@@@@@@@@  ",holidays);
   return (
     <>
       <p className="text-2xl font-semibold mb-4">Store Timing</p>
@@ -38,7 +41,11 @@ const StoreTimingSection = ({
                   key={radioItem.value}
                   value={radioItem.value}
                   control={<Radio size="small" checked={radioItem.value === storeStatus} />}
-                  label={<div className="text-sm font-medium text-[#606161]">{radioItem.key}</div>}
+                  label={
+                    <div className="text-sm font-medium text-[#606161]">
+                      {radioItem.key}
+                    </div>
+                  }
                 />
               ))}
             </div>
@@ -55,13 +62,14 @@ const StoreTimingSection = ({
               title: "Holidays",
               placeholder: "Holidays",
               type: "days-picker",
+              disablePast: true,
               required: false,
               format: "YYYY-MM-DD",
               error: !!errors?.["holidays"],
               helperText: errors?.["holidays"] || "",
             }}
-            state={{ holidays: [] }}
-            stateHandler={() => {}}
+            state={holidays}   // ✅ controlled state from parent
+            stateHandler={setHolidays} // ✅ updates parent
           />
         </div>
       )}

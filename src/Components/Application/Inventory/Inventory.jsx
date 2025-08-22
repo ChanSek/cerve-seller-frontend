@@ -108,7 +108,7 @@ export default function Inventory() {
 
   const getProducts = async (storeId) => {
     try {
-      const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${category}/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
+      const res = await cancellablePromise(getCall(`/api/v1/seller/${category}/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
       setProducts(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
@@ -118,7 +118,7 @@ export default function Inventory() {
 
   const getTempProducts = async () => {
     try {
-      const baseUrl = `/api/v1/seller/storeId/${category}/${storeId}/products`;
+      const baseUrl = `/api/v1/seller/${category}/storeId/${storeId}/products`;
       const paginationParams = `pageSize=${rowsPerPage}&fromIndex=${page}`;
       //const queryParams = queryString ? `&${queryString}` : "";
       const finalUrl = `${baseUrl}?${paginationParams}`;
@@ -166,7 +166,6 @@ export default function Inventory() {
 
   useEffect(() => {
     const userId = localStorage.getItem("user_id");
-
     // If store is already available from context, use it
     if (store?.storeId && store?.category) {
       setStoreId(store.storeId);
@@ -195,32 +194,37 @@ export default function Inventory() {
           navigate(`/user-listings/provider-details/${merchantId}`);
           return;
         }
-
-        const category = user?.organization?.category;
-        if (!category) {
+        const storeDetailsAvailable = user?.organization?.storeDetailsAvailable;
+        if (!storeDetailsAvailable) {
           navigate(`/application/store-details/${merchantId}`);
           return;
         }
+
+        // const category = user?.organization?.category;
+        // if (!category) {
+        //   navigate(`/application/store-details/${merchantId}`);
+        //   return;
+        // }
 
       } else if (role === "Super Admin") {
         navigate("/application/user-listings");
       }
     });
-  }, [store]);  // Optional: Add store dependency
+  }, [store, category]);  // Optional: Add store dependency
 
 
   useEffect(() => {
     if (storeId && storeId !== undefined) {
       setFilters({
-      name: "",
-      category: null,
-      stock: false,
-    });
+        name: "",
+        category: null,
+        stock: false,
+      });
 
-    setQueryString("");
+      setQueryString("");
       getTempProducts();
     }
-  }, [page, rowsPerPage, storeId]);
+  }, [page, rowsPerPage, storeId, category]);
 
   const handleRefresh = () => {
     getProducts(storeId);
@@ -260,7 +264,7 @@ export default function Inventory() {
     }
 
     const queryString = filterParams.join("&");
-    const url = `/api/v1/seller/storeId/${category}/${storeId}/products?${queryString}`;
+    const url = `/api/v1/seller/${category}/storeId/${storeId}/products?${queryString}`;
 
     const res = await cancellablePromise(getCall(url));
     setProducts(res.content);

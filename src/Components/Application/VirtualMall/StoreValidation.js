@@ -7,6 +7,8 @@ export const validateStore = ({
     polygonPoints = [],
     temporaryClosedTimings = {},
 }) => {
+    console.log("storeDetails ", storeDetails);
+
     const formErrors = {
         ...validateBasicFields(storeDetails),
         ...validateLocationAvailability(storeDetails, polygonPoints),
@@ -18,7 +20,7 @@ export const validateStore = ({
             ? Object.values(val).some((v) => v !== "")
             : val !== ""
     );
-console.log("hasErrors ",hasErrors);
+    console.log("hasErrors ", hasErrors);
     return {
         isValid: !hasErrors,
         formErrors,
@@ -46,6 +48,9 @@ export const validateBasicFields = (storeDetails = {}) => ({
     area_code: !storeDetails.area_code?.trim() ? "PIN Code is required" : "",
     locality: !storeDetails.locality?.trim() ? "Locality is required" : "",
     logo: !storeDetails.logo?.trim() ? "Logo is required" : "",
+    categories: !Array.isArray(storeDetails.categories) || storeDetails.categories.length === 0
+        ? "Categories is required"
+        : "",
 });
 
 export const validateLocationAvailability = (storeDetails = {}, polygonPoints = []) => {
