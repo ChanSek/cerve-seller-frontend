@@ -6,13 +6,13 @@ import { areObjectsEqual } from "../../../utils/validations";
 import { useEffect } from "react";
 import { getCall, postCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
-import BackNavigationButton from "../../Shared/BackNavigationButton";
 import moment from "moment";
 import { useTheme } from "@mui/material/styles";
 import { storeFields } from "./StoreFields";
 import { validateStore } from "./StoreValidation";
 import { GeoAddressSection } from "./GeoAddressSection";
 import StoreTimingSection from "./StoreTimingSection";
+import { PRODUCT_CATEGORY_OPTIONS } from "../../../utils/constants";
 
 const defaultStoreTimings = [
     {
@@ -21,7 +21,7 @@ const defaultStoreTimings = [
     },
 ];
 
-const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) => {
+const StoreDetails = ({ isFromUserListing = false, storeId }) => {
     const theme = useTheme();
     const navigate = useNavigate();
     const params = useParams();
@@ -38,11 +38,12 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
     const [temporaryClosedTimings, setTemporaryClosedTimings] = useState({ start: "00:00", end: "00:00" });
     const [temporaryClosedDays, setTemporaryClosedDays] = useState({ from: 1, to: 5 });
     const [storeTimings, setStoreTimings] = useState([...defaultStoreTimings]);
+    const [holidays, setHolidays] = useState({"holidays":[]});
     const [originalStoreTimings, setOriginalStoreTimings] = useState([...defaultStoreTimings]);
     const [cityInfo, setCityInfo] = useState([]);
     const [storeDetails, setStoreDetails] = useState({
         location: {},
-        category: "",
+        categories: [],
         location_availability: "",
         default_cancellable: "",
         default_returnable: "",
@@ -58,7 +59,6 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
         locality: "",
         logo: "",
         logo_path: "",
-        holidays: [],
         radius: "",
         onNetworkLogistics: "true",
         logisticsBppId: "",
@@ -70,7 +70,7 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
     const [polygonPoints, setPolygonPoints] = useState([]);
     const [defaultStoreDetails, setDefaultStoreDetails] = useState({
         location: {},
-        category: "",
+        categories: [],
         location_availability: "",
         default_cancellable: "",
         default_returnable: "",
@@ -86,7 +86,6 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
         locality: "",
         logo: "",
         logo_path: "",
-        holidays: [],
         radius: "",
         logisticsBppId: "",
         logisticsDeliveryType: "",
@@ -176,13 +175,16 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
                     "location_availability": "radius",
                     "onNetworkLogistics": "false",
                     "cities": [],
+                    "categories": []
                 };
             } else {
                 storeData = {
                     storeName: res.providerDetail.storeName || "",
                     email: res.providerDetail.storeDetails?.supportEmail || "",
                     mobile: res.providerDetail.storeDetails?.supportMobile || "",
-                    category: res?.providerDetail?.storeDetails?.category || "",
+                    categories: PRODUCT_CATEGORY_OPTIONS.filter(opt =>
+                        res?.providerDetail?.storeDetails?.categories?.includes(opt.value)
+                    ),
                     location: res?.providerDetail?.storeDetails?.location || "",
                     location_availability: res?.providerDetail?.storeDetails?.storeAvailability,
                     cities: res?.providerDetail?.storeDetails?.city || [],
@@ -198,7 +200,7 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
                     logo: res?.providerDetail?.storeDetails?.logoUrl || "",
                     //logo_path: res?.providerDetail?.storeDetails?.logo?.path || "",
 
-                    holidays: res?.providerDetail?.storeDetails?.storeTimes?.holidays || [],
+                    
                     radius: res?.providerDetail?.storeDetails?.radius || "",
                     logisticsBppId: res?.providerDetail?.storeDetails?.logisticsBppId || "",
                     logisticsDeliveryType: res?.providerDetail?.storeDetails?.logisticsDeliveryType || "",
@@ -230,6 +232,7 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
 
             }
             setStoreDetails(Object.assign({}, JSON.parse(JSON.stringify(storeData))));
+            setHolidays({"holidays":res?.providerDetail?.storeDetails?.storeTimes?.holidays || []});
             setDefaultStoreDetails(Object.assign({}, JSON.parse(JSON.stringify(storeData))));
             setStoreTimings(res?.providerDetail?.storeDetails?.storeTimes?.enabled || defaultStoreTimings);
             setOriginalStoreTimings(res?.providerDetail?.storeDetails?.storeTimes?.enabled || defaultStoreTimings);
@@ -278,12 +281,14 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
     };
 
     const getStoreTimingsPayloadFormat = () => {
+        console.log("holidays +++ ",holidays);
         let storeTiming = {};
         storeTiming.status = storeStatus;
-        storeTiming.holidays = storeDetails.holidays;
+        storeTiming.holidays = holidays.holidays;
         storeTiming.enabled = storeTimings;
         storeTiming.closed = temporaryClosedTimings;
         storeTiming.closedDays = temporaryClosedDays;
+        console.log("storeTiming ### ",storeTiming);
         return storeTiming;
     };
 
@@ -297,9 +302,12 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
         console.log("anyChangeInData ", isFormValid);
         if (!anyChangeInData()) return;
         const provider_id = params?.id;
-        const url = `/api/v1/seller/merchantId/${provider_id}/store`;
+        let url = `/api/v1/seller/merchantId/${provider_id}/store`;
+        if (storeId) {
+            url += "?storeId=" + storeId
+        }
         const {
-            category,
+            categories,
             location_availability,
             default_cancellable,
             default_returnable,
@@ -347,7 +355,7 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
         let storeTimes = getStoreTimingsPayloadFormat();
 
         let payload = {
-            category: selectedCategory,
+            categories: categories.map(item => item.value),
             locationAvailabilityPANIndia: locationAvailability,
             storeAvailability: storeDetails.location_availability,
             defaultCancellable: eval(default_cancellable),
@@ -465,7 +473,6 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
                 marginTop: '20px',
             }}
         >
-            <BackNavigationButton />
             {/* Grouped Location & Address Section */}
             <GeoAddressSection
                 fields={storeDetailFields}
@@ -512,6 +519,8 @@ const StoreDetails = ({ isFromUserListing = false, storeId, selectedCategory }) 
                     setTemporaryClosedTimings={setTemporaryClosedTimings}
                     temporaryClosedDays={temporaryClosedDays}
                     setTemporaryClosedDays={setTemporaryClosedDays}
+                    holidays={holidays}
+                    setHolidays={setHolidays}
                     errors={errors}
                 />
             )}

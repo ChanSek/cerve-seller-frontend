@@ -65,6 +65,11 @@ export const isValidChars = (value) => {
   return /^[a-zA-Z][\w\s\W]*$/.test(value);
 };
 
+export const isValidAddress = (value) => {
+  const noSpaces = value.replace(/\s/g, "");
+  return /^[\w\W]+$/.test(value) && noSpaces.length >= 5;
+};
+
 export const hasRepeatedChars = (value) => {
   return /(.)\1{3,}/.test(value);
 };

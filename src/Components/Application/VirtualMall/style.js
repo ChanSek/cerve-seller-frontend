@@ -1,120 +1,149 @@
 import { makeStyles } from '@mui/styles';
 
 const useStyles = makeStyles(() => ({
-    homeContainer: {
-        padding: '60px 100px',
-    },
-    activeCategoryCard: {
-        border: '2px solid #4CAF50', // Green border for active stores
-    },
-    cardBase: {
-        borderRadius: 8,
-        padding: '24px 16px',
-        boxShadow: 'none',
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        height: '100%',
-        justifyContent: 'space-between',
-        textAlign: 'center',
-        overflow: 'hidden', // contains image zoom effect
-    },
-    imageContainer: {
-        display: 'flex',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        gap: '12px',
-        marginBottom: '16px',
-        minHeight: '100px', // Added to reserve space for images and prevent layout shifts
-        '& img': {
-            maxHeight: '100px', // Increased image size
-            maxWidth: '100%',
-            objectFit: 'contain',
-            transition: 'transform 0.3s ease-in-out',
-            '&:hover': {
-                transform: 'scale(1.1)',
-            },
-        },
-    },
-    categoryTitle: {
-        // textShadow: '1px 1px 2px rgba(0,0,0,0.1)', // Subtle text shadow
-        // letterSpacing: '0.5px', // Slightly increased letter spacing for emphasis
-        // backgroundImage: 'linear-gradient(45deg, #FF6B6B, #FFD166, #06D6A0, #118AB2, #073B4C)', // Vibrant gradient
-        // WebkitBackgroundClip: 'text', // Clip background to text for Webkit browsers
-        // WebkitTextFillColor: 'transparent', // Make text transparent to show gradient
-        // backgroundClip: 'text', // Clip background to text for other browsers
-       // color: 'transparent', // Make text transparent for non-webkit browsers
-    },
-    fashionCategory: {
-        background: 'linear-gradient(180deg, #DCE6F9 0%, #ADCDFE 100%)',
-    },
-    electronicsCategory: {
-        background: 'linear-gradient(180deg, #DCF9F2 0%, #ADEFFE 100%)',
-    },
-    groceryCategory: {
-        background: 'linear-gradient(180deg, #F9E3DC 0%, #FECAAD 100%)',
-    },
-    foodCategory: {
-        background: 'linear-gradient(180deg, #FFE1C1 0%, #FED092 100%)',
-    },
-    healthCategory: {
-        background: 'linear-gradient(180deg, #CDFFD2 0%, #C2DDD8 100%)',
-    },
-    homeCategory: {
-        background: 'linear-gradient(180deg, #F9F2E2 0%, #D9C9A8 100%)',
-    },
-    bpcCategory: {
-        background: 'linear-gradient(180deg, #F7DCF9 0%, #C7ADFE 100%)',
-    },
-    agricultureCategory: {
-        background: 'linear-gradient(180deg, #E7F9DC 0%, #BFF2C1 100%)',
-    },
+  pageContainer: {
+    padding: '30px 20px',
+  },
 
-    addButton: {
-        '&:hover': {
-           // background: '#45a049', // Slightly darker green on hover
-            transform: 'none',
-            boxShadow: '0 6px 16px rgba(76, 175, 80, 0.4)', // More pronounced shadow
-        },
-        '&:focus': {
-            boxShadow: '0 0 0 3px rgba(76, 175, 80, 0.5)', // Green outline
-            outline: 'none',
-        },
-        '&:active': {
-            transform: 'none',
-            boxShadow: '0 2px 8px rgba(76, 175, 80, 0.2)',
-        },
-        '&:disabled': {
-            background: '#a5d6a7', // Lighter green for disabled state
-            cursor: 'not-allowed',
-            transform: 'none',
-            boxShadow: 'none',
-        },
-    },
+  headerWrapper: {
+  textAlign: 'center',
+  marginBottom: '32px',
+},
 
-    updateButton: {
-        '&:hover': {
-         //   background: '#1976D2', // Slightly darker blue on hover
-            transform: 'none',
-            boxShadow: '0 6px 16px rgba(33, 150, 243, 0.4)', // More pronounced shadow
-        },
-        '&:focus': {
-            boxShadow: '0 0 0 3px rgba(33, 150, 243, 0.5)', // Blue outline
-            outline: 'none',
-        },
-        '&:active': {
-            transform: 'none',
-            boxShadow: '0 2px 8px rgba(33, 150, 243, 0.2)',
-        },
-        '&:disabled': {
-            background: '#90caf9', // Lighter blue for disabled state
-            cursor: 'not-allowed',
-            transform: 'none',
-            boxShadow: 'none',
-        },
-    },
+headerTitle: {
+  fontWeight: 700,
+  fontSize: '2.5rem',
+  color: '#1a237e', // deep indigo
+  marginBottom: '8px',
+},
 
+subHeader: {
+  fontWeight: 400,
+  fontSize: '2.0rem',
+  color: '#555',
+  '& span': {
+    color: '#1976d2',
+    fontWeight: 600,
+  },
+},
+
+headerDivider: {
+  width: '80px',
+  height: '4px',
+  backgroundColor: '#1976d2',
+  margin: '16px auto 0',
+  borderRadius: '4px',
+},
+
+  mainTitle: {
+    fontWeight: 700,
+    marginBottom: '24px',
+    textAlign: 'center',
+  },
+
+  cardBase: {
+    borderRadius: 16,
+    padding: '24px 16px',
+    cursor: 'pointer',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    height: '100%',
+    justifyContent: 'space-between',
+    textAlign: 'center',
+    overflow: 'hidden',
+    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+    '&:hover': {
+      //transform: 'translateY(-6px)',
+      boxShadow: '0 10px 24px rgba(0, 0, 0, 0.12)',
+    },
+  },
+
+  activeCategoryCard: {
+    border: '2px solid #4CAF50',
+    boxShadow: '0 6px 16px rgba(76, 175, 80, 0.3)',
+  },
+
+  imageContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '8px',
+    minHeight: '60px'
+  },
+
+  categoryTitle: {
+    fontWeight: 600,
+    fontSize: '1.3rem',
+    marginBottom: '8px',
+    color: '#333',
+  },
+
+  addStoreCard: {
+    minHeight: 300,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    cursor: 'pointer',
+    borderRadius: 16,
+    background: 'linear-gradient(135deg, #F1F1F1 0%, #E4E4E4 100%)',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    '&:hover': {
+      boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
+      //transform: 'translateY(-5px)',
+    },
+    '& svg': {
+      fontSize: '3rem',
+      color: '#1976d2',
+      marginBottom: '12px',
+      transition: 'transform 0.3s ease',
+    },
+    '&:hover svg': {
+      transform: 'rotate(90deg)',
+    },
+    '& h5': {
+      fontWeight: 600,
+      fontSize: '1.2rem',
+      color: '#444',
+    },
+  },
+
+  updateButton: {
+    background: '#1976d2',
+    color: '#fff',
+    fontWeight: 500,
+    padding: '8px 20px',
+    borderRadius: 8,
+    marginTop: '12px',
+    transition: 'box-shadow 0.3s ease',
+    '&:hover': {
+      background: '#1565c0',
+      boxShadow: '0 6px 16px rgba(33, 150, 243, 0.4)',
+    },
+  },
+
+  // Category Gradients
+  fashionCategory: {
+    background: 'linear-gradient(135deg, #DCE6F9 0%, #ADCDFE 100%)',
+  },
+  electronicsCategory: {
+    background: 'linear-gradient(135deg, #DCF9F2 0%, #ADEFFE 100%)',
+  },
+  groceryCategory: {
+    background: 'linear-gradient(135deg, #F9E3DC 0%, #FECAAD 100%)',
+  },
+  healthCategory: {
+    background: 'linear-gradient(135deg, #CDFFD2 0%, #C2DDD8 100%)',
+  },
+  homeCategory: {
+    background: 'linear-gradient(135deg, #F9F2E2 0%, #D9C9A8 100%)',
+  },
+  agricultureCategory: {
+    background: 'linear-gradient(135deg, #E7F9DC 0%, #BFF2C1 100%)',
+  },
 }));
 
 export default useStyles;

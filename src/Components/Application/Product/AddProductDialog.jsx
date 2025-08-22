@@ -40,7 +40,7 @@ import VitalInfoSection from "./ProductVitalInfoSection";
 import { getSizeOptions } from "./categoryProperties";
 import { categorySpecificFields } from "./gen-product-fields";
 import { highlightText } from "../../../utils/textHighlight";
-simport getDefaultProductValues from "./getDefaultProductValues";
+import getDefaultProductValues from "./getDefaultProductValues";
 
 //const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];
 const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];

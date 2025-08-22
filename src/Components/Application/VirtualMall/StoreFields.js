@@ -1,8 +1,4 @@
-import { PRODUCT_CATEGORY} from "../../../utils/constants";
-
-const categoriesList = Object.entries(PRODUCT_CATEGORY).map(([key, value]) => {
-    return { key: value, value: key };
-});
+import { PRODUCT_CATEGORY_OPTIONS} from "../../../utils/constants";
 
 export const storeFields = [
     {
@@ -30,6 +26,14 @@ export const storeFields = [
         maxLength: 10,
         value: "+91",
         prefix: "+91",
+    },
+    {
+        id: "categories",
+        title: "Supported Product Categories",
+        placeholder: "Please Select Supported Product Categories",
+        options: PRODUCT_CATEGORY_OPTIONS,
+        type: "multi-select",
+        required: true,
     },
     {
         id: "location",
