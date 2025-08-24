@@ -111,6 +111,11 @@ export default function Sidebar({ open, setOpen }) {
                     <ListItemText primary="User Listings" />
                   </ListItemButton>
                 </NavLink>
+                <NavLink to="/application/category-taxonomy" className="no-underline text-black">
+                  <ListItemButton sx={{ pl: 4 }}>
+                    <ListItemText primary="Category Taxonomy" />
+                  </ListItemButton>
+                </NavLink>
 
                 <NavLink to="/application/settlement" className="no-underline text-black">
                   <ListItemButton sx={{ pl: 4 }}>

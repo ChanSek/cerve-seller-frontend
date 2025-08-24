@@ -34,6 +34,7 @@ import ActivateSeller from "../Components/OnBoarding/activateSeller";
 import SellerVerification from "../Components/Application/UserListings/SellerVerification.js";
 import ReturnDetails from "../Components/Application/Returns/ReturnDetails.jsx";
 import MallGrid from "../Components/Application/VirtualMall/MallGrid.jsx";
+import CategoryTaxonomy from "../Components/Application/CategoryTaxonomy/CategoryTaxonomy.jsx";
 
 export default function OndcRoutes() {
   return (
@@ -177,6 +178,14 @@ export default function OndcRoutes() {
           element={
             <PrivateRoute>
               <UserListings />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/application/category-taxonomy"
+          element={
+            <PrivateRoute>
+              <CategoryTaxonomy />
             </PrivateRoute>
           }
         />
