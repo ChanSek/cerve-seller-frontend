@@ -9,7 +9,7 @@ import MenuProducts from "./MenuProducts";
 import { Button } from "@mui/material";
 import { getCall, putCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
-import StoreTimingsRenderer from "../UserListings/StoreTimingsRenderer";
+import StoreTimingsRenderer from "../VirtualMall/StoreTimingsRenderer";
 
 const initialMenuDetails = {
   seq: "",

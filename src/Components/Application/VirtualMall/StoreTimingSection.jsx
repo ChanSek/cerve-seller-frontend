@@ -16,7 +16,6 @@ const StoreTimingSection = ({
   setHolidays,           // ✅ coming from parent
   errors,
 }) => {
-  console.log("holidays @@@@@@@@@@@@@  ",holidays);
   return (
     <>
       <p className="text-2xl font-semibold mb-4">Store Timing</p>
