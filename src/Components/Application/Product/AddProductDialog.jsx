@@ -27,7 +27,6 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { getCall, postCall, putCall } from "../../../Api/axios";
 import RenderInput from "../../../utils/RenderInput";
 import { allProductFieldDetails, variantProductFieldDetails } from "./gen-product-fields";
-// import { manualProductFieldDetails } from "./manual-product-fields";
 import { validateProductForm } from "./validateProductForm";
 import cogoToast from "cogo-toast";
 import './AddProductDialog.css';
@@ -42,7 +41,6 @@ import { categorySpecificFields } from "./gen-product-fields";
 import { highlightText } from "../../../utils/textHighlight";
 import getDefaultProductValues from "./getDefaultProductValues";
 
-//const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];
 const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];
 function a11yProps(index) {
     return {
@@ -161,17 +159,18 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
         });
     };
     useEffect(() => {
+    const fetchAttributes = async () => {
         if (category !== 'RET10' && formData.subCategory) {
             setVitalFormData(vitalFormObj);
             const sub_category = formData.subCategory;
-            let category_data = allProperties[category];
-            let properties = category_data?.[sub_category] || category_data["default"] || [];
+
+            let properties = await getCategoryAttributes(sub_category); // ✅ await the promise
 
             if (properties.length > 0) {
                 setEnableVitalInfo(true);
                 properties = formatAttributesToFieldsDataFormat(properties);
-                let variants = properties?.filter((property) => property.required);
 
+                let variants = properties?.filter((property) => property.required);
                 let variants_checkbox_map = variants.reduce((acc, variant) => {
                     acc[variant.id] = false;
                     return acc;
@@ -183,13 +182,18 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                         ? { ...field, options: sizeOptions }
                         : field
                 );
+
                 setAttributes(properties); // All attributes
                 setVariantAttributes(variants); // Only required = candidate variant axes
                 setVariantsCheckboxState(variants_checkbox_map); // For UI checkbox state
                 setSubCategory(sub_category);
             }
         }
-    }, [formData.subCategory]);
+    };
+
+    fetchAttributes(); // Call the async function
+}, [formData.subCategory]);
+
 
     useEffect(() => {
         const mergedErrors = [];
@@ -324,6 +328,16 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     const getProductCategory = useCallback(async () => {
         try {
             const res = await getCall(`/api/v1/seller/reference/category/${category}`);
+            return res.data;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }, [category]);
+
+    const getCategoryAttributes = useCallback(async (selectedSubCategory) => {
+        try {
+            const res = await getCall(`/api/v1/seller/reference/${category}/${selectedSubCategory}`);
             return res.data;
         } catch (e) {
             console.error(e);
