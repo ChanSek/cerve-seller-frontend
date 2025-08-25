@@ -16,8 +16,8 @@ import { PRODUCT_CATEGORY_OPTIONS } from "../../../utils/constants";
 
 const defaultStoreTimings = [
     {
-        daysRange: { from: 1, to: 5 },
-        timings: [{ start: "00:00", end: "00:00" }],
+        daysRange: { from: 1, to: 7 },
+        timings: [{ start: "00:00", end: "23:59" }],
     },
 ];
 
@@ -35,7 +35,7 @@ const StoreDetails = ({ isFromUserListing = false, storeId }) => {
 
     const [storeDetailFields, setStoreDetailFields] = useState(storeFields);
     const [storeStatus, setStoreStatus] = useState("enabled");
-    const [temporaryClosedTimings, setTemporaryClosedTimings] = useState({ start: "00:00", end: "00:00" });
+    const [temporaryClosedTimings, setTemporaryClosedTimings] = useState({ start: "00:00", end: "23:59" });
     const [temporaryClosedDays, setTemporaryClosedDays] = useState({ from: 1, to: 5 });
     const [storeTimings, setStoreTimings] = useState([...defaultStoreTimings]);
     const [holidays, setHolidays] = useState({"holidays":[]});
@@ -169,7 +169,9 @@ const StoreDetails = ({ isFromUserListing = false, storeId }) => {
             let storeData = {};
             if (!res.providerDetail.storeDetails) {
                 storeData = {
-                    storeName: res.providerDetail.storeName || "",
+                    storeName: res.providerDetail?.storeName || "",
+                    email: res.providerDetail?.contactEmail || "",
+                    mobile: res.providerDetail?.contactMobile || "",
                     "default_returnable": "false",
                     "default_cancellable": "false",
                     "location_availability": "radius",
@@ -281,14 +283,12 @@ const StoreDetails = ({ isFromUserListing = false, storeId }) => {
     };
 
     const getStoreTimingsPayloadFormat = () => {
-        console.log("holidays +++ ",holidays);
         let storeTiming = {};
         storeTiming.status = storeStatus;
         storeTiming.holidays = holidays.holidays;
         storeTiming.enabled = storeTimings;
         storeTiming.closed = temporaryClosedTimings;
         storeTiming.closedDays = temporaryClosedDays;
-        console.log("storeTiming ### ",storeTiming);
         return storeTiming;
     };
 

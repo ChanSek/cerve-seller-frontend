@@ -129,7 +129,7 @@ const StoreTimings = ({ storeTiming, setStoreTiming, handleRemoveDaysAndTimings 
   };
 
   const handleAddMoreTimings = () => {
-    storeTiming["timings"].push({ start: "00:00", end: "00:00" });
+    storeTiming["timings"].push({ start: "00:00", end: "23:59" });
     setStoreTiming({ ...storeTiming });
   };
 

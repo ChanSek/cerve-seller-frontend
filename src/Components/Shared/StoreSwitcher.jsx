@@ -21,7 +21,6 @@ const StoreSwitcher = () => {
   const { updateStore } = useStore();
 
   useEffect(() => {
-    console.log("merchantId ", merchantId);
     // Check if merchantId is available before making the call
     if (merchantId === undefined || merchantId === "undefined" || !merchantId || merchantId.trim() === "") {
       return;
@@ -62,7 +61,7 @@ const StoreSwitcher = () => {
         cogoToast.error("Failed to load store list.");
         console.error("API error:", err);
       });
-  }, [merchantId]); // Dependency array includes merchantId
+  }, [merchantId]);
 
   const handleStoreChange = (event) => {
     const newStoreId = event.target.value;
@@ -100,8 +99,6 @@ const StoreSwitcher = () => {
   };
 
   const selectedStore = stores.find((s) => s.storeId === selectedStoreId) || null;
-  console.log("stores ", stores);
-  console.log("selectedStore ", selectedStore);
   if (!selectedStore) {
     return null;
   }

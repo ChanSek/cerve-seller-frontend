@@ -14,7 +14,6 @@ import GatewayActivity from "../Components/Application/GatewayActivity/GatewayAc
 import AdminDetails from "../Components/Application/AdminActivity/AdminDetails.js";
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
 import ProviderDetails from "../Components/Application/UserListings/ProviderDetails";
-import StoreDetails from "../Components/Application/UserListings/StoreDetails";
 import InviteAdmin from "../Components/OnBoarding/InviteAdmin";
 import AddProvider from "../Components/OnBoarding/addProvider";
 import ForgotPassword from "../Components/Auth/ForgotPassword/ForgotPassword";
