@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {
     Box,
     Button,
@@ -25,9 +25,11 @@ import {useProductData} from "./hooks/useProductData";
 import {useProductFilters} from "./hooks/useProductFilters";
 import {useProductSelection} from "./hooks/useProductSelection";
 
-const SelectProductDialog = ({ storeId, open, onClose, refreshProducts }) => {
+const SelectProductDialog = ({ storeId, category, open, onClose, refreshProducts }) => {
     const [submitting, setSubmitting] = useState(false);
     const [searchText, setSearchText] = useState("");
+    const scrollTimeoutRef = useRef(null);
+    const initialLoadRef = useRef(true);
 
     // Custom hooks for data management
     const {
@@ -44,7 +46,7 @@ const SelectProductDialog = ({ storeId, open, onClose, refreshProducts }) => {
         fetchAllMasterProducts,
         fetchSearchProducts,
         updateFilteredProducts
-    } = useProductData();
+    } = useProductData(category);
 
     const {
         selectedSubCategories,
@@ -73,15 +75,17 @@ const SelectProductDialog = ({ storeId, open, onClose, refreshProducts }) => {
 
     // Initialize component when opened
     useEffect(() => {
-        console.log('🔄 Dialog initialization useEffect triggered, open =', open);
         if (open) {
-            console.log('📋 Initializing dialog state...');
             resetSelection();
             resetFilters();
             setCurrentPage(0);
             setSearchText("");
+            initialLoadRef.current = true;
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+                scrollTimeoutRef.current = null;
+            }
 
-            console.log('🔄 Starting parallel API calls...');
             fetchBrands();
             fetchCountries();
 
@@ -93,72 +97,112 @@ const SelectProductDialog = ({ storeId, open, onClose, refreshProducts }) => {
                 setIsInitialized(true);
             });
         } else {
-            console.log('📋 Dialog closed, resetting initialized state');
             setIsInitialized(false);
         }
-    }, [open, fetchBrands, fetchCountries, resetSelection, resetFilters]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [open]);
 
     // Update filtered products when filters change
     useEffect(() => {
         updateFilteredProducts(selectedSubCategories, selectedBrands, selectedCountries, searchText);
     }, [updateFilteredProducts, selectedSubCategories, selectedBrands, selectedCountries, searchText]);
 
-    // Handle search text changes with debouncing
-    useEffect(() => {
+    // Handle search text changes with debouncing and filter changes
+    const handleFiltersChange = useCallback((skipInitialCheck = false) => {
         if (!open || !isInitialized) return;
 
-        if (searchText === "") return;
+        // Skip if this is the initial load (no search text and no filters selected)
+        // But allow if skipInitialCheck is true (for clearing filters)
+        const hasFilters = selectedSubCategories.size > 0 || selectedBrands.size > 0 || selectedCountries.size > 0;
+        const hasSearchText = searchText.trim().length > 0;
+        
+        if (!skipInitialCheck && !hasFilters && !hasSearchText) {
+            return; // Skip during initial load when no filters or search text
+        }
 
-        const delayDebounce = setTimeout(() => {
-            setCurrentPage(0);
-            if (searchText.trim()) {
-                fetchSearchProducts(0, searchText, false, selectedSubCategories, selectedBrands, selectedCountries);
-            } else {
-                fetchAllMasterProducts(0, false, selectedSubCategories, selectedBrands, selectedCountries);
-            }
-        }, 500);
-
-        return () => clearTimeout(delayDebounce);
-    }, [searchText, open, isInitialized, selectedSubCategories, selectedBrands, selectedCountries, fetchSearchProducts, fetchAllMasterProducts, setCurrentPage]);
-
-    // Handle filter changes
-    useEffect(() => {
-        if (!open || !isInitialized) return;
-
+        
+        // Clear any pending scroll timeout to prevent multiple API calls
+        if (scrollTimeoutRef.current) {
+            clearTimeout(scrollTimeoutRef.current);
+            scrollTimeoutRef.current = null;
+        }
+        
+        // Reset scroll position to top
+        const scrollContainer = document.getElementById('product-scroll-container');
+        if (scrollContainer) {
+            scrollContainer.scrollTop = 0;
+        }
+        
         setCurrentPage(0);
-
-        if (searchText.trim()) {
+        if (searchText.trim() && searchText.length >= 3) {
             fetchSearchProducts(0, searchText, false, selectedSubCategories, selectedBrands, selectedCountries);
         } else {
             fetchAllMasterProducts(0, false, selectedSubCategories, selectedBrands, selectedCountries);
         }
-    }, [selectedSubCategories, selectedBrands, selectedCountries, open, isInitialized, searchText, fetchSearchProducts, fetchAllMasterProducts, setCurrentPage]);
+    }, [open, isInitialized, selectedSubCategories, selectedBrands, selectedCountries, searchText, fetchSearchProducts, fetchAllMasterProducts, setCurrentPage]);
 
-    // Infinite scroll handler with stable reference
-    const handleScroll = useCallback((e) => {
-        const { scrollTop, scrollHeight, clientHeight } = e.target;
+    useEffect(() => {
+        if (!open || !isInitialized) return;
 
-        if (scrollHeight - scrollTop <= clientHeight + 100) {
-            if (hasMoreResults && !loading && !loadingMore) {
-                if (searchText.trim()) {
-                    fetchSearchProducts(currentPage + 1, searchText, true, selectedSubCategories, selectedBrands, selectedCountries);
-                } else {
-                    fetchAllMasterProducts(currentPage + 1, true, selectedSubCategories, selectedBrands, selectedCountries);
-                }
-            }
+        const hasFilters = selectedSubCategories.size > 0 || selectedBrands.size > 0 || selectedCountries.size > 0;
+        const hasSearchText = searchText.trim().length > 0;
+        
+        // Skip if this is the very first load after dialog opens (initial API call already made)
+        if (initialLoadRef.current && !hasFilters && !hasSearchText) {
+            initialLoadRef.current = false;
+            return;
         }
-    }, [hasMoreResults, loading, loadingMore, currentPage, searchText, selectedSubCategories, selectedBrands, selectedCountries, fetchSearchProducts, fetchAllMasterProducts]);
+        
+        initialLoadRef.current = false;
+
+        // Only use debounce for searchText changes, not filter changes
+        const isSearchTextChange = searchText !== "";
+        const delay = isSearchTextChange ? 500 : 0;
+
+        const delayDebounce = setTimeout(() => {
+            handleFiltersChange(true); // skipInitialCheck = true
+        }, delay);
+
+        return () => clearTimeout(delayDebounce);
+    }, [searchText, selectedSubCategories, selectedBrands, selectedCountries, open, isInitialized, handleFiltersChange]);
 
     // Attach scroll listener to the scrollable container
     useEffect(() => {
         const scrollContainer = document.getElementById('product-scroll-container');
-        if (scrollContainer) {
-            scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-            return () => {
-                scrollContainer.removeEventListener('scroll', handleScroll);
-            };
-        }
-    }, [handleScroll]);
+        if (!scrollContainer) return;
+        
+        const scrollHandler = (e) => {
+            const { scrollTop, scrollHeight, clientHeight } = e.target;
+
+            if (scrollHeight - scrollTop <= clientHeight + 100) {
+                if (hasMoreResults && !loading && !loadingMore) {
+                    // Clear any existing timeout
+                    if (scrollTimeoutRef.current) {
+                        clearTimeout(scrollTimeoutRef.current);
+                    }
+                    
+                    // Debounce the API call
+                    scrollTimeoutRef.current = setTimeout(() => {
+                        if (searchText.trim() && searchText.length >= 3) {
+                            fetchSearchProducts(currentPage + 1, searchText, true, selectedSubCategories, selectedBrands, selectedCountries);
+                        } else {
+                            fetchAllMasterProducts(currentPage + 1, true, selectedSubCategories, selectedBrands, selectedCountries);
+                        }
+                        scrollTimeoutRef.current = null;
+                    }, 300);
+                }
+            }
+        };
+        
+        scrollContainer.addEventListener('scroll', scrollHandler, { passive: true });
+        return () => {
+            scrollContainer.removeEventListener('scroll', scrollHandler);
+            // Clear timeout when effect cleans up
+            if (scrollTimeoutRef.current) {
+                clearTimeout(scrollTimeoutRef.current);
+                scrollTimeoutRef.current = null;
+            }
+        };
+    }, [hasMoreResults, loading, currentPage, searchText, selectedSubCategories, selectedBrands, selectedCountries]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Validate and submit selected products
     const handleSubmit = async () => {
