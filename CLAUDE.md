@@ -31,7 +31,8 @@ This is a React 18 seller frontend application for an ONDC (Open Network for Dig
 - **TailwindCSS** for utility styling
 - **Firebase** for authentication
 - **Axios** for API communication with cookie-based auth
-- **SCSS/Sass** for component styling
+- **Sass** for component styling (migrated from deprecated node-sass)
+- **react-json-view** for debugging and data visualization
 
 ### Authentication Flow
 - Token-based authentication with automatic 401 handling
@@ -55,17 +56,18 @@ This is a React 18 seller frontend application for an ONDC (Open Network for Dig
 #### Application Modules (`src/Components/Application/`)
 - **Orders** - Order management, details, status updates, cancellation
 - **Inventory** - Product inventory management with Excel download
-- **Product** - Product CRUD, variants, customizations, bulk upload with paginated search and master product selection
+- **Product** - Product CRUD, variants, customizations, bulk upload with advanced search and filtering
 - **Returns** - Return order processing with status tracking
 - **Complaints** - Customer complaint management and resolution
 - **Settlement** - Financial settlement tracking  
-- **UserListings** - Seller/provider management and verification
+- **UserListings** - Seller/provider management and verification with enhanced store context
 - **CustomMenu** - Menu category and product organization
 - **Customizations** - Product customization groups and items
 - **Offer** - Promotional offer management
 - **GatewayActivity** - Transaction activity monitoring
 - **VirtualMall** - Virtual mall management with store slot allocation and grid layout
 - **AdminActivity** - Administrative activity monitoring and management
+- **CategoryTaxonomy** - ONDC category taxonomy management with attribute mapping
 
 #### Layout System
 - `AppLayout` provides consistent navigation and layout structure
@@ -109,29 +111,73 @@ The application expects these environment variables:
 - `REACT_APP_FIREBASE_API_KEY` - Firebase API key
 - `REACT_APP_FIREBASE_AUTH_DOMAIN` - Firebase auth domain
 
-## Recent Feature Implementations
+## Recent Feature Implementations (August 2025)
+
+### Advanced Product Search & Selection Architecture
+- **Modular Hook System** - Refactored `SelectProductDialog.jsx` into specialized custom hooks:
+  - `useProductData.js` - Data fetching and state management with category-aware filtering
+  - `useProductFilters.js` - Filter state management (subcategories, brands, countries)  
+  - `useProductSelection.js` - Product selection logic with variant grouping and GST inheritance
+- **Backend-Integrated Filtering** - Migrated from frontend filtering to backend API filtering using `/api/v1/seller/product/search/filtered`
+- **Performance Optimizations** - Enhanced scroll debouncing (300ms), smarter initial load logic, and better state cleanup
+- **Category-Aware Search** - Search functionality now accepts category parameters for more targeted results
 
 ### Enhanced Product Management
-- **Paginated Search with Infinite Scroll** - Product search now supports pagination with infinite scroll functionality
-- **Master Product Selection** - Users can select from master product catalog when adding new products
-- **Text Highlighting** - Search terms are highlighted in product results using `highlightText` utility
-- **Advanced Filtering** - Product selection dialogs include comprehensive filtering options by category, subcategory, and other attributes
-- **Multi-store Support** - Enhanced support for managing products across multiple stores
+- **Optimized Infinite Scroll** - Improved pagination with better loading states and scroll position management
+- **Master Product Selection** - Advanced product selection from master catalog with variant support
+- **Text Highlighting** - Search terms highlighted in product results using `highlightText` utility
+- **Multi-Strategy Filtering** - Backend filtering by brands, countries, and subcategories with pipe-separated values
+- **GST Inheritance** - Variant products automatically inherit GST rates from sibling variants
+- **Product Grouping** - Products grouped by parent_id for better variant management
 
-### Virtual Mall Module
-- **Mall Grid Layout** - Visual grid interface for managing virtual mall store slots
-- **Store Slot Management** - Ability to allocate and manage store positions within virtual malls
-- **Store Details Integration** - Comprehensive store information management within virtual mall context
+### ONDC Category Taxonomy Management  
+- **CategoryTaxonomy Module** - New comprehensive module for managing ONDC category structures
+- **Multi-Category Support** - Support for all major ONDC categories (RET10-RET18):
+  - RET10: Grocery, RET12: Fashion, RET14: Electronics
+  - RET15: Appliances, RET16: Home & Kitchen, RET18: Health & Wellness
+- **Attribute Mapping** - Dynamic attribute mapping for category-specific product requirements
+- **SubCategory Management** - Enhanced subcategory handling with API integration
 
-### Search & Discovery Enhancements
-- **Fuzzy Search** - Improved search algorithms with better matching capabilities
-- **Category-based Filtering** - Enhanced filtering by product categories and subcategories
-- **Real-time Search Highlighting** - Live highlighting of search terms as users type
+### Virtual Mall & Store Management Enhancements
+- **Store Context Provider** - Enhanced `StoreContext.jsx` for better store state management
+- **Store Timing Management** - Improved store timing components with validation
+- **Multi-Store Navigation** - Enhanced store switching capabilities in navigation
+- **Store Details Optimization** - Streamlined store configuration and validation
 
-### UI/UX Improvements
-- **Enhanced Product Cards** - Improved product display cards with better visual hierarchy
-- **Loading States** - Better loading indicators and skeleton screens
-- **Responsive Design** - Improved mobile and tablet responsiveness
+### Architecture & Performance Improvements
+- **Dependency Updates** - Migrated from deprecated `node-sass` to modern `sass` package
+- **Component Modularity** - Split large components into focused, reusable sub-components:
+  - `FilterPanel.jsx` - Dedicated filtering interface
+  - `SearchControls.jsx` - Search input and controls
+  - `ProductList.jsx` - Optimized product listing with scroll handling
+  - `SingleProductCard.jsx` / `MultiVariantProductCard.jsx` - Specialized product cards
+- **Custom Hook Pattern** - Extracted complex logic into reusable custom hooks for better maintainability
+- **API Performance** - Backend filter integration reduces frontend processing and improves response times
+
+### Developer Experience Improvements
+- **Enhanced Debugging** - Added `react-json-view` for better data visualization and debugging
+- **Improved Error Handling** - Better error boundaries and user feedback in product selection flows
+- **Code Organization** - Cleaner separation of concerns with dedicated utility functions and components
+- **Consistent State Management** - Standardized state patterns across product management modules
+
+## Technical Implementation Details
+
+### Search & Filter API Integration
+- **Filtered Search Endpoint**: `/api/v1/seller/product/search/filtered?category={category}&keyword={keyword}&page={page}&limit={limit}`
+- **Master Product List**: `/api/v1/seller/product/master/list?page={page}&limit={limit}`
+- **Filter APIs**: `/api/v1/seller/product/master/brands` and `/api/v1/seller/product/master/countries`
+- **Filter Parameters**: Supports pipe-separated values for `brands`, `categories`, and `countries` query parameters
+
+### Custom Hook Architecture
+- **useProductData**: Manages data fetching, pagination, and product grouping with category awareness
+- **useProductFilters**: Handles filter state (Set-based) and API calls for filter options
+- **useProductSelection**: Manages product selection state with GST inheritance and variant handling
+
+### Performance Optimizations
+- **Debounced Scrolling**: 300ms debounce on infinite scroll to prevent excessive API calls
+- **Smart Initial Loading**: Prevents unnecessary API calls during dialog initialization
+- **State Cleanup**: Proper cleanup of timeouts and event listeners to prevent memory leaks
+- **Backend Filtering**: Moved filter logic to backend for better performance and consistency
 
 ## Important Notes
 
@@ -142,3 +188,4 @@ The application expects these environment variables:
 - Form components use consistent field configuration patterns found in various `-fields.js` files
 - Text highlighting utility supports case-insensitive matching and regex escaping for safe search
 - Infinite scroll implementation includes debouncing to prevent excessive API calls
+- **New dependency**: `react-json-view` for debugging - ensure it's included in production builds if needed
