@@ -36,6 +36,7 @@ const ProductList = ({
     return (
         <Box 
             id="product-scroll-container"
+            data-loading-more={loadingMore}
             sx={{ 
                 flex: 1,
                 overflowY: 'auto',

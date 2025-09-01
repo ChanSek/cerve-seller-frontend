@@ -2,7 +2,7 @@ import {useCallback, useEffect, useState} from "react";
 import {getCall} from "../../../../Api/axios";
 import cogoToast from "cogo-toast";
 
-export const useProductData = () => {
+export const useProductData = (category) => {
     const [masterProducts, setMasterProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [groupedProducts, setGroupedProducts] = useState([]);
@@ -16,7 +16,7 @@ export const useProductData = () => {
     // Group products by parent_id
     const groupProductsByParentId = useCallback((products) => {
         const grouped = {};
-        
+
         products.forEach(product => {
             const parentId = product.parent_id || product.pid;
             if (!grouped[parentId]) {
@@ -38,31 +38,31 @@ export const useProductData = () => {
 
     // Apply filters to master products
     const applyFilters = useCallback((products, selectedSubCategories, selectedBrands, selectedCountries, searchText) => {
-        let filtered = [...products];
-        
-        if ((selectedSubCategories.size > 0 || selectedBrands.size > 0 || selectedCountries.size > 0) && !searchText.trim()) {
-            return filtered;
+        // Since the backend API already applies filters, we don't need to filter again on the frontend
+        // Just return the products as-is when using the filtered search API
+        return [...products];
+    }, []);
+
+    // Build query parameters for filter API calls
+    const buildFilterParams = useCallback((selectedSubCategories, selectedBrands, selectedCountries) => {
+        let params = '';
+
+        if (selectedSubCategories.size > 0) {
+            const categoriesParam = Array.from(selectedSubCategories).join('|');
+            params += `&categories=${encodeURIComponent(categoriesParam)}`;
         }
-        
-        if (selectedSubCategories.size > 0 && searchText.trim()) {
-            filtered = filtered.filter(product => 
-                selectedSubCategories.has(product.subCategory)
-            );
+
+        if (selectedBrands.size > 0) {
+            const brandsParam = Array.from(selectedBrands).join('|');
+            params += `&brands=${encodeURIComponent(brandsParam)}`;
         }
-        
-        if (selectedBrands.size > 0 && searchText.trim()) {
-            filtered = filtered.filter(product => 
-                selectedBrands.has(product.brand)
-            );
+
+        if (selectedCountries.size > 0) {
+            const countriesParam = Array.from(selectedCountries).join('|');
+            params += `&countries=${encodeURIComponent(countriesParam)}`;
         }
-        
-        if (selectedCountries.size > 0 && searchText.trim()) {
-            filtered = filtered.filter(product => 
-                selectedCountries.has(product.countryOfOrigin)
-            );
-        }
-        
-        return filtered;
+
+        return params;
     }, []);
 
     // Fetch all master products
@@ -73,29 +73,15 @@ export const useProductData = () => {
         } else {
             setLoading(true);
         }
-        
+
         let url = `/api/v1/seller/product/master/list?page=${page}&limit=${pageLimit}`;
-        
-        if (selectedSubCategories.size > 0) {
-            const categoriesParam = Array.from(selectedSubCategories).join('|');
-            url += `&categories=${encodeURIComponent(categoriesParam)}`;
-        }
-        
-        if (selectedBrands.size > 0) {
-            const brandsParam = Array.from(selectedBrands).join('|');
-            url += `&brands=${encodeURIComponent(brandsParam)}`;
-        }
-        
-        if (selectedCountries.size > 0) {
-            const countriesParam = Array.from(selectedCountries).join('|');
-            url += `&countries=${encodeURIComponent(countriesParam)}`;
-        }
-        
+        url += buildFilterParams(selectedSubCategories, selectedBrands, selectedCountries);
+
         try {
             console.log('📡 Calling fetchAllMasterProducts URL:', url);
             const result = await getCall(url);
             console.log('✅ fetchAllMasterProducts response:', result);
-            
+
             let products = [];
             let hasMoreResults = false;
             
@@ -128,7 +114,7 @@ export const useProductData = () => {
                     pid: product.pid || product.id,
                     name: product.productName || product.name,
                     brand: product.brand || "",
-                    thumbnailUrl: product.thumbnailUrl || product.imageUrl,
+                    thumbnailUrl: product.thumbnailUrl || "",
                     mrp: product.mrp || 0,
                     uom: product.uom || "UNIT",
                     uomValue: product.uomValue || 1,
@@ -155,7 +141,7 @@ export const useProductData = () => {
             setLoadingMore(false);
             console.log('🏁 fetchAllMasterProducts completed');
         }
-    }, [pageLimit]);
+    }, [pageLimit, buildFilterParams]);
 
     // Fetch search products
     const fetchSearchProducts = useCallback(async (page = 0, keyword = "", append = false, selectedSubCategories, selectedBrands, selectedCountries) => {
@@ -165,23 +151,9 @@ export const useProductData = () => {
             setLoading(true);
         }
         
-        let url = `/api/v1/seller/product/search?keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${pageLimit}`;
-        
-        if (selectedSubCategories.size > 0) {
-            const categoriesParam = Array.from(selectedSubCategories).join('|');
-            url += `&categories=${encodeURIComponent(categoriesParam)}`;
-        }
-        
-        if (selectedBrands.size > 0) {
-            const brandsParam = Array.from(selectedBrands).join('|');
-            url += `&brands=${encodeURIComponent(brandsParam)}`;
-        }
-        
-        if (selectedCountries.size > 0) {
-            const countriesParam = Array.from(selectedCountries).join('|');
-            url += `&countries=${encodeURIComponent(countriesParam)}`;
-        }
-        
+        let url = `/api/v1/seller/product/search/filtered?category=${category}&keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${pageLimit}`;
+        url += buildFilterParams(selectedSubCategories, selectedBrands, selectedCountries);
+
         try {
             const result = await getCall(url);
             const searchResult = result.data || {};
@@ -191,7 +163,7 @@ export const useProductData = () => {
                 pid: product.pid || product.id,
                 name: product.productName || product.name,
                 brand: product.brand || "",
-                thumbnailUrl: product.thumbnailUrl || product.imageUrl,
+                thumbnailUrl: product.thumbnailUrl || "",
                 mrp: product.mrp || 0,
                 uom: product.uom || "UNIT",
                 uomValue: product.uomValue || 1,
@@ -214,7 +186,7 @@ export const useProductData = () => {
             setLoading(false);
             setLoadingMore(false);
         }
-    }, [pageLimit]);
+    }, [pageLimit, buildFilterParams, category]);
 
     // Update filtered products whenever master products or filters change
     const updateFilteredProducts = useCallback((selectedSubCategories, selectedBrands, selectedCountries, searchText) => {

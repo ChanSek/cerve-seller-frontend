@@ -372,7 +372,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
         } catch (error) {
             cogoToast.error("Failed to load product.");
         }
-    }, [initializeVariantData]);
+    }, [initializeVariantData, category]);
 
     const handleProductSelect = useCallback(async (_, selectedProduct) => {
         setErrors({});
