@@ -27,7 +27,8 @@ export const PRODUCT_CATEGORY_OPTIONS = [
   { key: "Fashion", value: "RET12" },
   { key: "Electronics", value: "RET14" },
   { key: "Appliences", value: "RET15" },
-  { key: "Home & Kitchen", value: "RET16" },
+  { key: "Beauty & Perosonal Care", value: "RET13" },
+  { key: "Home & Decor", value: "RET16" },
   { key: "Health & Wellness", value: "RET18" }
 ];
 export const DELIVERY_TYPE_LIST = {
