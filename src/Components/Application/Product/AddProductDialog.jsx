@@ -41,7 +41,7 @@ import { categorySpecificFields } from "./gen-product-fields";
 import { highlightText } from "../../../utils/textHighlight";
 import getDefaultProductValues from "./getDefaultProductValues";
 
-const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];
+const variationFields = ["price", "sellingPrice", "availableQty", "uom", "uomValue", "sku", "imageUrls", "backImage"];
 function a11yProps(index) {
     return {
         id: `simple-tab-${index}`,
@@ -159,40 +159,40 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
         });
     };
     useEffect(() => {
-    const fetchAttributes = async () => {
-        if (category !== 'RET10' && formData.subCategory) {
-            setVitalFormData(vitalFormObj);
-            const sub_category = formData.subCategory;
+        const fetchAttributes = async () => {
+            if (category !== 'RET10' && formData.subCategory) {
+                setVitalFormData(vitalFormObj);
+                const sub_category = formData.subCategory;
 
-            let properties = await getCategoryAttributes(sub_category); // ✅ await the promise
+                let properties = await getCategoryAttributes(sub_category); // ✅ await the promise
 
-            if (properties.length > 0) {
-                setEnableVitalInfo(true);
-                properties = formatAttributesToFieldsDataFormat(properties);
+                if (properties.length > 0) {
+                    setEnableVitalInfo(true);
+                    properties = formatAttributesToFieldsDataFormat(properties);
 
-                let variants = properties?.filter((property) => property.required);
-                let variants_checkbox_map = variants.reduce((acc, variant) => {
-                    acc[variant.id] = false;
-                    return acc;
-                }, {});
+                    let variants = properties?.filter((property) => property.required);
+                    let variants_checkbox_map = variants.reduce((acc, variant) => {
+                        acc[variant.id] = false;
+                        return acc;
+                    }, {});
 
-                const sizeOptions = getSizeOptions(sub_category);
-                properties = properties.map((field) =>
-                    field.id === "size"
-                        ? { ...field, options: sizeOptions }
-                        : field
-                );
+                    const sizeOptions = getSizeOptions(sub_category);
+                    properties = properties.map((field) =>
+                        field.id === "size"
+                            ? { ...field, options: sizeOptions }
+                            : field
+                    );
 
-                setAttributes(properties); // All attributes
-                setVariantAttributes(variants); // Only required = candidate variant axes
-                setVariantsCheckboxState(variants_checkbox_map); // For UI checkbox state
-                setSubCategory(sub_category);
+                    setAttributes(properties); // All attributes
+                    setVariantAttributes(variants); // Only required = candidate variant axes
+                    setVariantsCheckboxState(variants_checkbox_map); // For UI checkbox state
+                    setSubCategory(sub_category);
+                }
             }
-        }
-    };
+        };
 
-    fetchAttributes(); // Call the async function
-}, [formData.subCategory]);
+        fetchAttributes(); // Call the async function
+    }, [formData.subCategory]);
 
 
     useEffect(() => {
@@ -427,8 +427,14 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                 ...prev,
                 ...nonEmptyDefaults,
             }));
+            setVariants([{
+            id: Date.now(),
+            data: {
+                ...initializeVariantData(),
+                availableQty: 99,
+            }
+        }]);
         } else {
-            console.log("2");
             // Convert ProductResult to expected format for setMasterProduct
             const productForMaster = {
                 id: selectedProduct.pid,
@@ -954,7 +960,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                 <Grid container spacing={2}>
                                     {(showAllFields
                                         ? fields.filter(f => !hasVariants || !variationFields.includes(f.id))
-                                        : fields.filter(f => ["subCategory", "productName", "price", "gstPercentage", "purchasePrice"].includes(f.id) && (!hasVariants || !["price", "purchasePrice"].includes(f.id))))
+                                        : fields.filter(f => ["subCategory", "productName", "price", "gstPercentage", "sellingPrice"].includes(f.id) && (!hasVariants || !["price", "sellingPrice"].includes(f.id))))
                                         .map((item) => (
                                             <Grid item xs={12} sm={6} key={item.id}>
                                                 <RenderInput
@@ -1024,17 +1030,29 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                             {hasVariants && (
                                 <Button
                                     onClick={() =>
-                                        setVariants(prev => [
-                                            ...prev,
-                                            {
-                                                id: Date.now(),
-                                                data: {
-                                                    ...initializeVariantData(),
-                                                    sku: generateSKU("RET", formData?.subCategory),  // or any default SKU format
-                                                    availableQty: 99               // default quantity
-                                                }
-                                            }
-                                        ])
+                                        setVariants(prev => {
+                                            const lastVariant = prev[prev.length - 1];
+
+                                            return [
+                                                ...prev,
+                                                {
+                                                    id: Date.now(),
+                                                    data: lastVariant
+                                                        ? {
+                                                            ...lastVariant.data, // copy previous variant data
+                                                            productVariantId: null,
+                                                            sku: generateSKU("RET", formData?.subCategory), // override SKU
+                                                            availableQty: 99, // override qty if needed
+                                                            isNew: true,
+                                                        }
+                                                        : {
+                                                            ...initializeVariantData(), // fallback if no variant exists
+                                                            sku: generateSKU("RET", formData?.subCategory),
+                                                            availableQty: 99,
+                                                        },
+                                                },
+                                            ];
+                                        })
                                     }
                                     variant="contained"
                                     startIcon={<AddCircleOutlineIcon />}
@@ -1043,6 +1061,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                 >
                                     Add Another Variant
                                 </Button>
+
                             )}
 
                         </TabPanel>

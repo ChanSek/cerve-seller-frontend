@@ -17,7 +17,7 @@ export const getFormErrors = (fields, formValues) => {
           ? "Please enter only digit"
           : "";
 
-          if (id === "purchasePrice" && formValues["price"]) {
+          if (id === "sellingPrice" && formValues["price"]) {
             if (parseFloat(field_value) > parseFloat(formValues["price"])) {
               error = "Purchase price cannot be greater than the actual price";
             }

@@ -75,10 +75,10 @@ const DynamicTableDisplay = ({ data }) => {
             case "long_desc": return "Long Description";
             case "gstin": return "GSTIN";
             case "name": return "SNP Name";
-            case "accountHolderName": return "Account Holder Name";
-            case "accountNumber": return "Account Number";
-            case "ifscCode": return "IFSC Code";
-            case "bankName": return "Bank Name";
+            case "account_holder_name": return "Account Holder Name";
+            case "account_number": return "Account Number";
+            case "ifsc_code": return "IFSC Code";
+            case "bank_name": return "Bank Name";
             case "images": return "Image";
             case "email": return "Email";
             case "phone": return "Phone";

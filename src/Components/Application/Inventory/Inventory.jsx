@@ -71,8 +71,8 @@ export default function Inventory() {
       format: (value) => value.toLocaleString("en-US"),
     },
     {
-      id: "purchasePrice",
-      label: "Purchase Price",
+      id: "sellingPrice",
+      label: "Selling Price",
       minWidth: 100,
       format: (value) => value.toLocaleString("en-US"),
     },
@@ -180,8 +180,9 @@ export default function Inventory() {
       }
 
       const role = user?.role?.name;
-
+      console.log("1");
       if (role === "Organization Admin") {
+        console.log("2");
         const merchantId = user?.organization?._id;
         const isActive = user?.organization?.active;
 

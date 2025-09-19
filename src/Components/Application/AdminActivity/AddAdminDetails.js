@@ -46,12 +46,12 @@ const AddAdminDetails = ({ isOpen, onClose, onSave, selectedSection, initialData
                     });
                     // Ensure the array always has 2 bank detail objects
                     while (newFormData.bankDetails.length < 2) {
-                        newFormData.bankDetails.push({ accountHolderName: "", accountNumber: "", ifscCode: "", bankName: "",branch_name:"" });
+                        newFormData.bankDetails.push({ account_holder_name: "", account_number: "", ifsc_code: "", bank_name: "",branch_name:"" });
                     }
                 } else {
                     newFormData.bankDetails = [
-                        { accountHolderName: "", accountNumber: "", ifscCode: "", bankName: "",branch_name:"" },
-                        { accountHolderName: "", accountNumber: "", ifscCode: "", bankName: "",branch_name:"" },
+                        { account_holder_name: "", account_number: "", ifsc_code: "", bank_name: "",branch_name:"" },
+                        { account_holder_name: "", account_number: "", ifsc_code: "", bank_name: "",branch_name:"" },
                     ]; // Reset if no initial data
                 }
                 return newFormData;
