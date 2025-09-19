@@ -742,16 +742,6 @@ const RenderInput = (props) => {
     );
   } else if (item.type === "upload") {
     const allowedMaxSize = 2 * 1024 * 1024; // 2 MB in Bytes
-    // const getSignUrl = async (file) => {
-    //   const url = `/api/v1/seller/upload/${item?.file_type}`;
-    //   const file_type = file.type.split("/")[1];
-    //   const data = {
-    //     fileName: file.name.replace(`\.${file_type}`, ""),
-    //     fileType: file_type,
-    //   };
-    //   const res = await postMediaCall(url, data);
-    //   return res;
-    // };
 
     const renderUploadedUrls = () => {
       const getImageElement = (url) => (
@@ -821,7 +811,7 @@ const RenderInput = (props) => {
       return (
         <Stack direction="row" spacing={1} alignItems={"center"} style={{ marginBottom: 20 }}>
           <IconButton
-            style={{ width: 35, height: 35 }}
+            style={{ width: 35, height: 35}}
             size="small"
             color="error"
             onClick={(e) => {

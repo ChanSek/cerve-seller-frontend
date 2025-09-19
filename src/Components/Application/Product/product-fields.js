@@ -33,7 +33,7 @@ export const allProductFieldDetails = [
     valueInDecimal: true,
   },
   {
-    id: "purchasePrice",
+    id: "sellingPrice",
     title: "Purchase Price",
     placeholder: "Purchase Price",
     type: "number",
@@ -402,6 +402,6 @@ export const productDetailsFields = [
   "uom",
 ];
 
-export const variationCommonFields = ["price", "purchasePrice", "availableQty", "sku", "imageUrls", "backImage"];
+export const variationCommonFields = ["price", "sellingPrice", "availableQty", "sku", "imageUrls", "backImage"];
 
 export const UOMVariationFields = ["uomValue"];

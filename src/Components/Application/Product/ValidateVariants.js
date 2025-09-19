@@ -64,17 +64,17 @@ export const validateVariantForm = (variants, fields, setVariantErrors) => {
             }
 
             // Selling price validation
-            if (id === "purchasePrice" && value && !/^\d+(\.\d{1,2})?$/.test(value)) {
+            if (id === "sellingPrice" && value && !/^\d+(\.\d{1,2})?$/.test(value)) {
                 variantErrors[id] = "Please enter a valid Selling Price (e.g. 99.99)";
                 isValid = false;
                 return;
             }
 
             // Price comparison
-            if (id === "purchasePrice") {
+            if (id === "sellingPrice") {
                 const price = parseFloat(data["price"]);
-                const purchasePrice = parseFloat(value);
-                if (!isNaN(price) && !isNaN(purchasePrice) && purchasePrice > price) {
+                const sellingPrice = parseFloat(value);
+                if (!isNaN(price) && !isNaN(sellingPrice) && sellingPrice > price) {
                     variantErrors[id] = "Selling Price cannot be greater than MRP";
                     isValid = false;
                     return;

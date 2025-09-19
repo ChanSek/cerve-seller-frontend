@@ -26,7 +26,7 @@ export const manualProductFieldDetails = [
     valueInDecimal: true,
   },
   {
-    id: "purchasePrice",
+    id: "sellingPrice",
     title: "Selling Price",
     placeholder: "Selling Price",
     type: "number",

@@ -361,9 +361,9 @@ const ViewProductDetails = ({ productId, prodType, category }) => {
                     <Box sx={{ my: 2 }}>
                         <Typography variant="h5" color="primary.main" fontWeight="bold">
                             ₹{parseFloat(product.price).toFixed(2) || 'N/A'}
-                            {product.purchasePrice && parseFloat(product.purchasePrice) > parseFloat(product.price) && (
+                            {product.sellingPrice && parseFloat(product.sellingPrice) > parseFloat(product.price) && (
                                 <Typography component="span" variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through', ml: 1 }}>
-                                    ₹{parseFloat(product.purchasePrice).toFixed(2)}
+                                    ₹{parseFloat(product.sellingPrice).toFixed(2)}
                                 </Typography>
                             )}
                         </Typography>

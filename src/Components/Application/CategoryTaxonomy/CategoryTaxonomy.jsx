@@ -12,9 +12,10 @@ import AttributesMapSection from "./AttributesMapSection";
 const categoryLabelMap = {
     RET10: "Grocery",
     RET12: "Fashion",
+    RET13: "BPC",
     RET14: "Electronics",
     RET15: "Appliances",
-    RET16: "Home & Kitchen",
+    RET16: "Home & Decor",
     RET18: "Health & Wellness",
 };
 

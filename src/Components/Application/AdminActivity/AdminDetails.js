@@ -44,18 +44,18 @@ const AdminDetails = () => {
       const bankDetailsArray = [
         // Operative Bank (index 0)
         {
-          accountHolderName: findValueByCode('accountHolderName'),
-          accountNumber: findValueByCode('accountNumber'),
-          ifscCode: findValueByCode('ifscCode'),
-          bankName: findValueByCode('bankName'),
+          account_holder_name: findValueByCode('account_holder_name'),
+          account_holder_name: findValueByCode('account_holder_name'),
+          ifsc_code: findValueByCode('ifsc_code'),
+          ifsc_code: findValueByCode('ifsc_code'),
         },
         // Non-Operative Bank (index 1)
         {
-          accountHolderName: findValueByCode('accountHolderName'),
-          accountNumber: findValueByCode('accountNumber'),
-          ifscCode: findValueByCode('ifscCode'),
-          bankName: findValueByCode('bankName'),
-        }
+          account_holder_name: findValueByCode('account_holder_name'),
+          account_holder_name: findValueByCode('account_holder_name'),
+          ifsc_code: findValueByCode('ifsc_code'),
+          ifsc_code: findValueByCode('ifsc_code'),
+        },
       ];
       return bankDetailsArray;
     }
@@ -138,6 +138,7 @@ const AdminDetails = () => {
       dataToSend = convertJsonToCodeValueArray(formData.bppDescriptor);
     } else if (selectedSection === "operativeBank") {
       api_url += "snp.details.operativeBank";
+      console.log("formData.bankDetails[0] ",formData.bankDetails[0]);
       dataToSend = convertJsonToCodeValueArray(formData.bankDetails[0]);
     } else if (selectedSection === "nonOperativeBank") {
       api_url += "snp.details.nonOperativeBank";

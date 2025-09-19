@@ -12,9 +12,8 @@ import RenderInput from "../../../utils/RenderInput";
 import './AddProductDialog.css';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { getSizeOptions } from "./categoryProperties";
 
-const hideVariantFields = ["availableQty", "uomValue", "sku", "imageUrls", "backImage"];
+const hideVariantFields = ["availableQty", "uom", "sku", "imageUrls", "backImage"];
 
 const VariantSection = ({
     variant,
@@ -76,12 +75,13 @@ const VariantSection = ({
                 )}
             </Typography>
 
-            <Grid container spacing={2}>
+            <Grid container spacing={3}>
                 {filteredFields.map((field) => {
                     const fieldError = variantErrors?.[field.id];
                     return (
-                        <Grid item xs={12} sm={6} key={field.id}>
+                        <Grid item xs={12} sm={4} key={field.id}>
                             <RenderInput
+                            key={field.id}
                                 item={{ ...field, fullWidth: true, error: !!fieldError, helperText: fieldError || "" }}
                                 state={variantData}
                                 stateHandler={(updater) => {
