@@ -811,10 +811,11 @@ const RenderInput = (props) => {
       return (
         <Stack direction="row" spacing={1} alignItems={"center"} style={{ marginBottom: 20 }}>
           <IconButton
-            style={{ width: 35, height: 35}}
+            style={{ width: 35, height: 35 }}
             size="small"
             color="error"
             onClick={(e) => {
+              console.log("Clicked... ",name);
               e.stopPropagation();
               // reset file input
               uploadFileRef.current.value = null;

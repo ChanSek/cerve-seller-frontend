@@ -251,7 +251,7 @@ const AddGenericProduct = ({
       }
     } catch (error) {
       console.log(error);
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 

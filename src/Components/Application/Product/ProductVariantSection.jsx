@@ -36,11 +36,6 @@ const VariantSection = ({
         setVariantData(variant.data);
     }, [variant.data]);
 
-    // ✅ Whenever local state changes, notify parent
-    useEffect(() => {
-        onChange(index, variantData);
-    }, [variantData, index, onChange]);
-
     const filteredFields = fields.filter((field) => {
         if (!showAllVariantFields && hideVariantFields.includes(field.id))
             return false;
@@ -50,16 +45,7 @@ const VariantSection = ({
 
     return (
         <Box className="details-section">
-            <Typography
-                variant="h6"
-                sx={{
-                    color: 'primary.dark',
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
-                }}
-            >
+            <Typography variant="h6" sx={{ color: 'primary.dark', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
                 Variant {index + 1}
                 {shouldShowDeleteButton && (
                     <Tooltip title={`Remove Variant ${index + 1}`} arrow>
@@ -81,13 +67,17 @@ const VariantSection = ({
                     return (
                         <Grid item xs={12} sm={4} key={field.id}>
                             <RenderInput
-                            key={field.id}
-                                item={{ ...field, fullWidth: true, error: !!fieldError, helperText: fieldError || "" }}
+                                item={{
+                                    ...field,
+                                    fullWidth: true,
+                                    error: !!fieldError,
+                                    helperText: fieldError || ""
+                                }}
                                 state={variantData}
                                 stateHandler={(updater) => {
                                     setVariantData((prev) => {
                                         const newState = typeof updater === "function" ? updater(prev) : updater;
-                                        onChange(index, newState); // ✅ only when user changes input
+                                        onChange(index, newState); // ✅ only fire on actual user input
                                         return newState;
                                     });
                                 }}
@@ -101,14 +91,10 @@ const VariantSection = ({
                 <Button
                     size="small"
                     variant="text"
-                    startIcon={
-                        showAllVariantFields ? <ExpandLessIcon /> : <ExpandMoreIcon />
-                    }
+                    startIcon={showAllVariantFields ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                     onClick={() => setShowAllVariantFields((prev) => !prev)}
                 >
-                    {showAllVariantFields
-                        ? "Show Less Variant Fields"
-                        : "Show More Variant Fields"}
+                    {showAllVariantFields ? "Show Less Variant Fields" : "Show More Variant Fields"}
                 </Button>
             </Box>
         </Box>

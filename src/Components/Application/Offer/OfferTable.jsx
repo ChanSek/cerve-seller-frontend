@@ -84,7 +84,7 @@ export default function OfferTable(props) {
                 navigate('/application/offers');
             }
         } catch (error) {
-            cogoToast.error(error.response.data.error);
+            cogoToast.error(error.response.data.message);
         }
     }
     const renderColumn = (row, column) => {

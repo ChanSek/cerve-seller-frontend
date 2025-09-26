@@ -104,7 +104,7 @@ const InviteProvider = () => {
       );
     } catch (error) {
       console.log("error.response", error.response);
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 

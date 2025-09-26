@@ -79,7 +79,7 @@ const ForgotPassword = () => {
       }
     } catch (error) {
       setError(true);
-      setMsg(error.response.data.error);
+      setMsg(error.response.data.message);
     }
   };
 
@@ -107,7 +107,7 @@ const ForgotPassword = () => {
       }
     } catch (error) {
       console.log("error.response", error.response);
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 

@@ -23,20 +23,14 @@ export function getCall(url) {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.get(url);
-
-      // Handle API-level unauthorized status (not HTTP)
-      const apiStatus = response?.data?.status;
-      const apiMessage = response?.data?.message;
-
-      if (apiStatus === 401) {
-        unAuthorizedResponse(apiMessage || "Unauthorized access.");
-        return; // Don't proceed further
-      }
-
       return resolve(response.data);
     } catch (err) {
       // Only triggered for actual HTTP/network issues
       console.error("AXIOS ERROR:", err);
+      if (err.response && err.response.status === 401) {
+        unAuthorizedResponse(err.response.data?.message || "Unauthorized access.");
+        return; // Stop further processing
+      }
       return reject(err);
     }
   });
@@ -52,8 +46,8 @@ export function postCall(url, params) {
       if (url === "/api/v1/auth/login") {
         return reject(err);
       }
-      if(err.response){
-        const {status} = err.response;
+      if (err.response) {
+        const { status } = err.response;
         if (status === 401) return unAuthorizedResponse();
       }
       return reject(err);
@@ -65,7 +59,7 @@ export function postMediaCall(url, params) {
   return new Promise(async (resolve, reject) => {
     try {
       const response = await axios.post(url, params, {
-        headers: { ...({"Content-Type": "multipart/form-data" }) },
+        headers: { ...({ "Content-Type": "multipart/form-data" }) },
       });
       return resolve(response.data);
     } catch (err) {
@@ -82,7 +76,7 @@ export function postMediaCall(url, params) {
 export function putCall(url, params) {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await axios.put(url, params );
+      const response = await axios.put(url, params);
       return resolve(response.data);
     } catch (err) {
       const { status } = err.response;
