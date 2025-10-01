@@ -7,8 +7,10 @@ import { getCall } from "../../../Api/axios";
 import useNavigation from "../../../hooks/useNavigation";
 import useQueryParams from "../../../hooks/useQueryParams";
 import { useTheme } from "@mui/material/styles";
+import ActivityReport from "./ActivityReport";
 
 const tabs = [
+    { value: "activityReport", label: "Activity Report" },
     { value: "transactions", label: "All Transactions" },
     { value: "rejection", label: "Catalog Rejection" },
     { value: "apiFailed", label: "Failed Transactions" },
@@ -46,7 +48,7 @@ const GatewayActivity = () => {
             setActivity(res.content);
             setTotalRecords(res.totalElements);
         } catch (error) {
-            cogoToast.error(error.response.data.error);
+            cogoToast.error(error.response.data.message);
         }
     };
 
@@ -76,17 +78,21 @@ const GatewayActivity = () => {
                         ))}
                     </Tabs>
                 </div>
+{view === "activityReport" ? (
+  <ActivityReport />
+) : (
+  <ActivityTable
+    view={view}
+    columns={activityCols}
+    data={activity}
+    totalRecords={totalRecords}
+    page={page}
+    rowsPerPage={rowsPerPage}
+    handlePageChange={(val) => setPage(val)}
+    handleRowsPerPageChange={(val) => setRowsPerPage(val)}
+  />
+)}
 
-                <ActivityTable
-                    view={view}
-                    columns={activityCols}
-                    data={activity}
-                    totalRecords={totalRecords}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    handlePageChange={(val) => setPage(val)}
-                    handleRowsPerPageChange={(val) => setRowsPerPage(val)}
-                />
             </div>
         </div>
     );

@@ -128,7 +128,7 @@ const MenuDetails = () => {
       });
       setAllProducts(all_products);
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 
@@ -158,7 +158,7 @@ const MenuDetails = () => {
       getMenuDetails();
       cogoToast.success("Menu details updated successfully");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 

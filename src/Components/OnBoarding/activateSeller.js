@@ -54,7 +54,7 @@ export default function ActivateSeller() {
             }
         } catch (error) {
             console.log("error.response", error.response);
-            cogoToast.error(error.response.data.error);
+            cogoToast.error(error.response.data.message);
         }
     };
 
@@ -76,7 +76,7 @@ export default function ActivateSeller() {
             }
         } catch (error) {
             console.log("error.response", error.response);
-            cogoToast.error(error.response.data.error);
+            cogoToast.error(error.response.data.message);
         }
     };
     useEffect(() => {

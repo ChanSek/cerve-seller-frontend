@@ -432,6 +432,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             data: {
                 ...initializeVariantData(),
                 availableQty: 99,
+                uom: (category != "RET10"?"UNIT":null)
             }
         }]);
         } else {
@@ -548,6 +549,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     }, [hasMoreResults, loadingOptions, loadingMore, currentPage, searchText, fetchSearchProducts]);
 
     const handleVariantChange = useCallback((index, updatedData) => {
+        console.log("change ....");
         setVariants(prev => {
             const updatedVariants = [...prev];
             updatedVariants[index] = { ...updatedVariants[index], data: updatedData };
@@ -1048,6 +1050,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                                         : {
                                                             ...initializeVariantData(), // fallback if no variant exists
                                                             sku: generateSKU("RET", formData?.subCategory),
+                                                            uom: "UNIT",
                                                             availableQty: 99,
                                                         },
                                                 },

@@ -55,7 +55,7 @@ console.log(formValues)
 
       setProducts(all_products);
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   }
 

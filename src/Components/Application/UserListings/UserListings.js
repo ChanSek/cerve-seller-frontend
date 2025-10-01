@@ -138,7 +138,7 @@ const UserListings = () => {
       setAdmins(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 
@@ -153,7 +153,7 @@ const UserListings = () => {
       setProviders(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 

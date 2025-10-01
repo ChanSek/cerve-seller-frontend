@@ -131,7 +131,7 @@ export default function CustomerActionCard({
       .catch((error) => {
         setLoading(false)
         console.log(error);
-        cogoToast.error(error.response.data.error);
+        cogoToast.error(error.response.data.message);
       });
   }
 
