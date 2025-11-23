@@ -24,6 +24,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import SyncIcon from "@mui/icons-material/Sync";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
+import WarningIcon from "@mui/icons-material/Warning";
 import { syncShopifyProducts, getShopifyStores } from "../../../Api/shopify";
 import cogoToast from "cogo-toast";
 
@@ -85,8 +86,9 @@ const SyncShopifyDialog = ({ open, onClose, refreshProducts, merchantId, storeId
       const response = await syncShopifyProducts(shopifyStoreId, syncAll, limit);
 
       if (response.success) {
+        const hasIssues = response.data.skippedProducts > 0 || response.data.failedProducts > 0;
         setSyncStatus({
-          type: "success",
+          type: hasIssues ? "warning" : "success",
           message: `Successfully synced ${response.data.syncedProducts} out of ${response.data.totalProducts} products`,
           details: response.data
         });
@@ -100,7 +102,10 @@ const SyncShopifyDialog = ({ open, onClose, refreshProducts, merchantId, storeId
           }, 1000);
         }
 
-        // Show warnings if there were failed products
+        // Show warnings if there were skipped or failed products
+        if (response.data.skippedProducts > 0) {
+          cogoToast.warn(`${response.data.skippedProducts} products were skipped`);
+        }
         if (response.data.failedProducts > 0) {
           cogoToast.warn(`${response.data.failedProducts} products failed to sync`);
         }
@@ -249,7 +254,10 @@ const SyncShopifyDialog = ({ open, onClose, refreshProducts, merchantId, storeId
             <Box sx={{ mt: 3 }}>
               <Alert
                 severity={syncStatus.type}
-                icon={syncStatus.type === "success" ? <CheckCircleIcon /> : <ErrorIcon />}
+                icon={
+                  syncStatus.type === "success" ? <CheckCircleIcon /> :
+                  syncStatus.type === "warning" ? <WarningIcon /> : <ErrorIcon />
+                }
               >
                 <Typography variant="body2" gutterBottom>
                   {syncStatus.message}
@@ -263,28 +271,31 @@ const SyncShopifyDialog = ({ open, onClose, refreshProducts, merchantId, storeId
                     <Typography variant="caption" display="block">
                       Synced: {syncStatus.details.syncedProducts}
                     </Typography>
+                    {syncStatus.details.skippedProducts > 0 && (
+                      <Typography variant="caption" display="block" color="warning.main">
+                        Skipped: {syncStatus.details.skippedProducts}
+                      </Typography>
+                    )}
                     {syncStatus.details.failedProducts > 0 && (
-                      <>
-                        <Typography variant="caption" display="block" color="error">
-                          Failed: {syncStatus.details.failedProducts}
+                      <Typography variant="caption" display="block" color="error">
+                        Failed: {syncStatus.details.failedProducts}
+                      </Typography>
+                    )}
+                    {syncStatus.details.errors && syncStatus.details.errors.length > 0 && (
+                      <Box sx={{ mt: 1, maxHeight: 200, overflow: "auto" }}>
+                        <Typography variant="caption" color="error">
+                          Issues:
                         </Typography>
-                        {syncStatus.details.errors && syncStatus.details.errors.length > 0 && (
-                          <Box sx={{ mt: 1, maxHeight: 150, overflow: "auto" }}>
-                            <Typography variant="caption" color="error">
-                              Errors:
-                            </Typography>
-                            <ul style={{ margin: 0, paddingLeft: 20 }}>
-                              {syncStatus.details.errors.map((error, idx) => (
-                                <li key={idx}>
-                                  <Typography variant="caption" color="error">
-                                    {error}
-                                  </Typography>
-                                </li>
-                              ))}
-                            </ul>
-                          </Box>
-                        )}
-                      </>
+                        <ul style={{ margin: 0, paddingLeft: 20 }}>
+                          {syncStatus.details.errors.map((error, idx) => (
+                            <li key={idx}>
+                              <Typography variant="caption" color="text.secondary">
+                                {error}
+                              </Typography>
+                            </li>
+                          ))}
+                        </ul>
+                      </Box>
                     )}
                   </Box>
                 )}
