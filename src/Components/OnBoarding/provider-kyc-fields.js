@@ -59,7 +59,7 @@ export default [
     placeholder: "Enter Provider GSTIN",
     type: "input",
     maxLength: 15,
-    required: true,
+    required: false,
   },
   {
     id: "FSSAI",
@@ -67,6 +67,6 @@ export default [
     placeholder: "Enter Provider FSSAI Number",
     type: "input",
     maxLength: 14,
-    required: true,
+    required: false,
   },
 ];

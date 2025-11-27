@@ -35,7 +35,7 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const merchantId = localStorage.getItem("organization_id");
-  const isMerchantIdEmpty = merchantId === undefined || merchantId === "undefined" || !merchantId || merchantId.trim() === "";
+  //const isMerchantIdEmpty = merchantId === undefined || merchantId === "undefined" || !merchantId || merchantId.trim() === "";
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
@@ -133,8 +133,7 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
             >
               <MenuIcon />
             </IconButton>
-            {/* StoreSwitcher now a placeholder */}
-            {!isMerchantIdEmpty && <StoreSwitcher />}
+            <StoreSwitcher />
           </Box>
 
           {/* Spacer that pushes everything else to the right */}

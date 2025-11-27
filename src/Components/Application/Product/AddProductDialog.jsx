@@ -426,13 +426,13 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                 ...nonEmptyDefaults,
             }));
             setVariants([{
-            id: Date.now(),
-            data: {
-                ...initializeVariantData(),
-                availableQty: 99,
-                uom: (category != "RET10"?"UNIT":null)
-            }
-        }]);
+                id: Date.now(),
+                data: {
+                    ...initializeVariantData(),
+                    availableQty: 99,
+                    uom: (category != "RET10" ? "UNIT" : null)
+                }
+            }]);
         } else {
             // Convert ProductResult to expected format for setMasterProduct
             const productForMaster = {
@@ -541,7 +541,6 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     }, [hasMoreResults, loadingOptions, loadingMore, currentPage, searchText, fetchSearchProducts]);
 
     const handleVariantChange = useCallback((index, updatedData) => {
-        console.log("change ....");
         setVariants(prev => {
             const updatedVariants = [...prev];
             updatedVariants[index] = { ...updatedVariants[index], data: updatedData };
@@ -683,8 +682,13 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                 cogoToast.error(res.message || `Failed to ${isEditMode ? "update" : "add"} product`);
             }
         } catch (error) {
-            cogoToast.error(`An error occurred while ${isEditMode ? "updating" : "adding"} the product: ${error.message}`);
-            console.error("Submission error:", error);
+            // Check if the error has a response and a message from the API
+            const message =
+                error?.response?.data?.message || // API business message
+                `An error occurred while ${isEditMode ? "updating" : "adding"} the product.`; // fallback message
+
+            cogoToast.error(message); // display message to user
+            console.error("Submission error:", error); // log full error for debugging
         } finally {
             setLoadingSubmit(false);
         }
@@ -706,7 +710,14 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                     }));
                     setVariants(loadedVariants);
                 } else if (variants.length === 0) {
-                    setVariants([{ id: Date.now(), data: initializeVariantData() }]);
+                    setVariants([{
+                        id: Date.now(),
+                        data: {
+                            ...initializeVariantData(),
+                            ...formData,   // <-- merge formData here
+                            isNew: true,
+                        }
+                    }]);
                 }
             } else if (!newValue) {
                 setVariants([]);

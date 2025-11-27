@@ -7,7 +7,6 @@ export const validateStore = ({
     polygonPoints = [],
     temporaryClosedTimings = {},
 }) => {
-    console.log("storeDetails ", storeDetails);
 
     const formErrors = {
         ...validateBasicFields(storeDetails),
@@ -20,7 +19,6 @@ export const validateStore = ({
             ? Object.values(val).some((v) => v !== "")
             : val !== ""
     );
-    console.log("hasErrors ", hasErrors);
     return {
         isValid: !hasErrors,
         formErrors,

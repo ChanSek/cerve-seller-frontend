@@ -7,6 +7,7 @@ import { getCall, postCall } from "../../../Api/axios.js";
 import { Link, Button, CircularProgress } from "@mui/material";
 import cogoToast from "cogo-toast";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
+import { useStore } from "../../../Router/StoreContext";
 
 const BulkUpload = () => {
   const navigate = useNavigate();
@@ -16,13 +17,15 @@ const BulkUpload = () => {
   const [storeId, setStoreId] = useState("");
   const [msg, setMsg] = useState('');
   const [error, setError] = useState(false);
+  const { store } = useStore();
+  
 
   const uploadSelectedFile = () => {
     if (selectedFile) {
       setLoading(true)
       const formData = new FormData();
       formData.append("file", selectedFile);
-      postCall(`api/v1/seller/upload/bulk/storeId/${storeId}/products?category=${encodeURIComponent(category)}`, formData)
+      postCall(`api/v1/seller/upload/bulk/${category}/storeId/${storeId}/products`, formData)
         .then(resp => {
           if (resp.status == 200) {
             setError(false);
@@ -33,8 +36,11 @@ const BulkUpload = () => {
             setMsg(resp.message);
           }
         }).catch(error => {
-          if (error.response)
-            cogoToast.error(error.response.data.message);
+          console.log("error ",error);
+          if (error.response){
+            setError(true);
+            setMsg(error.response.data.message);
+          }
         }).finally(() => {
           setLoading(false);
           setSelectedFile(null);
@@ -45,26 +51,11 @@ const BulkUpload = () => {
     }
   }
 
-  const getUser = async (id) => {
-    const url = `/api/v1/seller/subscriberId/${id}/subscriber`;
-    const res = await getCall(url);
-    return res[0];
-  };
-
-  const getOrgDetails = async (org_id) => {
-    const url = `/api/v1/seller/merchantId/${org_id}/merchant`;
-    const res = await getCall(url);
-    return res.data;
-  };
-
   useEffect(() => {
-    const user_id = localStorage.getItem("user_id");
-    getUser(user_id).then((u) => {
-      getOrgDetails(u.organization._id).then((org) => {
-        setCategory(org?.providerDetail.storeDetails?.category);
-        setStoreId(org?.providerDetail.storeDetails?.storeId);
-      });
-    });
+    if (store?.storeId && store?.category) {
+      setStoreId(store.storeId);
+      setCategory(store.category);
+    }
   }, [])
 
   return (

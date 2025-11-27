@@ -14,15 +14,15 @@ import {
   Stack,
   Chip,
   Switch,
-  InputAdornment,
+  InputAdornment, Tooltip, Typography, Dialog, DialogTitle, DialogContent
 } from "@mui/material";
-import { DeleteOutlined } from "@mui/icons-material";
+import { DeleteOutlined, PictureAsPdf } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import moment from "moment";
 import dayjs from "dayjs";
-import axios from "axios";
+import { postMediaCall } from "../Api/axios";
 import cogoToast from "cogo-toast";
 import Cookies from "js-cookie";
 import PlacePickerMap from "../Components/PlacePickerMap/PlacePickerMap";
@@ -50,7 +50,9 @@ const RenderInput = (props) => {
   const uploadFileRef = useRef(null);
   const [isImageChanged, setIsImageChanged] = useState(false);
   const [fetchedImageSize, setFetchedImageSize] = useState(0);
-
+  const [openPreview, setOpenPreview] = React.useState(false);
+  const [previewUrl, setPreviewUrl] = React.useState("");
+  
   const handleFocus = (fieldId) => {
     if (setFocusedField) {
       setFocusedField(fieldId);
@@ -303,8 +305,6 @@ const RenderInput = (props) => {
       </div>
     );
   } else if (item.type === "checkbox") {
-    //  console.log("state[item.id]=====>", state[item.id]);
-    //  console.log("item.options=====>", item.options);
     const onChange = (e) => {
       const val = e.target.name;
       const itemIndex = state[item.id].indexOf(val);
@@ -356,9 +356,7 @@ const RenderInput = (props) => {
       </div>
     );
   } else if (item.type === "select") {
-    //  console.log("state[item.id]=====>", item.id, "=====>", state[item.id]);
-
-     return (
+    return (
       <div className={props.containerClasses !== undefined ? `${props.containerClasses}` : "py-1 flex flex-col"}>
         <label
           className={
@@ -527,8 +525,6 @@ const RenderInput = (props) => {
       return newString;
     }
     const dateValue = moment(state[item.id], item.format || "hh:mm A");
-    //  console.log("item.format======>", item.format);
-    //  console.log("dateValue=====>", dateValue);
     return (
       <div className="py-1 flex flex-col" style={{ position: "relative" }}>
         {item.title && (
@@ -741,88 +737,64 @@ const RenderInput = (props) => {
       </div>
     );
   } else if (item.type === "upload") {
-    const allowedMaxSize = 2 * 1024 * 1024; // 2 MB in Bytes
+  const allowedMaxSize = 2 * 1024 * 1024; // 2 MB
 
-    const renderUploadedUrls = () => {
-      const getImageElement = (url) => (
-        <div className="image-preview-container">
-          <img src={url} height={50} width={50} style={{ margin: "10px" }} alt="" />
-          <img src={url} className="image-preview-large" alt="zoom" />
-        </div>
-      );
-      if (item?.multiple) {
-        if (state?.imageUrls) {
-          return state.imageUrls.map((url) => getImageElement(url));
-        }
-      } else {
-        if ((!isImageChanged && state?.tempURL?.[item.id]) || state[item.id]) {
-          return getImageElement(state?.tempURL?.[item.id] || state[item.id]);
-        } else {
-          return <></>;
-        }
-      }
-    };
+  const handleOpenPreview = (url) => {
+    setPreviewUrl(url);
+    setOpenPreview(true);
+  };
 
-    if (previewOnly) {
-      if (typeof state[item.id] == "string") {
-        return (
-          <div style={{ height: 100, width: 100, marginBottom: 40, marginTop: 10 }}>
-            <label
-              className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
-              style={{ width: 200 }}
-            >
-              {item?.title}
-            </label>
-            <img className="ml-0 h-full w-full" src={state[item?.id]} alt="" />
-          </div>
-        );
-      } else {
-        return (
-          <div style={{ height: 100, width: 100, marginBottom: 40, marginTop: 10 }} className="flex">
-            <label className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block">{item.title}</label>
-            {state[item.id]?.map((img_url) => (
-              <img className="ml-0 h-full w-full" key={img_url} src={img_url} alt="" />
-            ))}
-          </div>
-        );
-      }
-    }
+  const handleClosePreview = () => {
+    setOpenPreview(false);
+    setPreviewUrl("");
+  };
 
-    const UploadedFile = ({ name, size }) => {
-      if (!name) return;
+  // 🖼️ Render uploaded images (like fileUpload)
+  const renderUploadedUrls = () => {
+    const getImageElement = (url) => {
+      console.log("url : ",url);
+      if (!url) return null;
 
       const getImageName = (path) => {
-        const splitPath = path.split("/");
-        const fileTypeIndex = splitPath.indexOf(item.file_type);
+        return "";
+        // if (!path) return "";
+        // try {
+        //   const cleanedPath = path.split("?")[0]; // remove signed query params
+        //   const splitPath = cleanedPath.split("/");
+        //   const fileTypeIndex = splitPath.indexOf(item.file_type);
+        //   if (fileTypeIndex !== -1 && fileTypeIndex + 1 < splitPath.length) {
+        //     return splitPath[fileTypeIndex + 1];
+        //   }
+        //   return splitPath[splitPath.length - 1];
+        // } catch {
+        //   return "";
+        // }
+      };
 
-        if (fileTypeIndex !== -1 && fileTypeIndex + 1 < splitPath.length) {
-          const nameUrl = splitPath[fileTypeIndex + 1];
-          return nameUrl;
-        } else {
-          return item.file_type;
-        }
-      };
-      const getImageType = (path) => {
-        const splitPath = path.split("/");
-        const fileType = splitPath[splitPath.length - 1].split(".").pop();
-        return fileType;
-      };
+      const imageName = getImageName(url);
 
       return (
-        <Stack direction="row" spacing={1} alignItems={"center"} style={{ marginBottom: 20 }}>
+        <Stack
+          key={url}
+          direction="row"
+          spacing={1}
+          alignItems={"center"}
+          style={{ marginBottom: 20 }}
+        >
+          {/* Delete Button */}
           <IconButton
             style={{ width: 35, height: 35 }}
             size="small"
             color="error"
             onClick={(e) => {
-              console.log("Clicked... ",name);
               e.stopPropagation();
-              // reset file input
               uploadFileRef.current.value = null;
               stateHandler((prevState) => {
                 const newState = {
                   ...prevState,
-                  [item.id]: Array.isArray(prevState[item.id]) ? prevState[item.id].filter((ele) => ele !== name) : "",
+                  [item.id]: Array.isArray(prevState[item.id])
+                    ? prevState[item.id].filter((ele) => ele !== url)
+                    : "",
                   uploaded_urls: [],
                 };
                 return newState;
@@ -831,134 +803,461 @@ const RenderInput = (props) => {
           >
             <DeleteOutlined fontSize="small" />
           </IconButton>
-          <div>
-            <div className="flex items-center">
-              <p className="text-xs text-neutral-900 max-w-sm">File name: &nbsp;</p>
-              <p className="text-xs text-neutral-600 max-w-sm">{getImageName(name)}</p>
-            </div>
-            <div className="flex items-center">
-              <p className="text-xs text-neutral-900 max-w-sm">File type: &nbsp;</p>
-              <p className="text-xs text-neutral-600 max-w-sm">{getImageType(name)}</p>
-            </div>
-            {!item.multiple && (
-              <div className="flex items-center">
-                <p className="text-xs text-neutral-900 max-w-sm">File size: &nbsp;</p>
-                <p className="text-xs text-neutral-600 max-w-sm">{fetchedImageSize}</p>
-              </div>
-            )}
-          </div>
+
+          {/* Preview Image with Dialog Click */}
+          <Tooltip title="Click to preview image" arrow>
+            <img
+              src={url}
+              alt={imageName}
+              height={50}
+              width={50}
+              style={{
+                cursor: "pointer",
+                objectFit: "cover",
+                borderRadius: "6px",
+                border: "1px solid #e0e0e0",
+              }}
+              onClick={() => handleOpenPreview(url)}
+            />
+          </Tooltip>
+
+          {/* File Name */}
+          <Typography
+            variant="body2"
+            sx={{
+              cursor: "pointer",
+              color: "primary.main",
+              textDecoration: "underline",
+              "&:hover": { color: "#1565c0" },
+            }}
+            onClick={() => handleOpenPreview(url)}
+          >
+            {imageName}
+          </Typography>
         </Stack>
       );
     };
-    return (
-      <div className="py-1 flex flex-col">
-        <label
-          for="contained-button-file"
-          className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
-        >
-          {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
-        </label>
-        {/* <Button sx={{ textTransform: 'none' }} variant="contained">
-          <label for="contained-button-file">
-            Choose file
-          </label>
-        </Button> */}
-        <div style={{ display: "flex" }}>{renderUploadedUrls()}</div>
 
-        <FormControl error={item.error}>
-          {/* <label htmlFor="contained-button-file"> */}
-          <input
-            ref={uploadFileRef}
-            id="contained-button-file"
-            name="contained-button-file"
-            style={{
-              opacity: "none",
-              color: item.fontColor ? item.fontColor : "#f0f0f0",
-              marginBottom: 10,
-            }}
-            accept="image/*"
-            type="file"
-            multiple={item?.multiple || false}
-            key={item?.id}
-            onChange={(e) => {
-              const token = Cookies.get("token");
-              for (const file of e.target.files) {
-                if (!file.type.startsWith("image/")) {
-                  cogoToast.warn("Only image files are allowed");
-                  // reset file input
-                  uploadFileRef.current.value = null;
-                  return;
-                }
-                if (file.size > allowedMaxSize) {
-                  cogoToast.warn("File size should be less than 2 MB");
-                  // reset file input
-                  uploadFileRef.current.value = null;
-                  return;
-                }
-                const formData = new FormData();
-                formData.append("file", file);
-                //getSignUrl(file).then((d) => {
-                const url = `/api/v1/seller/upload/${item?.file_type}`;
-                axios(url, {
-                  method: "POST",
-                  data: formData,
-                  headers: {
-                    ...(token && { Authorization: `Bearer ${token}` }),
-                  },
-                })
-                  .then((response) => {
-                    setIsImageChanged(true);
-                    const uploadedUrl = response?.data?.endPoint || response?.data?.urls;
+    if (item?.multiple) {
+      const urls = state?.imageUrls || state?.[item.id];
+      if (urls?.length) return urls.map((url) => getImageElement(url));
+    } else {
+      const singleUrl = state?.backImage?.[item.id] || state?.tempURL?.[item.id] || state[item.id];
+      if (singleUrl) return getImageElement(singleUrl);
+    }
+    return null;
+  };
 
-                    if (item.multiple) {
-                      // Handle multiple uploads
-                      const updatedValue = [...(state[item.id] || []), ...(Array.isArray(uploadedUrl) ? uploadedUrl : [uploadedUrl])];
+  return (
+    <div className="py-1 flex flex-col">
+      <label
+        htmlFor="contained-button-file"
+        className="text-sm py-2 ml-0 font-medium text-left text-[#606161] inline-block"
+      >
+        {item.title}
+        {item.required && <span className="text-[#FF0000]"> *</span>}
+      </label>
 
-                      const updatedState = {
-                        ...state,
-                        [item.id]: updatedValue,
-                        uploaded_urls: [],
-                      };
-                      stateHandler(updatedState);
-                    } else {
-                      // Handle single image upload
-                      const reader = new FileReader();
-                      let tempUrl = "";
-                      reader.onload = function (e) {
-                        tempUrl = e.target.result;
-                        const updatedState = {
-                          ...state,
-                          [item.id]: uploadedUrl,
-                          tempURL: {
-                            ...state.tempURL,
-                            [item.id]: tempUrl,
-                          },
-                        };
-                        stateHandler(updatedState);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  })
-                  .then((json) => { });
-                //});
+      {/* Uploaded Image List */}
+      <div>{renderUploadedUrls()}</div>
+
+      <FormControl error={item.error}>
+        <input
+          ref={uploadFileRef}
+          id="contained-button-file"
+          name="contained-button-file"
+          style={{
+            opacity: "none",
+            color: item.fontColor ? item.fontColor : "#f0f0f0",
+            marginBottom: 10,
+          }}
+          accept="image/*"
+          type="file"
+          multiple={item?.multiple || false}
+          key={item?.id}
+          onChange={async (e) => {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+
+            for (const file of files) {
+              // ✅ Validate type
+              if (!file.type.startsWith("image/")) {
+                cogoToast.warn("Only image files are allowed");
+                uploadFileRef.current.value = null;
+                return;
               }
-            }}
-          />
 
-          {item.multiple ? (
-            state[item.id]?.map((name) => {
-              return <UploadedFile name={name} />;
-            })
-          ) : (
-            <UploadedFile name={state[item.id]} />
+              // ✅ Validate size
+              if (file.size > allowedMaxSize) {
+                cogoToast.warn("File size should be less than 2 MB");
+                uploadFileRef.current.value = null;
+                return;
+              }
+
+              const formData = new FormData();
+              formData.append("file", file);
+
+              try {
+                const url = `/api/v1/seller/upload/${item?.file_type}`;
+                const response = await postMediaCall(url, formData);
+                const uploadedUrl = response?.endPoint || response?.urls;
+
+                setIsImageChanged(true);
+
+                if (item.multiple) {
+                  const updatedValue = [
+                    ...(state[item.id] || []),
+                    ...(Array.isArray(uploadedUrl)
+                      ? uploadedUrl
+                      : [uploadedUrl]),
+                  ];
+                  stateHandler({
+                    ...state,
+                    [item.id]: updatedValue,
+                    uploaded_urls: [],
+                  });
+                } else {
+                  const reader = new FileReader();
+                  reader.onload = function (ev) {
+                    const tempUrl = ev.target.result;
+                    stateHandler({
+                      ...state,
+                      [item.id]: uploadedUrl,
+                      tempURL: {
+                        ...state.tempURL,
+                        [item.id]: tempUrl,
+                      },
+                    });
+                  };
+                  reader.readAsDataURL(file);
+                }
+              } catch (err) {
+                console.error("Upload failed:", err);
+                const msg =
+                  err.response?.data?.message ||
+                  err.message ||
+                  "Image upload failed";
+                cogoToast.error(msg);
+              }
+            }
+          }}
+        />
+
+        {item.error && <FormHelperText>{item.helperText}</FormHelperText>}
+      </FormControl>
+
+      {/* 🖼️ Image Preview Dialog */}
+      <Dialog
+        open={openPreview}
+        onClose={handleClosePreview}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogContent
+          dividers
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "80vh",
+            background: "#fff",
+          }}
+        >
+          {previewUrl && (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain",
+                borderRadius: "8px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+              }}
+            />
           )}
-          {item.error && <FormHelperText>{item.helperText}</FormHelperText>}
-          {/* </label> */}
-        </FormControl>
-      </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+else if (item.type === "fileUpload") {
+  const allowedMaxSize = 2 * 1024 * 1024; // 2 MB
+
+  // ✅ Allow both images and PDFs
+  const getAcceptType = () => "image/*,application/pdf";
+
+  const handleOpenPreview = (url) => {
+    setPreviewUrl(url);
+    setOpenPreview(true);
+  };
+
+  const handleClosePreview = () => {
+    setOpenPreview(false);
+    setPreviewUrl("");
+  };
+
+  // ✅ Handles both PDFs and images, with signed URLs
+  const UploadedFile = ({ name, url }) => {
+    if (!name) return null;
+
+    const getFileName = (path) => {
+      if (!path) return "";
+      try {
+        const cleanPath = path.split("?")[0];
+        return cleanPath.split("/").pop();
+      } catch (e) {
+        console.error("Error extracting filename:", e);
+        return "";
+      }
+    };
+
+    // ✅ Detect file type from URL (before ?)
+    const isPdf = (() => {
+      if (!url) return false;
+      try {
+        const cleanUrl = url.split("?")[0].toLowerCase();
+        return cleanUrl.endsWith(".pdf");
+      } catch {
+        return false;
+      }
+    })();
+
+    return (
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
+        sx={{
+          p: 1,
+          border: "1px solid #ddd",
+          borderRadius: "8px",
+          mb: 1,
+          background: "#fafafa",
+        }}
+      >
+        {/* ✅ Thumbnail or PDF icon */}
+        {isPdf ? (
+          <Tooltip title="Click to preview PDF" arrow>
+            <PictureAsPdf
+              sx={{
+                color: "#d32f2f",
+                cursor: "pointer",
+                "&:hover": { transform: "scale(1.1)" },
+                transition: "transform 0.2s ease",
+              }}
+              onClick={() => handleOpenPreview(url)}
+            />
+          </Tooltip>
+        ) : (
+          <Tooltip title="Click to preview Image" arrow>
+            <img
+              src={url}
+              alt={getFileName(name)}
+              style={{
+                width: 40,
+                height: 40,
+                objectFit: "cover",
+                borderRadius: 4,
+                cursor: "pointer",
+              }}
+              onClick={() => handleOpenPreview(url)}
+            />
+          </Tooltip>
+        )}
+
+        {/* ✅ File name */}
+        <Tooltip
+          title={isPdf ? "Click to preview PDF" : "Click to preview Image"}
+          arrow
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              cursor: "pointer",
+              color: "primary.main",
+              textDecoration: "underline",
+              "&:hover": { color: "#1565c0" },
+            }}
+            onClick={() => handleOpenPreview(url)}
+          >
+            {getFileName(name)}
+          </Typography>
+        </Tooltip>
+
+        {/* ✅ Delete */}
+        <IconButton
+          size="small"
+          color="error"
+          onClick={(e) => {
+            e.stopPropagation();
+            uploadFileRef.current.value = null;
+            stateHandler((prev) => {
+              const newVal = Array.isArray(prev[item.id])
+                ? prev[item.id].filter((f) => f !== name)
+                : "";
+              const newPreview = { ...prev.previewUrls };
+              delete newPreview[item.id];
+              return { ...prev, [item.id]: newVal, previewUrls: newPreview };
+            });
+          }}
+        >
+          <DeleteOutlined fontSize="small" />
+        </IconButton>
+      </Stack>
     );
-  } else if (item.type === "switch") {
+  };
+
+  return (
+    <div className="py-1 flex flex-col">
+      <label
+        htmlFor="contained-button-file"
+        className="text-sm py-2 font-medium text-[#606161]"
+      >
+        {item.title}
+        {item.required && <span className="text-[#FF0000]"> *</span>}
+      </label>
+
+      <FormControl error={item.error}>
+  <input
+    ref={uploadFileRef}
+    id="contained-button-file"
+    name="contained-button-file"
+    accept={getAcceptType()}
+    type="file"
+    multiple={item?.multiple || false}
+    key={item?.id}
+    onChange={async (e) => {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      for (const file of files) {
+        // ✅ Type validation (images + PDFs only)
+        if (
+          !file.type.startsWith("image/") &&
+          file.type !== "application/pdf"
+        ) {
+          cogoToast.warn("Only image or PDF files are allowed");
+          uploadFileRef.current.value = null;
+          return;
+        }
+
+        // ✅ Size check
+        if (file.size > allowedMaxSize) {
+          cogoToast.warn("File size should be less than 2 MB");
+          uploadFileRef.current.value = null;
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const url = `/api/v1/seller/upload/${item?.file_type}`;
+          const response = await postMediaCall(url, formData);
+          const { endPoint, urls } = response; // urls = signed URL
+
+          // ✅ Update state
+          if (item.multiple) {
+            stateHandler((prev) => ({
+              ...prev,
+              [item.id]: [...(prev[item.id] || []), endPoint],
+              previewUrls: {
+                ...(prev.previewUrls || {}),
+                [item.id]: [
+                  ...((prev.previewUrls || {})[item.id] || []),
+                  urls,
+                ],
+              },
+            }));
+          } else {
+            stateHandler((prev) => ({
+              ...prev,
+              [item.id]: endPoint,
+              previewUrls: { ...(prev.previewUrls || {}), [item.id]: urls },
+            }));
+          }
+
+          // ✅ Trigger parent validation (important)
+          if (typeof handleChange === "function") {
+            handleChange(
+              {
+                target: { files, value: endPoint },
+              },
+              item
+            );
+          }
+        } catch (err) {
+          console.error("Upload failed:", err);
+          cogoToast.error(
+            err.response?.data?.message || err.message || "Upload failed"
+          );
+        }
+      }
+    }}
+  />
+
+  {/* ✅ Uploaded files list */}
+  {item.multiple
+    ? (state[item.id] || []).map((name, idx) => (
+        <UploadedFile
+          key={name}
+          name={name}
+          url={(state?.previewUrls?.[item.id] || [])[idx]}
+        />
+      ))
+    : state[item.id] && (
+        <UploadedFile
+          name={state[item.id]}
+          url={state.previewUrls?.[item.id] || state[item.id]}
+        />
+      )}
+
+  {item.error && <FormHelperText>{item.helperText}</FormHelperText>}
+</FormControl>
+
+
+      {/* ✅ Unified Preview Dialog */}
+      <Dialog
+        open={openPreview}
+        onClose={handleClosePreview}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogContent dividers sx={{ height: "80vh" }}>
+          {(() => {
+            const cleanUrl = previewUrl?.split("?")[0]?.toLowerCase() || "";
+            const isPdf = cleanUrl.endsWith(".pdf");
+            return isPdf ? (
+              <iframe
+                src={previewUrl}
+                title="PDF Viewer"
+                width="100%"
+                height="100%"
+                style={{ border: "none" }}
+              />
+            ) : (
+              <img
+                src={previewUrl}
+                alt="Preview"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                }}
+              />
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+
+
+  else if (item.type === "switch") {
     return (
       <div className={item.containerClasses ? item.containerClasses : props.containerClasses || "py-1 flex flex-col"}>
         <label

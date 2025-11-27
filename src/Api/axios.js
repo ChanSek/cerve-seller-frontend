@@ -112,3 +112,14 @@ export function makeCancelable(promise) {
     },
   };
 }
+
+export function getBlob(url) {
+  return apiCall({
+    method: "get",
+    url,
+    responseType: "blob",
+    headers: {
+      Authorization: `Bearer ${Cookies.get("token") || ""}`,
+    },
+  }, true); // skip refresh for blob
+}

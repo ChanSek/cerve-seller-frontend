@@ -152,8 +152,6 @@ export default function Inventory() {
 
   const getProductCategory = async () => {
     try {
-      console.log("storeId: ", store?.storeId);
-      console.log("category: ", store?.category);
       const url = `/api/v1/seller/reference/category/${category}`;
       const result = await getCall(url);
       return result.data;
@@ -162,15 +160,20 @@ export default function Inventory() {
     }
   }
 
-  useEffect(() => {
+useEffect(() => {
+  if (category) { // ensures category is not null, undefined, or empty string
     let data = [...filterFields]; // Create a copy of the fields array
     const subCategoryIndex = data.findIndex((item) => item.id === "category");
     getProductCategory().then((categoryList) => {
-      data[subCategoryIndex].options = categoryList;
-      setCategoryOptions(categoryList);
+      if (subCategoryIndex !== -1) {
+        data[subCategoryIndex].options = categoryList;
+        setCategoryOptions(categoryList);
+      }
+    }).catch((error) => {
+      console.error("Error fetching product categories:", error);
     });
-  }, [category]);
-
+  }
+}, [category]);
   useEffect(() => {
     const userId = localStorage.getItem("user_id");
     // If store is already available from context, use it
@@ -187,10 +190,8 @@ export default function Inventory() {
       }
 
       const role = user?.role?.name;
-      console.log("1");
       if (role === "Organization Admin") {
-        console.log("2");
-        const merchantIdFromUser = user?.organization?._id;
+        const merchantId = user?.organization?._id;
         const isActive = user?.organization?.active;
 
         // Set merchantId for Shopify integration
@@ -218,15 +219,6 @@ export default function Inventory() {
           navigate(`/application/store-details/${merchantIdFromUser}`);
           return;
         }
-
-        // const category = user?.organization?.category;
-        // if (!category) {
-        //   navigate(`/application/store-details/${merchantId}`);
-        //   return;
-        // }
-
-      } else if (role === "Super Admin") {
-        navigate("/application/user-listings");
       }
     });
   }, [store, category]);  // Optional: Add store dependency
@@ -310,7 +302,7 @@ export default function Inventory() {
                 onClick={() => navigate("/application/add-products")}
               />
             </div> */}
-            <div className="mb-2 sm:mb-0 sm:mr-4">
+            {/* <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
                 variant="contained"
                 icon={<AddIcon />}
@@ -319,7 +311,7 @@ export default function Inventory() {
               >
                 SELECT PRODUCT
               </Button>
-            </div>
+            </div> */}
             <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
                 variant="contained"
@@ -347,7 +339,7 @@ export default function Inventory() {
                 variant="contained"
                 icon={<DownloadIcon />}
                 title="Download Products"
-                onClick={() => downloadExcel(storeId)} // Pass storeId here
+                onClick={() => downloadExcel(storeId, category)} // Pass storeId here
               />
             </div>
             {/* Shopify Integration Buttons */}
