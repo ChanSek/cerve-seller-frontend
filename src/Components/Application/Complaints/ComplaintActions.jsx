@@ -134,7 +134,6 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
             description: descripton,
             rating: rating,
         };
-        console.log("body ", body);
         const apiUrl = `/api/v1/seller/complaint/${complaintId}/resolution/update`;
         try {
             const res = await postCall(apiUrl, body);
@@ -454,7 +453,7 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
                                                             <Box key={index} className="image-preview-container">
                                                                 <Box
                                                                     component="img"
-                                                                    src={imgUrl}
+                                                                    src={imgUrl?.url}
                                                                     alt={`Return image ${index + 1}`}
                                                                     sx={{
                                                                         width: 60,

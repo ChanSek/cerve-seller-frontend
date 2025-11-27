@@ -37,7 +37,6 @@ const OrderDetailsDialog = ({ orderId, triggerComponent }) => {
     const [orderDetails, setOrderDetails] = useState(null);
     const [error, setError] = useState(null);
     const fetchOrderDetails = useCallback(async () => {
-        console.log("orderId ", orderId);
         if (!orderId || orderDetails) return;
         setLoading(true);
         setError(null);

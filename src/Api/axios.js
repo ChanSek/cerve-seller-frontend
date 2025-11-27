@@ -5,111 +5,105 @@ import { deleteAllCookies } from "../utils/cookies";
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 axios.defaults.withCredentials = true;
 
-function unAuthorizedResponse() {
-  // Clear all cookies
-  deleteAllCookies();
-
-  // Clear auth tokens and session data
-  localStorage.removeItem("token");
-  sessionStorage.clear();
-
-  // Redirect user to login page
-  if (window.location.pathname !== "/login") {
-    window.location.replace("/login"); // More reliable than assigning pathname
+// -----------------------------
+// Refresh Token
+// -----------------------------
+async function refreshAccessToken() {
+  try {
+    await axios.post("/api/v1/auth/refresh", {}, { withCredentials: true });
+    return true;
+  } catch (err) {
+    console.error("❌ Refresh failed:", err);
+    return false;
   }
 }
 
-export function getCall(url) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.get(url);
+// -----------------------------
+// Handle 401 → refresh → retry
+// -----------------------------
+async function handleUnauthorized(originalConfig) {
+  const refreshed = await refreshAccessToken();
+  if (!refreshed) {
+    deleteAllCookies();
+    window.location.href = "/login";
+    throw new Error("Unauthorized: refresh failed");
+  }
 
-      // Handle API-level unauthorized status (not HTTP)
-      const apiStatus = response?.data?.status;
-      const apiMessage = response?.data?.message;
+  try {
+    // clone config safely (drop internal stuff)
+    const cleanConfig = {
+      ...originalConfig,
+      headers: { ...originalConfig.headers }, // clone plain headers only
+      withCredentials: true,
+    };
 
-      if (apiStatus === 401) {
-        unAuthorizedResponse(apiMessage || "Unauthorized access.");
-        return; // Don't proceed further
-      }
+    const retryResponse = await axios.request(cleanConfig);
+    return retryResponse.data;
+  } catch (retryErr) {
+    console.error("❌ Retry after refresh failed:", retryErr);
+    deleteAllCookies();
+    window.location.href = "/login";
+    throw retryErr;
+  }
+}
 
-      return resolve(response.data);
-    } catch (err) {
-      // Only triggered for actual HTTP/network issues
-      console.error("AXIOS ERROR:", err);
-      return reject(err);
+// -----------------------------
+// Generic API Wrapper
+// -----------------------------
+async function apiCall(config, skipRefresh = false) {
+  try {
+    const response = await axios.request({ ...config, withCredentials: true });
+    return response.data;
+  } catch (err) {
+    // never refresh for login API
+    if (config.url === "/api/v1/auth/login" || skipRefresh) {
+      throw err;
     }
+    if (err.response?.status === 401) {
+      return await handleUnauthorized(err.config);
+    }
+
+    throw err;
+  }
+}
+
+// -----------------------------
+// Public API Functions
+// -----------------------------
+export function getCall(url, params) {
+  return apiCall({ method: "get", url, params });
+}
+
+export function postCall(url, data) {
+  return apiCall({ method: "post", url, data });
+}
+
+export function postMediaCall(url, data) {
+  return apiCall({
+    method: "post",
+    url,
+    data,
+    headers: { "Content-Type": "multipart/form-data" },
   });
 }
 
-
-export function postCall(url, params) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.post(url, params);
-      return resolve(response.data);
-    } catch (err) {
-      if (url === "/api/v1/auth/login") {
-        return reject(err);
-      }
-      if(err.response){
-        const {status} = err.response;
-        if (status === 401) return unAuthorizedResponse();
-      }
-      return reject(err);
-    }
-  });
-}
-
-export function postMediaCall(url, params) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.post(url, params, {
-        headers: { ...({"Content-Type": "multipart/form-data" }) },
-      });
-      return resolve(response.data);
-    } catch (err) {
-      const { status } = err.response;
-      if (url === "/api/v1/auth/login") {
-        return reject(err);
-      }
-      if (status === 401) return unAuthorizedResponse();
-      return reject(err);
-    }
-  });
-}
-
-export function putCall(url, params) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.put(url, params );
-      return resolve(response.data);
-    } catch (err) {
-      const { status } = err.response;
-      if (status === 401) return unAuthorizedResponse();
-      return reject(err);
-    }
-  });
+export function putCall(url, data) {
+  return apiCall({ method: "put", url, data });
 }
 
 export function deleteCall(url) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.delete(url);
-      return resolve(response.data);
-    } catch (err) {
-      const { status } = err.response;
-      if (status === 401) return unAuthorizedResponse();
-      return reject(err);
-    }
-  });
+  return apiCall({ method: "delete", url });
 }
 
+// -----------------------------
+// Cancelable Promise
+// -----------------------------
 export function makeCancelable(promise) {
   let isCanceled = false;
   const wrappedPromise = new Promise((resolve, reject) => {
-    // Suppress resolution and rejection if canceled
-    promise.then((val) => !isCanceled && resolve(val)).catch((error) => !isCanceled && reject(error));
+    promise
+      .then((val) => !isCanceled && resolve(val))
+      .catch((error) => !isCanceled && reject(error));
   });
   return {
     promise: wrappedPromise,

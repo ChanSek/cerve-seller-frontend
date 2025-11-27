@@ -229,11 +229,8 @@ export default function AddProduct() {
 
   useEffect(() => {
     let category = categoryForm.formValues["productCategory"];
-    console.log("category " + category);
     let sub_category = categoryForm.formValues["productSubcategory1"];
-    console.log("sub_category " + sub_category);
     if (category && category !== 'RET10' && category !== "F&B" && sub_category) {
-      console.log("true ");
       let category_data = allProperties[category];
       let properties = category_data?.hasOwnProperty(sub_category)
         ? category_data[sub_category]
@@ -357,13 +354,13 @@ export default function AddProduct() {
           onChange={(val) => setVariationOn(val.target.value)}
           sx={{ paddingLeft: "22px" }}
         >
-          <FormControlLabel value="none" control={<Radio />} label="None" />
+          <FormControlLabel value="NONE" control={<Radio />} label="None" />
           <FormControlLabel
             value="attributes"
             control={<Radio />}
             label="Attribute"
           />
-          <FormControlLabel value="uom" control={<Radio />} label="UOM" />
+          <FormControlLabel value="UOM" control={<Radio />} label="UOM" />
         </RadioGroup>
       </FormControl>
     );

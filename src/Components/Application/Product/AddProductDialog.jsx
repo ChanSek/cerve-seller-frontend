@@ -1,117 +1,45 @@
 // AddProductDialog.jsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
-    Box,
-    Typography,
-    Button,
-    TextField,
-    IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    CircularProgress,
-    Snackbar,
     Autocomplete,
+    Box,
+    Button,
     Checkbox,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     FormControlLabel,
-    Tabs,
-    Tab,
     Grid,
+    IconButton,
     InputAdornment,
-    Tooltip
+    Snackbar,
+    Tab,
+    Tabs,
+    TextField,
+    Tooltip,
+    Typography
 } from "@mui/material";
-import { DeleteOutlined } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { getCall, postCall, putCall } from "../../../Api/axios";
+import {getCall, postCall, putCall} from "../../../Api/axios";
 import RenderInput from "../../../utils/RenderInput";
-import { allProductFieldDetails, variantProductFieldDetails } from "./gen-product-fields";
-import { manualProductFieldDetails } from "./manual-product-fields";
-import { validateProductForm } from "./validateProductForm";
+import {allProductFieldDetails, categorySpecificFields, variantProductFieldDetails} from "./gen-product-fields";
+import {validateProductForm} from "./validateProductForm";
 import cogoToast from "cogo-toast";
 import './AddProductDialog.css';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import { validateVariantForm } from "./ValidateVariants";
-import { generateSKU } from "../../Shared/SkuGenerator";
-import { v4 as uuidv4 } from 'uuid';
+import {validateVariantForm} from "./ValidateVariants";
+import {generateSKU} from "../../Shared/SkuGenerator";
+import {v4 as uuidv4} from 'uuid';
+import VariantSection from "./ProductVariantSection";
+import {getSizeOptions} from "./categoryProperties";
+import VitalInfoSection from "./ProductVitalInfoSection";
+import {highlightText} from "../../../utils/textHighlight";
+import getDefaultProductValues from "./getDefaultProductValues";
 
-const variationFields = ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"];
-const hideVariantFields = ["availableQty", "uomValue", "sku", "imageUrls", "backImage"];
-
-const VariantSection = ({ variant, index, fields, onChange, onRemove, showRemoveButton, variantErrors, isEditMode }) => {
-    const [showAllVariantFields, setShowAllVariantFields] = useState(false);
-    const visibleFields = variationFields.filter(fieldId =>
-        showAllVariantFields || !hideVariantFields.includes(fieldId)
-    );
-    const shouldShowDeleteButton = showRemoveButton || (isEditMode && variant.data.isNew);
-
-    return (
-        <Box className="details-section">
-            <Typography
-                variant="h6"
-                sx={{ color: 'primary.dark', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}
-            >
-                Variant {index + 1}
-                {shouldShowDeleteButton && (
-                    <Tooltip title={`Remove Variant ${index + 1}`} arrow>
-                        <IconButton
-                            onClick={() => onRemove(index)}
-                            size="small"
-                            color="error"
-                            sx={{ p: 0.5 }}
-                        >
-                            <DeleteOutlined fontSize="small" />
-                        </IconButton>
-                    </Tooltip>
-                )}
-            </Typography>
-
-
-            <Grid container>
-                {visibleFields.map((fieldId) => {
-                    if ((!isEditMode) && fieldId === 'sku') return null;
-                    const fieldConfig = fields.find(f => f.id === fieldId);
-                    if (!fieldConfig) return null;
-
-                    const fieldError = variantErrors?.[fieldId];
-
-                    return (
-                        <Grid item xs={12} key={fieldId}>
-                            <RenderInput
-                                item={{
-                                    ...fieldConfig,
-                                    fullWidth: true,
-                                    error: !!fieldError,       // red border
-                                    helperText: fieldError || "",    // error message
-                                }}
-                                state={variant.data}
-                                stateHandler={(updated) =>
-                                    onChange(index, { ...variant.data, ...updated })
-                                }
-                            />
-                        </Grid>
-                    );
-                })}
-            </Grid>
-
-            <Box mt={2} textAlign="center">
-                <Button
-                    size="small"
-                    variant="text"
-                    startIcon={showAllVariantFields ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                    onClick={() => setShowAllVariantFields(prev => !prev)}
-                >
-                    {showAllVariantFields ? "Show Less Variant Fields" : "Show More Variant Fields"}
-                </Button>
-            </Box>
-        </Box>
-    );
-};
-
-
+const variationFields = ["price", "sellingPrice", "availableQty", "uom", "uomValue", "sku", "imageUrls", "backImage"];
 function a11yProps(index) {
     return {
         id: `simple-tab-${index}`,
@@ -134,82 +62,250 @@ function TabPanel(props) {
     );
 }
 
+const convertAttributesToJson = (attributes) => {
+    if (!Array.isArray(attributes)) return {};
+
+    return attributes.reduce((acc, attr) => {
+        if (attr.code && attr.value !== undefined) {
+            acc[attr.code] = attr.value;
+        }
+        return acc;
+    }, {});
+};
+
 // Add currentProductId prop
 const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, currentProductId }) => {
-    const [fields, setFields] = useState(allProductFieldDetails);
+    const [fields, setFields] = useState([]);
     const [formData, setFormData] = useState({});
+    const [vitalFormData, setVitalFormData] = useState({});
     const [errors, setErrors] = useState({});
     const [searchText, setSearchText] = useState("");
     const [productOptions, setProductOptions] = useState([]);
     const [loadingOptions, setLoadingOptions] = useState(false);
+    // Pagination state for autocomplete (same as SelectProductDialog)
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
+    const [hasMoreResults, setHasMoreResults] = useState(false);
+    const [pageLimit] = useState(20);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [hasVariants, setHasVariants] = useState(false);
     const [variants, setVariants] = useState([]);
+    const [variantAttributes, setVariantAttributes] = useState([]);
     const [isProductSelected, setIsProductSelected] = useState(false);
     const [showAllFields, setShowAllFields] = useState(false);
     const [snackOpen, setSnackOpen] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
     const [variantDetails, setVariantDetails] = useState([]);
-
+    const [enableVitalInfo, setEnableVitalInfo] = useState(false);
+    const [attributes, setAttributes] = useState([]);
+    const [filteredAttributes, setFilteredAttributes] = useState([]);
+    const [variantsCheckboxState, setVariantsCheckboxState] = useState({});
+    const [subCategory, setSubCategory] = useState([]);
     const [variantErrors, setVariantErrors] = useState([]);
+    const [vitalErrors, setVitalErrors] = useState([]);
+    const [finalVariantFields, setFinalVariantFields] = useState([variantProductFieldDetails]);
+    const [selectedIds, setSelectedIds] = useState("");
+    const [vitalFormObj, setVitalFormObj] = useState("");
+    const [allErrorMessages, setAllErrorMessages] = useState([]);
 
     // Determine if it's an edit operation based on currentProductId prop
     const isEditMode = !!currentProductId;
 
 
-    const initialValues = React.useMemo(() => allProductFieldDetails.reduce((acc, field) => {
+    const initialValues = React.useMemo(() => fields.reduce((acc, field) => {
         acc[field.id] = field.type === "number" ? null : field.type === "upload" ? (field.multiple ? [] : "") : "";
         return acc;
     }, {}), []);
 
     const initializeVariantData = useCallback(() => {
         return {
-            ...variantProductFieldDetails.reduce((acc, field) => {
+            ...finalVariantFields.reduce((acc, field) => {
                 acc[field.id] = field.type === "number" ? null : field.type === "upload" ? (field.multiple ? [] : "") : "";
                 return acc;
             }, {}),
             isNew: true // Mark as new by default
         };
-    }, []);
+    }, [finalVariantFields]);
+
+    const formatAttributesToFieldsDataFormat = (vitalInfoFields, required = false) => {
+        return vitalInfoFields.map((vitalInfo) => {
+            const id = vitalInfo.name.replace(/ /g, "_").toLowerCase();
+            const type = vitalInfo.type || "input";
+            const example = vitalInfo.example;
+
+            const defaultPlaceholders = {
+                input: `Enter ${vitalInfo.name}`,
+                number: `Enter ${vitalInfo.name}`,
+                date: `Select ${vitalInfo.name}`,
+                select: `Select ${vitalInfo.name}`,
+                upload: `Upload ${vitalInfo.name}`,
+                textarea: `Enter ${vitalInfo.name}`,
+                email: `Enter ${vitalInfo.name}`,
+                phone: `Enter ${vitalInfo.name}`,
+            };
+
+            return {
+                id,
+                title: vitalInfo.name,
+                placeholder: example || defaultPlaceholders[type] || `Enter ${vitalInfo.name}`,
+                type,
+                required: required || vitalInfo.required,
+                options: type === "select" ? vitalInfo.options : null,
+                file_type: type === "upload" ? "product_image" : null,
+            };
+        });
+    };
+    useEffect(() => {
+        const fetchAttributes = async () => {
+            if (category !== 'RET10' && formData.subCategory) {
+                setVitalFormData(vitalFormObj);
+                const sub_category = formData.subCategory;
+
+                let properties = await getCategoryAttributes(sub_category); // ✅ await the promise
+
+                if (properties.length > 0) {
+                    setEnableVitalInfo(true);
+                    properties = formatAttributesToFieldsDataFormat(properties);
+
+                    let variants = properties?.filter((property) => property.required);
+                    let variants_checkbox_map = variants.reduce((acc, variant) => {
+                        acc[variant.id] = false;
+                        return acc;
+                    }, {});
+
+                    const sizeOptions = getSizeOptions(sub_category);
+                    properties = properties.map((field) =>
+                        field.id === "size"
+                            ? { ...field, options: sizeOptions }
+                            : field
+                    );
+
+                    setAttributes(properties); // All attributes
+                    setVariantAttributes(variants); // Only required = candidate variant axes
+                    setVariantsCheckboxState(variants_checkbox_map); // For UI checkbox state
+                    setSubCategory(sub_category);
+                }
+            }
+        };
+
+        fetchAttributes(); // Call the async function
+    }, [formData.subCategory]);
+
+
+    useEffect(() => {
+        const mergedErrors = [];
+
+        // Main form errors → Tab: Product Details
+        if (errors && typeof errors === "object") {
+            Object.values(errors)
+                .filter(Boolean)
+                .forEach(msg => mergedErrors.push({ tab: "Product Details", message: msg }));
+        }
+
+        // Vital info errors → Tab: Vital Info
+        if (vitalErrors && typeof vitalErrors === "object") {
+            Object.values(vitalErrors)
+                .filter(Boolean)
+                .forEach(msg => mergedErrors.push({ tab: "Vital Info", message: msg }));
+        }
+
+        // Variant errors → Tab: Variants
+        if (Array.isArray(variantErrors)) {
+            variantErrors.forEach(variantErrObj => {
+                if (variantErrObj && typeof variantErrObj === "object") {
+                    Object.values(variantErrObj)
+                        .filter(Boolean)
+                        .forEach(msg => mergedErrors.push({ tab: "Variants", message: msg }));
+                }
+            });
+        }
+
+        setAllErrorMessages(mergedErrors);
+    }, [errors, vitalErrors, variantErrors]);
+
+
+
+    useEffect(() => {
+        let selectedVariantIds = [];
+        if (isEditMode) {
+            selectedVariantIds = selectedIds.split(',').map(attr => attr.trim());
+        } else {
+            selectedVariantIds = Object.entries(variantsCheckboxState)
+                .filter(([_, isChecked]) => isChecked)
+                .map(([id]) => id);
+        }
+        const selectedVariantAttributes = attributes.filter(attr => selectedVariantIds.includes(attr.id));
+        const filtered = attributes.filter(attr =>
+            !selectedVariantAttributes.find(v => v.id === attr.id) || variationFields.includes(attr.id)
+        );
+        let merged = variantProductFieldDetails;
+        if (selectedVariantAttributes.length > 0) {
+            merged = [
+                ...selectedVariantAttributes,
+                ...variantProductFieldDetails
+            ];
+        }
+        setFilteredAttributes(filtered);
+        setFinalVariantFields(merged);
+        setSelectedIds(selectedVariantIds.join(","));
+    }, [variantsCheckboxState, attributes, variantAttributes]);
+
 
     useEffect(() => {
         if (open) {
             setFormData({ ...initialValues });
+            setVitalFormData({ ...initialValues });
             setVariants([{ id: Date.now(), data: initializeVariantData() }]);
             setErrors({});
             setVariantErrors([]);
+            setVitalErrors([]);
             setSearchText("");
             setProductOptions([]);
             setIsProductSelected(false);
             setShowAllFields(false);
             setHasVariants(false);
             setActiveTab(0);
-
+            setEnableVitalInfo(false);
+            setVariantsCheckboxState({});
             if (isEditMode && currentProductId) {
                 fetchProductDetailsForEdit(currentProductId);
             }
         }
-    }, [open, initialValues, initializeVariantData, isEditMode, currentProductId]);
+    }, [open, isEditMode, currentProductId]);
 
     const fetchProductDetailsForEdit = useCallback(async (productId) => {
         setLoadingOptions(true);
         try {
-            const res = await getCall(`/api/v1/seller/productId/${productId}/product`);
-            const { commonDetails, variantSpecificDetails, variationOn } = res.data;
+            const res = await getCall(`/api/v1/seller/productId/${category}/${productId}/product`);
+            const { commonDetails, variantSpecificDetails, variationOn, variationAttributes } = res.data;
 
             // Populate common details, but we will GENERATE SKU on submission
             setFormData(commonDetails);
-
+            if (category !== "RET10") {
+                var vitalFormObj = convertAttributesToJson(commonDetails.attributes);
+                setVitalFormObj(vitalFormObj);
+                setSelectedIds(variationAttributes);
+            }
             // Populate variant details
-            if (variationOn !== "None" && variantSpecificDetails && variantSpecificDetails.length > 0) {
-                const initializedVariants = variantSpecificDetails.map(v => ({
-                    id: Date.now() + Math.random(), // unique ID
-                    data: {
-                        ...initializeVariantData(),
-                        ...v, // populate values from API
-                        isNew: false,
-                    }
-                }));
+            if (variationOn !== "NONE" && variantSpecificDetails && variantSpecificDetails.length > 0) {
+                const initializedVariants = variantSpecificDetails.map(v => {
+                    // Flatten attributes into an object: { colour: "Red", size: "M", ... }
+                    const flattenedAttributes = (v.attributes || []).reduce((acc, attr) => {
+                        acc[attr.code] = attr.value;
+                        return acc;
+                    }, {});
+
+                    return {
+                        id: Date.now() + Math.random(), // unique ID
+                        data: {
+                            ...initializeVariantData(), // default fields
+                            ...v, // main variant fields (like name, price, etc.)
+                            ...flattenedAttributes, // now colour, size, etc. become top-level keys
+                            isNew: false
+                        }
+                    };
+                });
                 setVariants(initializedVariants);
                 setHasVariants(true);
             } else {
@@ -217,7 +313,6 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                 setHasVariants(false);
             }
             setIsProductSelected(true);
-            setFields([...allProductFieldDetails]);
         } catch (error) {
             cogoToast.error("Failed to load product for editing.");
             console.error("Error fetching product details for edit:", error);
@@ -238,9 +333,19 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
         }
     }, [category]);
 
+    const getCategoryAttributes = useCallback(async (selectedSubCategory) => {
+        try {
+            const res = await getCall(`/api/v1/seller/reference/${category}/${selectedSubCategory}`);
+            return res.data;
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }, [category]);
+
     const setMasterProduct = useCallback(async (product) => {
         try {
-            const res = await getCall(`/api/v1/seller/product/master/${product.id}`);
+            const res = await getCall(`/api/v1/seller/product/master/${category}/${product.id}`);
             let details = res.data.commonDetails || {};
             let variantDetails = res.data.variantSpecificDetails || [];
             ["additiveInfo", "instructions", "nutritionalInfo", "manufacturerName", "manufacturerAddress", "ingredientsInfo"]
@@ -265,55 +370,178 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
         } catch (error) {
             cogoToast.error("Failed to load product.");
         }
-    }, [initializeVariantData]);
+    }, [initializeVariantData, category]);
 
     const handleProductSelect = useCallback(async (_, selectedProduct) => {
+        setErrors({});
+        setFormData({ ...initialValues });
+
         if (!selectedProduct) {
             setIsProductSelected(false);
-            setFormData({ ...initialValues });
-            setFields([...allProductFieldDetails]); // Reset fields when no product is selected
-            setErrors({});
+            setFields([...allProductFieldDetails]); // Reset all fields
             return;
         }
 
-        setFormData({ ...initialValues });
-        setErrors({});
+        const isNewProduct = selectedProduct.pid === -999;
+        let filteredFields = allProductFieldDetails.filter(field => field.id !== "sku");
 
-        if (selectedProduct.id === -999) { // "Add New Product" selected
-            const updatedFields = manualProductFieldDetails.filter(item => item.id !== "sku");
-            const subCategoryIndex = updatedFields.findIndex((item) => item.id === "subCategory");
-            const categoryList = await getProductCategory();
+        if (isNewProduct) {
+            const fieldsForCategory = categorySpecificFields[category];
+            filteredFields = filteredFields.filter(field => fieldsForCategory.includes(field.id));
+            const subCategoryIndex = filteredFields.findIndex(item => item.id === "subCategory");
             if (subCategoryIndex !== -1) {
-                updatedFields[subCategoryIndex].options = categoryList;
+                const categoryList = await getProductCategory();
+                filteredFields[subCategoryIndex] = {
+                    ...filteredFields[subCategoryIndex],
+                    type: 'select',
+                    options: categoryList,
+                    isDisabled: false
+                };
             }
-            setFields(updatedFields);
-        } else { // Existing product selected
-            const filteredFields = allProductFieldDetails.filter(item => item.id !== "sku");
-            setFields(filteredFields);
-            await setMasterProduct(selectedProduct);
+            const uomIndex = filteredFields.findIndex(item => item.id === "uom");
+            const defaultValues = getDefaultProductValues(filteredFields);
+            // Apply category-specific adjustments
+            if (category !== "RET10") {
+                if (uomIndex !== -1) {
+                    filteredFields[uomIndex] = {
+                        ...filteredFields[uomIndex],
+                        isDisabled: true
+                    };
+                }
+                defaultValues.fulfillmentOption = "Delivery";
+                defaultValues.uom = "UNIT";
+            }
+
+            // Filter out null/empty/undefined values from defaultValues
+            const nonEmptyDefaults = Object.entries(defaultValues).reduce((acc, [key, value]) => {
+                if (value !== null && value !== undefined && value !== "") {
+                    acc[key] = value;
+                }
+                return acc;
+            }, {});
+
+            // Set form data with only valid values
+            setFormData(prev => ({
+                ...prev,
+                ...nonEmptyDefaults,
+            }));
+            setVariants([{
+            id: Date.now(),
+            data: {
+                ...initializeVariantData(),
+                availableQty: 99,
+                uom: (category != "RET10"?"UNIT":null)
+            }
+        }]);
+        } else {
+            // Convert ProductResult to expected format for setMasterProduct
+            const productForMaster = {
+                id: selectedProduct.pid,
+                name: selectedProduct.name,
+                brand: selectedProduct.brand,
+                thumbnailUrl: selectedProduct.thumbnailUrl,
+                mrp: selectedProduct.mrp
+            };
+            await setMasterProduct(productForMaster);
         }
+
+        setFields(filteredFields);
         setIsProductSelected(true);
-    }, [initialValues, getProductCategory, setMasterProduct]);
+    }, [initialValues, category]);
 
     useEffect(() => {
-        if (!searchText || searchText.length < 3) return;
-        const delayDebounce = setTimeout(async () => {
-            setLoadingOptions(true);
-            try {
-                const url = `/api/v1/seller/product/search?keyword=${encodeURIComponent(searchText)}`;
-                const result = await getCall(url);
-                setProductOptions(result.data.length ? result.data : [{ id: -999, name: "\u2795 Add New Product" }]);
-            } catch (e) {
-                console.error(e);
-                setProductOptions([]);
-            } finally {
-                setLoadingOptions(false);
+        if (isEditMode) {
+            const fieldsForCategory = categorySpecificFields[category] || [];
+            const updatedFields = allProductFieldDetails
+                .filter(field => fieldsForCategory.includes(field.id))
+            if (category !== "RET10") {
+                const uomIndex = updatedFields.findIndex(item => item.id === "uom");
+                if (uomIndex !== -1) {
+                    updatedFields[uomIndex] = {
+                        ...updatedFields[uomIndex],
+                        isDisabled: true
+                    };
+                }
             }
+            setFields(updatedFields);
+        }
+    }, [isEditMode]);
+
+    // Fetch products using search endpoint with pagination (same as SelectProductDialog)
+    const fetchSearchProducts = useCallback(async (page = 0, keyword = "", append = false) => {
+        if (append) {
+            setLoadingMore(true);
+        } else {
+            setLoadingOptions(true);
+        }
+        try {
+            const url = `/api/v1/seller/product/search?category=${category}&keyword=${encodeURIComponent(keyword)}&page=${page}&limit=${pageLimit}`;
+            const result = await getCall(url);
+            // Handle new SearchResult structure
+            const searchResult = result.data || {};
+            const products = searchResult.results || [];
+
+            if (append && page > 0) {
+                // Append to existing results for pagination
+                setProductOptions(prev => {
+                    // Remove the "Add New Product" option if it exists
+                    const filteredPrev = prev.filter(opt => opt.pid !== -999);
+                    return [...filteredPrev, ...products];
+                });
+            } else {
+                // Replace results for new search
+                // Sort results by score in descending order (highest score first)
+                const sortedProducts = products.length ?
+                    products.sort((a, b) => (b.score || 0) - (a.score || 0)) :
+                    [];
+                setProductOptions(sortedProducts);
+            }
+
+            // Update pagination state
+            setCurrentPage(page);
+            setTotalCount(searchResult.totalCount || 0);
+            setHasMoreResults(searchResult.hasMoreResults || false);
+        } catch (error) {
+            console.error("Error fetching search products:", error);
+            if (!append) {
+                setProductOptions([]);
+            }
+        } finally {
+            setLoadingOptions(false);
+            setLoadingMore(false);
+        }
+    }, [category, pageLimit]);
+
+    useEffect(() => {
+        if (!searchText || searchText.length < 3) {
+            setProductOptions([]);
+            setCurrentPage(0);
+            setHasMoreResults(false);
+            return;
+        }
+        const delayDebounce = setTimeout(() => {
+            // Reset pagination and fetch new results for new search
+            setCurrentPage(0);
+            fetchSearchProducts(0, searchText, false);
         }, 400);
         return () => clearTimeout(delayDebounce);
-    }, [searchText]);
+    }, [searchText, fetchSearchProducts]);
+
+    // Handle infinite scroll for autocomplete
+    const handleAutocompleteScroll = useCallback((e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+
+        // Check if user has scrolled to the bottom (with some buffer)
+        if (scrollHeight - scrollTop <= clientHeight + 50) {
+            // Load more data if available and not already loading
+            if (hasMoreResults && !loadingOptions && !loadingMore && searchText && searchText.length >= 3) {
+                fetchSearchProducts(currentPage + 1, searchText, true);
+            }
+        }
+    }, [hasMoreResults, loadingOptions, loadingMore, currentPage, searchText, fetchSearchProducts]);
 
     const handleVariantChange = useCallback((index, updatedData) => {
+        console.log("change ....");
         setVariants(prev => {
             const updatedVariants = [...prev];
             updatedVariants[index] = { ...updatedVariants[index], data: updatedData };
@@ -329,78 +557,121 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     }, []);
 
     const handleSubmit = async () => {
-        const variationFilterFields = fields.filter(f =>
-            ["price", "purchasePrice", "availableQty", "uomValue", "sku", "imageUrls", "backImage"].includes(f.id)
-        );
-
         let isVariantsValid = true;
         if (hasVariants) {
-            isVariantsValid = validateVariantForm(variants, variationFilterFields, setVariantErrors);
+            isVariantsValid = validateVariantForm(variants, finalVariantFields, setVariantErrors);
         }
+
         const visibleFieldsMainTab = fields.filter(f =>
-            !hasVariants || !variationFilterFields.find(vf => vf.id === f.id)
+            !hasVariants || !finalVariantFields.find(vf => vf.id === f.id)
         );
 
         const isMainFormValid = validateProductForm(formData, visibleFieldsMainTab, setErrors);
+        const isVitalFormValid = validateProductForm(vitalFormData, filteredAttributes, setVitalErrors);
 
-        if (!isMainFormValid || !isVariantsValid) return;
+        if (!isMainFormValid || !isVitalFormValid || !isVariantsValid) {
+            console.log("Validation Failed:");
+            console.log("isMainFormValid:", isMainFormValid);
+            console.log("isVitalFormValid:", isVitalFormValid);
+            console.log("isVariantsValid:", isVariantsValid);
+            return;
+        }
 
         setLoadingSubmit(true);
         try {
-            // *** SKU Generation Logic - IMPORTANT ***
-            const commonDetailsToSend = { ...formData }; // Create a mutable copy
-
-            // Generate SKU for the common product (if not using variants or as a base)
-            // Ensure subCategory and productName are available for SKU generation
+            // --- Prepare Common Details ---
+            const { tempURL, ...commonDetailsToSend } = formData;
+            // Generate SKU for the common product
             if (!isEditMode) {
                 if (commonDetailsToSend.subCategory && commonDetailsToSend.productName) {
                     commonDetailsToSend.sku = generateSKU("RET", commonDetailsToSend.subCategory);
                 } else {
-                    // Fallback or error if essential SKU components are missing
                     cogoToast.error("Cannot generate SKU: Missing sub-category or product name.");
                     setLoadingSubmit(false);
                     return;
                 }
             }
+            const vitalDynamicAttributes = Object.keys(vitalFormData || {})
+                .filter(
+                    key =>
+                        key !== "tempURL" &&
+                        key !== "uploaded_urls" &&
+                        vitalFormData[key] !== undefined &&
+                        vitalFormData[key] !== "" &&
+                        vitalFormData[key] !== null &&
+                        (!Array.isArray(vitalFormData[key]) || vitalFormData[key].length > 0)
+                )
+                .map(key => ({
+                    code: key,
+                    value: vitalFormData[key]
+                }));
+            commonDetailsToSend.attributes = vitalDynamicAttributes;
 
             let variantSpecificDetailsToSend = undefined;
-            if (hasVariants) {
-                variantSpecificDetailsToSend = variants.map(v => {
-                    const variantData = { ...v.data }; // Create a mutable copy
 
+            if (hasVariants) {
+                let staticFieldIds = variantProductFieldDetails.map(f => f.id);
+                if (isEditMode) {
+                    staticFieldIds.push("_id", "productId", "productVariantId", "attributes");
+                }
+                variantSpecificDetailsToSend = variants.map(v => {
+                    const { isNew, ...variantData } = v.data; // Remove internal flag
                     // Generate SKU for each variant
                     if (!isEditMode) {
                         if (commonDetailsToSend.subCategory && commonDetailsToSend.productName) {
-                            var newSKU = generateSKU("RET", commonDetailsToSend.subCategory, commonDetailsToSend.productName);
                             variantData.sku = generateSKU("RET", commonDetailsToSend.subCategory, commonDetailsToSend.productName);
                         } else {
                             throw new Error("Cannot generate variant SKU: Missing common product details (subCategory or productName).");
                         }
                     }
-                    if(isEditMode){
-                        if(!variantData.productId){
+
+                    if (isEditMode) {
+                        if (!variantData.productId) {
                             variantData.productId = commonDetailsToSend.productId;
                         }
-                        if(!variantData.productVariantId){
+                        if (!variantData.productVariantId) {
                             variantData.productVariantId = uuidv4();
                         }
                     }
-                    return variantData;
+                    // Extract dynamic fields in required format
+                    const attributes = Object.keys(variantData)
+                        .filter(key =>
+                            !staticFieldIds.includes(key) &&
+                            key !== "tempURL" &&
+                            key !== "uploaded_urls" &&
+                            variantData[key] !== undefined &&
+                            variantData[key] !== "" &&
+                            variantData[key] !== null &&
+                            (!Array.isArray(variantData[key]) || variantData[key].length > 0)
+                        )
+                        .map(key => ({
+                            code: key,
+                            value: variantData[key]
+                        }));
+
+
+                    return {
+                        ...Object.fromEntries(
+                            Object.entries(variantData).filter(([key]) => staticFieldIds.includes(key))
+                        ),
+                        attributes
+                    };
                 });
             }
-
+            // --- Prepare Final Payload ---
             const payload = {
-                commonDetails: commonDetailsToSend, // Use the updated commonDetails with SKU
-                variationOn: hasVariants ? "UOM" : "None",
-                variantSpecificDetails: variantSpecificDetailsToSend // Use the updated variant details with SKUs
+                commonDetails: commonDetailsToSend,
+                variationOn: hasVariants ? (selectedIds ? "ATTRIBUTES" : "UOM") : "NONE",
+                variantSpecificDetails: variantSpecificDetailsToSend,
+                variationAttributes: selectedIds
             };
 
             let res;
             if (isEditMode) {
-                const apiUrl = `/api/v1/seller/productId/${currentProductId}/product`;
+                const apiUrl = `/api/v1/seller/productId/${category}/${currentProductId}/product`;
                 res = await putCall(apiUrl, payload);
             } else {
-                const apiUrl = `/api/v1/seller/storeId/${storeId}/product`;
+                const apiUrl = `/api/v1/seller/storeId/${category}/${storeId}/product`;
                 res = await postCall(apiUrl, payload);
             }
 
@@ -418,6 +689,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             setLoadingSubmit(false);
         }
     };
+
 
     const handleVariantToggle = () => {
         setHasVariants(prev => {
@@ -441,46 +713,37 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
             }
             return newValue;
         });
-        // if (newValue && isEditMode) {
-        //         console.log("1 variants",variants);
-        //         if (variants.length === 0 && variantDetails.length > 0) {
-        //             console.log("2");
-        //             const loadedVariants = variantDetails.map(v => ({
-        //                 id: Date.now() + Math.random(),
-        //                 data: {
-        //                     ...initializeVariantData(),
-        //                     ...v,
-        //                     isNew: false,
-        //                 }
-        //             }));
-        //             setVariants(loadedVariants);
-        //         } else {
-        //             console.log("3 formData",formData);
-        //             setVariants([{
-        //             id: Date.now(),
-        //             data: {
-        //                 ...initializeVariantData(), // Start with default variant data
-        //                 // Extract relevant fields from formData to populate the first variant
-        //                 price: formData.price,
-        //                 purchasePrice:formData.purchasePrice,
-        //                 availableQty: formData.availableQty,
-        //                 sku:formData.sku,
-        //                 uomValue:formData.uomValue,
-        //                 backImage:formData.backImage,
-        //                 imageUrls:formData.imageUrls
-        //             }
-        //         }]);
-        //         }
-        //     }else 
+    };
+    const getPlaceholder = (category) => {
+        return "Type any product name here";
     };
 
+    const handleAddNewProduct = () => {
+        const newProductOption = { pid: -999, name: "➕ Add New Product" };
+        handleProductSelect(null, newProductOption);
+    };
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle className="dialog-title">
                 <Typography variant="h6" component="div" sx={{ color: 'primary.main' }}>
                     {isEditMode ? "Edit Product" : "Add New Product"}
                 </Typography>
-                <IconButton onClick={onClose}><CloseIcon /></IconButton>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    {!isEditMode && (
+                        <Tooltip title="Add New Product">
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleAddNewProduct}
+                                startIcon={<AddCircleOutlineIcon />}
+                                size="small"
+                            >
+                                Add Product Manually
+                            </Button>
+                        </Tooltip>
+                    )}
+                    <IconButton onClick={onClose}><CloseIcon /></IconButton>
+                </Box>
             </DialogTitle>
             <DialogContent>
                 <div>
@@ -489,15 +752,126 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                             freeSolo
                             options={productOptions}
                             loading={loadingOptions}
-                            getOptionLabel={(opt) => typeof opt === 'string' ? opt : (opt?.name?.split("#!#")[0] || "")}
+                            ListboxProps={{
+                                onScroll: handleAutocompleteScroll,
+                                style: { maxHeight: 400, overflow: 'auto' }
+                            }}
+                            getOptionLabel={(opt) => {
+                                if (typeof opt === 'string') return opt;
+                                // Handle ProductResult format
+                                if (opt.pid) {
+                                    return opt.name || '';
+                                }
+                                // Handle legacy format for backward compatibility
+                                return opt?.name?.split('#!#')[0] || '';
+                            }}
                             filterOptions={(x) => x}
-                            onInputChange={(_, val, reason) => reason === "input" && setSearchText(val)}
+                            onInputChange={(_, val, reason) => reason === 'input' && setSearchText(val)}
                             onChange={handleProductSelect}
+                            renderOption={(props, option, { index }) => {
+                                // Check if this is the last item and we're loading more
+                                const isLastItem = index === productOptions.length - 1;
+                                const shouldShowLoader = isLastItem && loadingMore && hasMoreResults;
+
+                                // Handle ProductResult format
+                                if (option.pid) {
+                                    return (
+                                        <React.Fragment key={option.pid}>
+                                            <li {...props}>
+                                                <div style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0' }}>
+                                                    {option.thumbnailUrl && (
+                                                        <img
+                                                            src={option.thumbnailUrl}
+                                                            alt={option.name}
+                                                            width={40}
+                                                            height={40}
+                                                            style={{ objectFit: 'cover', borderRadius: 4 }}
+                                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                                        />
+                                                    )}
+                                                    <div>
+                                                        <div style={{ fontWeight: 'bold' }}>
+                                                            {highlightText(option.name, searchText)}
+                                                        </div>
+                                                        <div style={{ fontSize: 12, color: '#555' }}>
+                                                            {highlightText(option.brand, searchText)} {option.mrp && `| ₹${option.mrp}`}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            {shouldShowLoader && (
+                                                <li style={{ padding: '10px', textAlign: 'center', borderTop: '1px solid #eee' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                                                        <CircularProgress size={16} />
+                                                        <span style={{ fontSize: 12, color: '#666' }}>Loading more products...</span>
+                                                    </div>
+                                                </li>
+                                            )}
+                                        </React.Fragment>
+                                    );
+                                }
+
+                                // Handle legacy format and special options
+                                const name = typeof option === 'string' ? option : option?.name || '';
+
+                                if (!name.includes('#!#')) {
+                                    return (
+                                        <React.Fragment key={`${name}-${index}`}>
+                                            <li {...props}>
+                                                <div style={{ padding: '5px 0', fontWeight: 500 }}>{name}</div>
+                                            </li>
+                                            {shouldShowLoader && (
+                                                <li style={{ padding: '10px', textAlign: 'center', borderTop: '1px solid #eee' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                                                        <CircularProgress size={16} />
+                                                        <span style={{ fontSize: 12, color: '#666' }}>Loading more products...</span>
+                                                    </div>
+                                                </li>
+                                            )}
+                                        </React.Fragment>
+                                    );
+                                }
+
+                                const [productName, imageUrl, brand, manufacturer, uom, uomValue] = name.split('#!#');
+
+                                return (
+                                    <React.Fragment key={`${productName}-${index}`}>
+                                        <li {...props}>
+                                            <div style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '5px 0' }}>
+                                                <img
+                                                    src={imageUrl}
+                                                    alt={productName}
+                                                    width={40}
+                                                    height={40}
+                                                    style={{ objectFit: 'cover', borderRadius: 4 }}
+                                                    onError={(e) => { e.target.style.display = 'none'; }}
+                                                />
+                                                <div>
+                                                    <div style={{ fontWeight: 'bold' }}>
+                                                        {highlightText(productName, searchText)}
+                                                    </div>
+                                                    <div style={{ fontSize: 12, color: '#555' }}>
+                                                        {highlightText(brand, searchText)} | {uomValue} {uom}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        {shouldShowLoader && (
+                                            <li style={{ padding: '10px', textAlign: 'center', borderTop: '1px solid #eee' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                                                    <CircularProgress size={16} />
+                                                    <span style={{ fontSize: 12, color: '#666' }}>Loading more products...</span>
+                                                </div>
+                                            </li>
+                                        )}
+                                    </React.Fragment>
+                                );
+                            }}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
                                     label="Search Existing Product"
-                                    placeholder="e.g., Atta, Ashirvad"
+                                    placeholder={getPlaceholder(category)}
                                     fullWidth
                                     margin="normal"
                                     variant="outlined"
@@ -510,7 +884,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                         ),
                                         endAdornment: (
                                             <>
-                                                {loadingOptions ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {loadingOptions && <CircularProgress color="inherit" size={20} />}
                                                 {params.InputProps.endAdornment}
                                             </>
                                         ),
@@ -519,6 +893,8 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                 />
                             )}
                         />
+
+
                     )}
 
                     {isProductSelected && !isEditMode && (
@@ -531,39 +907,115 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
 
                 {isProductSelected && (
                     <>
-                        <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
+                        {hasVariants && category !== "RET10" && !isEditMode && (
+                            <Box sx={{ mb: 2 }}>
+                                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                                    Select attributes for variant:
+                                </Typography>
+                                <Grid container spacing={1}>
+                                    {Object.entries(variantsCheckboxState).map(([key, value]) => (
+                                        <Grid item xs={12} sm={6} md={4} lg={3} key={key}>
+                                            <FormControlLabel
+                                                control={
+                                                    <Checkbox
+                                                        checked={value}
+                                                        onChange={() =>
+                                                            setVariantsCheckboxState(prev => ({
+                                                                ...prev,
+                                                                [key]: !prev[key],
+                                                            }))
+                                                        }
+                                                    />
+                                                }
+                                                label={key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                                            />
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            </Box>
+                        )}
+                        {allErrorMessages.length > 0 && (
+                            <Box sx={{ mb: 2, p: 2, border: "1px solid #f44336", borderRadius: 1, backgroundColor: "#fdecea" }}>
+                                <Typography variant="subtitle1" sx={{ color: "#d32f2f", fontWeight: 600 }}>
+                                    Please fix the following errors:
+                                </Typography>
+                                <ul style={{ margin: 0, paddingLeft: "1.5rem", color: "#d32f2f" }}>
+                                    {allErrorMessages.map((err, i) => (
+                                        <li key={i}>
+                                            <strong>{err.tab}:</strong> {err.message}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Box>
+                        )}
+                        <Tabs
+                            value={activeTab}
+                            onChange={(e, newValue) => setActiveTab(newValue)}
+                        >
                             <Tab label="Product Details" {...a11yProps(0)} />
-                            <Tab label="Variants" {...a11yProps(1)} disabled={!hasVariants} />
+
+                            {category !== "RET10" && (
+                                <Tab
+                                    label="Vital Info"
+                                    {...a11yProps(category !== "RET10" ? 1 : null)}
+                                    disabled={!enableVitalInfo}
+                                />
+                            )}
+
+                            <Tab
+                                label="Variants"
+                                {...a11yProps(category !== "RET10" ? 2 : 1)}
+                                disabled={!hasVariants}
+                            />
                         </Tabs>
 
                         <TabPanel value={activeTab} index={0}>
                             <Box className="details-section">
-                                {(showAllFields
-                                    ? fields.filter(f => !hasVariants || !variationFields.includes(f.id))
-                                    : fields.filter(f => ["subCategory", "productName", "price", "gstPercentage", "purchasePrice"].includes(f.id) && (!hasVariants || !["price", "purchasePrice"].includes(f.id))))
-                                    .map((item) => (
-                                        <Grid item xs={12} key={item.id}>
-                                            <RenderInput
-                                                item={{ ...item, error: errors[item.id], helperText: errors[item.id], fullWidth: true }}
-                                                previewOnly={isEditMode && item.id === "productCode"}
-                                                state={formData}
-                                                stateHandler={setFormData}
-                                            />
-                                        </Grid>
-                                    ))}
-                            </Box>
-                            <Box textAlign="center">
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => setShowAllFields(prev => !prev)}
-                                    startIcon={showAllFields ? <CloseIcon /> : <AddCircleOutlineIcon />}
-                                >
-                                    {showAllFields ? "Hide Additional Product Fields" : "Show All Product Fields"}
-                                </Button>
+                                <Grid container spacing={2}>
+                                    {(showAllFields
+                                        ? fields.filter(f => !hasVariants || !variationFields.includes(f.id))
+                                        : fields.filter(f => ["subCategory", "productName", "price", "gstPercentage", "sellingPrice"].includes(f.id) && (!hasVariants || !["price", "sellingPrice"].includes(f.id))))
+                                        .map((item) => (
+                                            <Grid item xs={12} sm={6} key={item.id}>
+                                                <RenderInput
+                                                    item={{ ...item, error: errors[item.id], helperText: errors[item.id], fullWidth: true }}
+                                                    previewOnly={isEditMode && item.id === "productCode"}
+                                                    state={formData}
+                                                    stateHandler={setFormData}
+                                                />
+                                            </Grid>
+                                        ))}
+                                </Grid>
+                                <Box textAlign="center">
+                                    <Button
+                                        variant="outlined"
+                                        onClick={() => setShowAllFields(prev => !prev)}
+                                        startIcon={showAllFields ? <CloseIcon /> : <AddCircleOutlineIcon />}
+                                    >
+                                        {showAllFields ? "Hide Additional Product Fields" : "Show All Product Fields"}
+                                    </Button>
+                                </Box>
                             </Box>
                         </TabPanel>
-
-                        <TabPanel value={activeTab} index={1}>
+                        {category !== "RET10" && <TabPanel value={activeTab} index={1}>
+                            {filteredAttributes.length === 0 && enableVitalInfo ? (
+                                <Box className="variant-empty">
+                                    <Typography variant="h6">No attributes found</Typography>
+                                </Box>
+                            ) : (
+                                <VitalInfoSection
+                                    fields={filteredAttributes}
+                                    formData={vitalFormData} // ✅ pass data, not setter
+                                    onFormDataChange={setVitalFormData} // ✅ pass setter here
+                                    category={category}
+                                    subCategory={subCategory}
+                                    showRemoveButton={variants.length > 1 && !isEditMode}
+                                    vitalErrors={vitalErrors}
+                                    isEditMode={isEditMode}
+                                />
+                            )}
+                        </TabPanel>}
+                        <TabPanel value={activeTab} index={category !== "RET10" ? 2 : 1}>
                             {variants.length === 0 && hasVariants ? (
                                 <Box className="variant-empty">
                                     <Typography variant="h6">No variants found. Add a new variant.</Typography>
@@ -578,29 +1030,44 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                         key={variant.id}
                                         index={idx}
                                         variant={variant}
-                                        fields={variantProductFieldDetails}
+                                        fields={[...finalVariantFields]}
                                         onChange={(i, d) => handleVariantChange(i, d)}
                                         onRemove={handleVariantRemove}
                                         showRemoveButton={variants.length > 1 && !isEditMode}
                                         variantErrors={variantErrors[idx] || {}}
                                         isEditMode={isEditMode}
+                                        category={category}
+                                        subCategory={subCategory}
                                     />
                                 ))
                             )}
                             {hasVariants && (
                                 <Button
                                     onClick={() =>
-                                        setVariants(prev => [
-                                            ...prev,
-                                            {
-                                                id: Date.now(),
-                                                data: {
-                                                    ...initializeVariantData(),
-                                                    sku: generateSKU("RET", formData?.subCategory),  // or any default SKU format
-                                                    availableQty: 99               // default quantity
-                                                }
-                                            }
-                                        ])
+                                        setVariants(prev => {
+                                            const lastVariant = prev[prev.length - 1];
+
+                                            return [
+                                                ...prev,
+                                                {
+                                                    id: Date.now(),
+                                                    data: lastVariant
+                                                        ? {
+                                                            ...lastVariant.data, // copy previous variant data
+                                                            productVariantId: null,
+                                                            sku: generateSKU("RET", formData?.subCategory), // override SKU
+                                                            availableQty: 99, // override qty if needed
+                                                            isNew: true,
+                                                        }
+                                                        : {
+                                                            ...initializeVariantData(), // fallback if no variant exists
+                                                            sku: generateSKU("RET", formData?.subCategory),
+                                                            uom: "UNIT",
+                                                            availableQty: 99,
+                                                        },
+                                                },
+                                            ];
+                                        })
                                     }
                                     variant="contained"
                                     startIcon={<AddCircleOutlineIcon />}
@@ -609,6 +1076,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                                 >
                                     Add Another Variant
                                 </Button>
+
                             )}
 
                         </TabPanel>

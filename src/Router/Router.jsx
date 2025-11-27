@@ -14,7 +14,6 @@ import GatewayActivity from "../Components/Application/GatewayActivity/GatewayAc
 import AdminDetails from "../Components/Application/AdminActivity/AdminDetails.js";
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
 import ProviderDetails from "../Components/Application/UserListings/ProviderDetails";
-import StoreDetails from "../Components/Application/UserListings/StoreDetails";
 import InviteAdmin from "../Components/OnBoarding/InviteAdmin";
 import AddProvider from "../Components/OnBoarding/addProvider";
 import ForgotPassword from "../Components/Auth/ForgotPassword/ForgotPassword";
@@ -33,6 +32,9 @@ import NewSeller from "../Components/OnBoarding/new-seller-account";
 import ActivateSeller from "../Components/OnBoarding/activateSeller";
 import SellerVerification from "../Components/Application/UserListings/SellerVerification.js";
 import ReturnDetails from "../Components/Application/Returns/ReturnDetails.jsx";
+import MallGrid from "../Components/Application/VirtualMall/MallGrid.jsx";
+import CategoryTaxonomy from "../Components/Application/CategoryTaxonomy/CategoryTaxonomy.jsx";
+import ShopifyCallback from "../Components/Application/Shopify/ShopifyCallback.jsx";
 
 export default function OndcRoutes() {
   return (
@@ -55,6 +57,14 @@ export default function OndcRoutes() {
           element={
             <PrivateRoute>
               <Inventory />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={"/application/shopify/callback"}
+          element={
+            <PrivateRoute>
+              <ShopifyCallback />
             </PrivateRoute>
           }
         />
@@ -180,6 +190,14 @@ export default function OndcRoutes() {
           }
         />
         <Route
+          path="/application/category-taxonomy"
+          element={
+            <PrivateRoute>
+              <CategoryTaxonomy />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/application/settlement"
           element={
             <PrivateRoute>
@@ -255,11 +273,19 @@ export default function OndcRoutes() {
             </PrivateRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/application/store-details/:id"
           element={
             <PrivateRoute>
               <StoreDetails />
+            </PrivateRoute>
+          }
+        /> */}
+        <Route
+          path="/application/store-details/:id"
+          element={
+            <PrivateRoute>
+              <MallGrid />
             </PrivateRoute>
           }
         />

@@ -134,7 +134,7 @@ const AddOffer = () => {
             }
             navigate('/application/offers');
         } catch (error) {
-            cogoToast.error(error.response.data.error);
+            cogoToast.error(error.response.data.message);
         }
     };
 

@@ -13,10 +13,11 @@ const DynamicSubcategorySelect = ({ item, value, onChange, error }) => {
   const [loading, setLoading] = useState(false);
   const getProductNames = async (keyword) => {
     try {
-      const url = `/api/v1/seller/product/search?keyword=${encodeURIComponent(keyword)}`;
+      const url = `/api/v1/seller/product/search?keyword=${encodeURIComponent(keyword)}&page=0&limit=20`;
       const result = await getCall(url);
-      console.log("result.data " + JSON.stringify(result.data));
-      return result.data;
+      // Handle new SearchResult structure
+      const searchResult = result.data || {};
+      return searchResult.results || [];
     } catch (error) {
       console.log(error);
     }
@@ -27,7 +28,9 @@ const DynamicSubcategorySelect = ({ item, value, onChange, error }) => {
       const response = getProductNames(keyword);
       const data = await response;
       if (Array.isArray(data)) {
-        setOptions(data); // ✅ Correct format
+        // Sort results by score in descending order (highest score first)
+        const sortedData = data.sort((a, b) => (b.score || 0) - (a.score || 0));
+        setOptions(sortedData);
       } else {
         console.warn("Unexpected data format:", data);
         setOptions([]);  // Fallback
@@ -49,11 +52,11 @@ const DynamicSubcategorySelect = ({ item, value, onChange, error }) => {
       loading={loading}
       value={value || null}
       getOptionLabel={(option) => option.name || ""}
-      isOptionEqualToValue={(option, val) => option.id === val.id}
-      onInputChange={(e, inputValue) => {
+      isOptionEqualToValue={(option, val) => option.pid === val.pid}
+      onInputChange={(_, inputValue) => {
         if (inputValue) debouncedFetch(inputValue);
       }}
-      onChange={(e, newValue) => {
+      onChange={(_, newValue) => {
         // store full object or just newValue.id based on use case
         onChange(newValue);
       }}

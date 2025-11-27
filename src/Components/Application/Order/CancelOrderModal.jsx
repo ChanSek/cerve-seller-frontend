@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
 import { CANCELATION_REASONS } from './order-cancelation-reason';
 
-const CancelOrderModal = ( props ) => {
+const CancelOrderModal = (props) => {
   const { showModal, handleCloseModal, data, onOrderCancel } = props;
   const [selectedReason, setSelectedReason] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleReasonChange = (event) => {
     setSelectedReason(event.target.value);
   };
 
-  const handleCancelOrder = () => {
+  const handleCancelOrder = async () => {
     if (!selectedReason) {
       alert("Please select a cancellation reason.");
       return;
     }
-    onCancel(selectedReason);
+
+    try {
+      setLoading(true);
+      await onOrderCancel(selectedReason); // assuming it's async
+      setLoading(false);
+      handleCloseModal(); // optional: close modal after success
+    } catch (error) {
+      console.error("Cancellation failed:", error);
+      alert("Failed to cancel order. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,6 +38,7 @@ const CancelOrderModal = ( props ) => {
             id="cancel-reason"
             value={selectedReason}
             onChange={handleReasonChange}
+            disabled={loading}
           >
             <option value="" disabled>Select reason</option>
             {CANCELATION_REASONS.map((reason) => (
@@ -36,10 +48,15 @@ const CancelOrderModal = ( props ) => {
             ))}
           </select>
         </div>
+
         <div className="modal-actions">
-          <button onClick={onClose}>Close</button>
-          <button onClick={handleCancelOrder}>Cancel Order</button>
+          <button onClick={handleCloseModal} disabled={loading}>Close</button>
+          <button onClick={handleCancelOrder} disabled={loading || !selectedReason}>
+            {loading ? "Cancelling..." : "Cancel Order"}
+          </button>
         </div>
+
+        {loading && <div className="spinner">Loading...</div>} {/* Add a spinner here */}
       </div>
     </div>
   );

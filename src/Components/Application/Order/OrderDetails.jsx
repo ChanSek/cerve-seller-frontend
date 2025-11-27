@@ -179,6 +179,7 @@ const OrderDetails = () => {
           allowPartialCancel={allowPartialCancel}
           order={order}
           quote={order?.quote}
+          category={order?.category}
           stateTransition={order?.stateTransition}
           mainDelivery={mainDelivery}
           onAccept={handleAccept}

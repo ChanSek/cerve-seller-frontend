@@ -190,7 +190,7 @@ const CustomizationGroupDetails = (props) => {
       setAddedItems(customizations);
     } catch (error) {
       console.log(error);
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 
@@ -202,7 +202,7 @@ const CustomizationGroupDetails = (props) => {
       cogoToast.success("Group added successfully");
       navigate("/application/customizations/customization-groups");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 
@@ -213,7 +213,7 @@ const CustomizationGroupDetails = (props) => {
       navigate("/application/customizations/customization-groups");
       cogoToast.success("Group details updated successfully");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 

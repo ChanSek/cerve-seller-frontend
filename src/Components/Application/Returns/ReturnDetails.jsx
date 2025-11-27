@@ -196,7 +196,6 @@ const ActionMenu = ({ row, fetchReturns, actionName, isBulk }) => {
 };
 
 const ReturnItemCard = ({ returnItem }) => {
-    console.log("returnItem ", returnItem);
     const tags = returnItem.request.tags || [];
     const quoteTrails = getQuoteTrails(tags);
     const images = (getTagValue(tags, "return_request", "images") || "")
@@ -389,14 +388,14 @@ const ReturnItemCard = ({ returnItem }) => {
     );
 };
 
-const ReturnDetails = ({ id, open, onClose }) => {
+const ReturnDetails = ({ id, category, open, onClose }) => {
     const [returnData, setReturnData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const fetchReturns = async () => {
         try {
-            const resp = await getCall(`/api/v1/seller/return/${id}`);
+            const resp = await getCall(`/api/v1/seller/return/${category}/${id}`);
             setReturnData(resp.data);
         } catch (err) {
             console.error("Error fetching return data:", err);

@@ -83,7 +83,7 @@ const AddGenericProduct = ({
     productCode: "",
     productName: "",
     price: "",
-    purchasePrice: "",
+    sellingPrice: "",
     hSNCode: "",
     gstPercentage: "",
     availableQty: "",
@@ -233,11 +233,11 @@ const AddGenericProduct = ({
         },
       };
 
-      if (variationOn !== "none") {
+      if (variationOn !== "NONE") {
         data["variantSpecificDetails"] = variant_data;
         data["variationOn"] = variationOn?.toUpperCase();
       } else {
-        data["variationOn"] = "None";
+        data["variationOn"] = "NONE";
       }
 
       //await cancellablePromise(postCall(api_url, data));
@@ -251,7 +251,7 @@ const AddGenericProduct = ({
       }
     } catch (error) {
       console.log(error);
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 
@@ -313,7 +313,7 @@ const AddGenericProduct = ({
             packerName: variant_data.ondc_info["Manufacturer"],
             countryOfOrigin:
               countryNameToID[variant_data.ondc_info["Country Of Origin"]],
-            purchasePrice: "",
+            sellingPrice: "",
             gstPercentage: "",
             barcode: "",
             maxAllowedQty: "",
@@ -358,7 +358,6 @@ const AddGenericProduct = ({
     )
       .then(async (resp) => {
         if (resp.data.commonDetails) {
-          console.log("Data "+JSON.stringify(resp.data.commonDetails));
           setFormValues({ ...resp.data.commonDetails });
         }
       })
@@ -877,11 +876,11 @@ const AddGenericProduct = ({
         : !isAmountValid(formValues?.price)
           ? "Please enter only digit"
           : "";
-      formErrors.purchasePrice = !formValues?.purchasePrice
+      formErrors.sellingPrice = !formValues?.sellingPrice
         ? "Please enter a valid number"
-        : !isAmountValid(formValues?.purchasePrice)
+        : !isAmountValid(formValues?.sellingPrice)
           ? "Please enter only digit"
-          : formValues?.price && parseFloat(formValues.purchasePrice) > parseFloat(formValues.price)
+          : formValues?.price && parseFloat(formValues.sellingPrice) > parseFloat(formValues.price)
             ? "Pruchase price cannot be greater than the actual price"
             : "";
       formErrors.availableQty = !formValues?.availableQty

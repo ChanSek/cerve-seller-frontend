@@ -74,27 +74,28 @@ export default function Login() {
   }
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    const url = "/api/v1/auth/login";
-    try {
-      const res = await postCall(url, login);
-      if (res.status == 200) {
-        if (res.data.emailExist) {
-          handleRedirect(res.data.user);
-        } else {
-          cogoToast.error("Email not registered!");
-        }
-      } else if (res.status == 401) {
-        cogoToast.error(res.message, { hideAfter: 5 });
-      } else {
-        cogoToast.error("Authentication failed!");
-      }
-    } catch (error) {
-      cogoToast.error("Authentication failed!");
-      //setEnableCaptcha(true)
-      //loadCaptchaEnginge(6)
+  e.preventDefault();
+  const url = "/api/v1/auth/login";
+  try {
+    const res = await postCall(url, login);
+    if (res && res.data.emailExist) {
+      handleRedirect(res.data.user);
     }
-  };
+  } catch (error) {
+    if (error.response) {
+      // backend responded with error
+      const msg =
+        error.response.data?.message ||
+        error.response.data?.error ||
+        "Authentication failed!";
+      cogoToast.error(msg, { hideAfter: 5 });
+    } else {
+      // network or other issue
+      cogoToast.error("Network error, please try again", { hideAfter: 5 });
+    }
+  }
+};
+
 
   function handleRedirect(user) {
     const { _id } = user;
@@ -104,6 +105,7 @@ export default function Login() {
     AddCookie("sellerActive", user?.organization?.active);
     AddCookie("isSuperAdmin", user?.role?.name === "Super Admin");
     localStorage.setItem("user_id", _id);
+    localStorage.setItem("organization_id",user?.organization?._id);
     if (!user.enabled) {
       navigate("/activate");
     } else if (!isObjEmpty(user.organization)) {

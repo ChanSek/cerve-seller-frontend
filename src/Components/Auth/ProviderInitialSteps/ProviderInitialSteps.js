@@ -475,7 +475,7 @@ const ProviderInitialSteps = () => {
       const res = await postCall(url, data);
       navigate("/application/inventory");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
       console.log(error.response);
     }
   };

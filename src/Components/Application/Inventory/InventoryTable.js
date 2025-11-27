@@ -44,26 +44,26 @@ import AddProductDialog from "../Product/AddProductDialog";
 
 // Styled components for better readability and reusability
 const StyledPaper = styled(Paper)(({ theme }) => ({
-    width: "100%",
-    overflow: "hidden",
-    boxShadow: theme.shadows[3],
-    borderRadius: theme.shape.borderRadius,
+  width: "100%",
+  overflow: "hidden",
+  boxShadow: theme.shadows[3],
+  borderRadius: theme.shape.borderRadius,
 }));
 
 const StyledTableHeadCell = styled(TableCell)(({ theme }) => ({
-    fontWeight: "bold",
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    whiteSpace: 'nowrap',
-    padding: theme.spacing(1.5, 2),
+  fontWeight: "bold",
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.primary.contrastText,
+  whiteSpace: 'nowrap',
+  padding: theme.spacing(1.5, 2),
 }));
 
 const StyledTableBodyCell = styled(TableCell)(({ theme }) => ({
-    padding: theme.spacing(1.5, 2),
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    maxWidth: '250px', // Adjust as needed to prevent excessive width
+  padding: theme.spacing(1.5, 2),
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  maxWidth: '250px', // Adjust as needed to prevent excessive width
 }));
 
 const StyledModalPaper = styled(Paper)(({ theme }) => ({
@@ -95,6 +95,7 @@ export default function InventoryTable(props) {
     customizationGroups = [],
     storeId,
     data,
+    category
   } = props;
   const navigate = useNavigate();
 
@@ -159,7 +160,7 @@ export default function InventoryTable(props) {
 
     const handlePublishState = async (product_id, published) => {
       try {
-        const url = `/api/v1/seller/productId/${product_id}/publish`;
+        const url = `/api/v1/seller/productId/${category}/${product_id}/publish`;
         await putCall(url, { published: !published });
         cogoToast.success(`Product ${published ? "unpublished" : "published"} successfully!`);
         onRefresh();
@@ -286,7 +287,6 @@ export default function InventoryTable(props) {
   };
 
   const handleProductClick = (productId) => {
-    console.log("Viewing product ID:", productId);
     setProductToViewId(productId);
     setViewProductDialogOpen(true);
   };
@@ -320,6 +320,34 @@ export default function InventoryTable(props) {
     { id: 'createdAt', label: 'Created At', minWidth: 100, align: 'left' },
     { id: 'updatedAt', label: 'Updated At', minWidth: 100, align: 'left' },
   ];
+
+  const renderUnitAbbreviation = (unit) => {
+    if (!unit || unit.trim() === "") {
+      return "Unknown unit";
+    }
+
+    switch (unit.toLowerCase()) {
+      case "pieces":
+        return "p";
+      case "kilogram":
+        return "kg";
+      case "gram":
+        return "g";
+      case "tonne":
+        return "t";
+      case "litre":
+        return "L";
+      case "millilitre":
+        return "mL";
+      case "dozen":
+        return "doz";
+      case "unit":
+        return "unit";
+      default:
+        return "Unknown unit";
+    }
+  };
+
 
 
   return (
@@ -372,7 +400,7 @@ export default function InventoryTable(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.length === 0 ? (
+            {data?.length === 0 ? (
               <TableRow>
                 <StyledTableBodyCell colSpan={columns.length + 1} align="center">
                   <Typography variant="subtitle1" color="text.secondary" sx={{ py: 3 }}>
@@ -381,7 +409,7 @@ export default function InventoryTable(props) {
                 </StyledTableBodyCell>
               </TableRow>
             ) : (
-              data.map((item, index) => (
+              data?.map((item, index) => (
                 <Fragment key={item._id || `product-${index}`}>
                   {item.variantSpecificDetails.map((variant, idx) => (
                     <TableRow
@@ -423,10 +451,10 @@ export default function InventoryTable(props) {
                                         MRP: {v.price?.toFixed(2) || 'N/A'}
                                       </Typography>
                                       <Typography variant="body2">
-                                        Selling Price: {v.purchasePrice?.toFixed(2) || 'N/A'}
+                                        Selling Price: {v.sellingPrice?.toFixed(2) || 'N/A'}
                                       </Typography>
                                       <Typography variant="body2">
-                                        Measure: {v.uomValue || ''} {item.commonDetails.uom || ''}
+                                        Measure: {v.uomValue || ''} {renderUnitAbbreviation(v.uom) || ''}
                                       </Typography>
                                     </Box>
                                   ))}
@@ -507,7 +535,7 @@ export default function InventoryTable(props) {
             </Button>
           </DialogTitle>
           <DialogContent dividers>
-            <ViewProductDetails productId={productToViewId} prodType="Product" />
+            <ViewProductDetails productId={productToViewId} category={category} prodType="Product" />
           </DialogContent>
           <DialogActions></DialogActions>
         </Dialog>

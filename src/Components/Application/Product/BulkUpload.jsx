@@ -34,7 +34,7 @@ const BulkUpload = () => {
           }
         }).catch(error => {
           if (error.response)
-            cogoToast.error(error.response.data.error);
+            cogoToast.error(error.response.data.message);
         }).finally(() => {
           setLoading(false);
           setSelectedFile(null);

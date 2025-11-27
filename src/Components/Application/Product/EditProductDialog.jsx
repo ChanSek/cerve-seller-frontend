@@ -60,7 +60,7 @@ const EditProductDialog = ({ storeId, productId, open, onClose, refreshProducts 
 
         setLoadingSubmit(true);
         try {
-            const productData = { commonDetails: formData, variationOn: "None" };
+            const productData = { commonDetails: formData, variationOn: "NONE" };
             const res = await putCall(`/api/v1/seller/productId/${productId}/product`, productData);
 
             if (res.status === 200) {

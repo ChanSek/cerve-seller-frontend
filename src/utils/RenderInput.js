@@ -358,7 +358,7 @@ const RenderInput = (props) => {
   } else if (item.type === "select") {
     //  console.log("state[item.id]=====>", item.id, "=====>", state[item.id]);
 
-    return (
+     return (
       <div className={props.containerClasses !== undefined ? `${props.containerClasses}` : "py-1 flex flex-col"}>
         <label
           className={
@@ -375,7 +375,6 @@ const RenderInput = (props) => {
             sx={props.inputStyles && props.inputStyles}
             disableClearable={item.disableClearable !== undefined ? item.disableClearable : false}
             disabled={item?.isDisabled || previewOnly || false}
-            // filterSelectedOptions
             size="small"
             options={item?.options}
             getOptionLabel={(option) => option?.key}
@@ -402,6 +401,20 @@ const RenderInput = (props) => {
                 }
               });
             }}
+
+            // ✅ Highlight options in actual color
+            renderOption={(props, option) => (
+              <li {...props}>
+                {item.id.toLowerCase().includes("color") || item.id.toLowerCase().includes("colour") ? (
+                  <span style={{ color: option.value, fontWeight: "bold", textTransform: "capitalize" }}>
+                    {option.key}
+                  </span>
+                ) : (
+                  option.key
+                )}
+              </li>
+            )}
+
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -412,6 +425,7 @@ const RenderInput = (props) => {
               />
             )}
           />
+
         </FormControl>
       </div>
     );
@@ -587,6 +601,7 @@ const RenderInput = (props) => {
           multiple
           format={item.format || "DD/MM/YYYY"}
           plugins={[<DatePanel />]}
+          minDate={item.disablePast ? moment().startOf("day").toDate() : undefined}
           onChange={(newValue) => {
             stateHandler((prevState) => {
               const newState = {
@@ -727,16 +742,6 @@ const RenderInput = (props) => {
     );
   } else if (item.type === "upload") {
     const allowedMaxSize = 2 * 1024 * 1024; // 2 MB in Bytes
-    // const getSignUrl = async (file) => {
-    //   const url = `/api/v1/seller/upload/${item?.file_type}`;
-    //   const file_type = file.type.split("/")[1];
-    //   const data = {
-    //     fileName: file.name.replace(`\.${file_type}`, ""),
-    //     fileType: file_type,
-    //   };
-    //   const res = await postMediaCall(url, data);
-    //   return res;
-    // };
 
     const renderUploadedUrls = () => {
       const getImageElement = (url) => (
@@ -810,6 +815,7 @@ const RenderInput = (props) => {
             size="small"
             color="error"
             onClick={(e) => {
+              console.log("Clicked... ",name);
               e.stopPropagation();
               // reset file input
               uploadFileRef.current.value = null;
@@ -914,7 +920,7 @@ const RenderInput = (props) => {
                         [item.id]: updatedValue,
                         uploaded_urls: [],
                       };
-                      stateHandler(updatedState); // ✅ works for both formData and variant.data
+                      stateHandler(updatedState);
                     } else {
                       // Handle single image upload
                       const reader = new FileReader();
@@ -929,7 +935,7 @@ const RenderInput = (props) => {
                             [item.id]: tempUrl,
                           },
                         };
-                        stateHandler(updatedState); // ✅ same here
+                        stateHandler(updatedState);
                       };
                       reader.readAsDataURL(file);
                     }

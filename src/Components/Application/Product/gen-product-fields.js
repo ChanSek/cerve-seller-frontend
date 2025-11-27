@@ -10,20 +10,12 @@ export const variantProductFieldDetails = [
     valueInDecimal: true,
   },
   {
-    id: "purchasePrice",
+    id: "sellingPrice",
     title: "Selling Price",
     placeholder: "Selling Price",
     type: "number",
     required: true,
     valueInDecimal: true,
-  },
-  {
-    id: "availableQty",
-    title: "Quantity",
-    placeholder: "Quantity",
-    type: "number",
-    maxLength: 10,
-    required: true,
   },
   {
     id: "uomValue",
@@ -32,6 +24,31 @@ export const variantProductFieldDetails = [
     type: "input",
     required: true,
     maxLength: 10,
+  },
+  {
+    id: "uom",
+    title: "UOM",
+    placeholder: "UOM",
+    type: "select",
+    required: true,
+    options: [
+      { key: "unit", value: "UNIT" },
+      { key: "dozen", value: "DOZEN" },
+      { key: "gram", value: "GRAM" },
+      { key: "pieces", value: "PIECES" },
+      { key: "kilogram", value: "KILOGRAM" },
+      { key: "tonne", value: "TONNE" },
+      { key: "litre", value: "LITRE" },
+      { key: "millilitre", value: "MILLILITRE" },
+    ],
+  },
+  {
+    id: "availableQty",
+    title: "Quantity",
+    placeholder: "Quantity",
+    type: "number",
+    maxLength: 10,
+    required: true,
   },
   {
     id: "sku",
@@ -44,7 +61,7 @@ export const variantProductFieldDetails = [
   },
   {
     id: "imageUrls",
-    title: "Images (Select minimum 3 files with maximum size of 2Mb for each file)",
+    title: "Images (Select minimum 1 files with maximum size of 2Mb for each file)",
     type: "upload",
     multiple: true,
     file_type: "product_image",
@@ -52,10 +69,10 @@ export const variantProductFieldDetails = [
   },
   {
     id: "backImage",
-    title: "Image of back of the product",
+    title: "Product Thumbnail",
     type: "upload",
     file_type: "product_image",
-    required: true,
+    required: false,
   }
 ]
 
@@ -84,7 +101,7 @@ export const allProductFieldDetails = [
     valueInDecimal: true,
   },
   {
-    id: "purchasePrice",
+    id: "sellingPrice",
     title: "Selling Price",
     placeholder: "Selling Price",
     type: "number",
@@ -97,11 +114,11 @@ export const allProductFieldDetails = [
     placeholder: "Please Select GST Percentage",
     type: "select",
     options: [
-      { key: "0", value: 0 },
-      { key: "5", value: 5 },
-      { key: "12", value: 12 },
-      { key: "18", value: 18 },
-      { key: "28", value: 28 },
+      { key: "0", value: "0" },
+      { key: "5", value: "5" },
+      { key: "12", value: "12" },
+      { key: "18", value: "18" },
+      { key: "28", value: "28" },
     ],
     required: true,
   },
@@ -141,6 +158,7 @@ export const allProductFieldDetails = [
       { key: "unit", value: "UNIT" },
       { key: "dozen", value: "DOZEN" },
       { key: "gram", value: "GRAM" },
+      { key: "pieces", value: "PIECES" },
       { key: "kilogram", value: "KILOGRAM" },
       { key: "tonne", value: "TONNE" },
       { key: "litre", value: "LITRE" },
@@ -206,8 +224,8 @@ export const allProductFieldDetails = [
     title: "Product Code (EAN / ISBN / GTIN / HSN / Others)",
     placeholder: "Product Code",
     type: "input",
-    required: false,
-    isDisabled: true,
+    required: true,
+    isDisabled: false,
   },
   {
     id: "brandOwnerFssaiLicenseNo",
@@ -216,7 +234,7 @@ export const allProductFieldDetails = [
     type: "number",
     maxLength: 14,
     required: false,
-    isDisabled: true,
+    isDisabled: false,
   },
   {
     id: "manufacturerName",
@@ -264,7 +282,7 @@ export const allProductFieldDetails = [
   },
   {
     id: "imageUrls",
-    title: "Images (Select minimum 3 files with maximum size of 2Mb for each file)",
+    title: "Images (Select minimum 1 files with maximum size of 2Mb for each file)",
     type: "upload",
     multiple: true,
     file_type: "product_image",
@@ -272,9 +290,19 @@ export const allProductFieldDetails = [
   },
   {
     id: "backImage",
-    title: "Image of back of the product",
+    title: "Product Thumbnail",
     type: "upload",
     file_type: "product_image",
-    required: true,
+    required: false,
   },
 ];
+
+export const categorySpecificFields = {
+  "RET10": ["subCategory", "productName", "price", "sellingPrice", "gstPercentage", "availableQty", "minAllowedQty", "maxAllowedQty", "uom", "uomValue", "longDescription", "fulfillmentOption", "countryOfOrigin", "vegNonVeg", "sku", "productCode", "brandOwnerFssaiLicenseNo", "manufacturerName", "manufacturerAddress", "nutritionalInfo", "additiveInfo", "instructions", "ingredientsInfo", "imageUrls", "backImage"],
+  "RET12": ["subCategory", "productName", "price", "sellingPrice", "gstPercentage", "availableQty", "minAllowedQty", "maxAllowedQty", "uom", "uomValue", "longDescription", "fulfillmentOption", "countryOfOrigin", "sku", "productCode", "brandOwnerFssaiLicenseNo", "manufacturerName", "manufacturerAddress", "instructions", "imageUrls", "backImage"],
+  "RET13": ["subCategory", "productName", "price", "sellingPrice", "gstPercentage", "availableQty", "minAllowedQty", "maxAllowedQty", "uom", "uomValue", "longDescription", "fulfillmentOption", "countryOfOrigin", "sku", "productCode", "brandOwnerFssaiLicenseNo", "manufacturerName", "manufacturerAddress", "instructions", "imageUrls", "backImage"],
+  "RET14": ["subCategory", "productName", "price", "sellingPrice", "gstPercentage", "availableQty", "minAllowedQty", "maxAllowedQty", "uom", "uomValue", "longDescription", "fulfillmentOption", "countryOfOrigin", "sku", "productCode", "brandOwnerFssaiLicenseNo", "manufacturerName", "manufacturerAddress", "instructions", "imageUrls", "backImage"],
+  "RET15": ["subCategory", "productName", "price", "sellingPrice", "gstPercentage", "availableQty", "minAllowedQty", "maxAllowedQty", "uom", "uomValue", "longDescription", "fulfillmentOption", "countryOfOrigin", "sku", "productCode", "brandOwnerFssaiLicenseNo", "manufacturerName", "manufacturerAddress", "instructions", "imageUrls", "backImage"],
+  "RET16": ["subCategory", "productName", "price", "sellingPrice", "gstPercentage", "availableQty", "minAllowedQty", "maxAllowedQty", "uom", "uomValue", "longDescription", "fulfillmentOption", "countryOfOrigin", "sku", "productCode", "brandOwnerFssaiLicenseNo", "manufacturerName", "manufacturerAddress", "instructions", "imageUrls", "backImage"],
+  "RET18": ["subCategory", "productName", "price", "sellingPrice", "gstPercentage", "availableQty", "minAllowedQty", "maxAllowedQty", "uom", "uomValue", "longDescription", "fulfillmentOption", "countryOfOrigin", "sku", "productCode", "brandOwnerFssaiLicenseNo", "manufacturerName", "manufacturerAddress", "instructions", "imageUrls", "backImage"],
+};

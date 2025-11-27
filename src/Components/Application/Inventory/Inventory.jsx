@@ -2,15 +2,21 @@ import { useEffect, useState } from "react";
 import InventoryTable from "../Inventory/InventoryTable";
 import Button from "../../Shared/Button";
 import { Add as AddIcon, Download as DownloadIcon, FileUpload as FileUploadIcon } from "@mui/icons-material";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import SyncIcon from "@mui/icons-material/Sync";
 import { useNavigate } from "react-router-dom";
 import { getCall, postCall, putCall } from "../../../Api/axios";
 import useCancellablePromise from "../../../Api/cancelRequest";
 import { isObjEmpty } from "../../../utils/validations";
 import { useTheme } from "@mui/material/styles";
 import AddProductDialog from "../Product/AddProductDialog";
+import SelectProductDialog from "../Product/SelectProductDialog";
 import FilterComponent from "../../Shared/FilterComponent";
 import AddCustomization from "../Product/AddCustomization";
 import downloadExcel from "../Inventory/DownloadExcel";
+import { useStore } from "../../../Router/StoreContext";
+import ConnectShopifyDialog from "../Shopify/ConnectShopifyDialog";
+import SyncShopifyDialog from "../Shopify/SyncShopifyDialog";
 
 const fieldsToDelete = [
   "_id",
@@ -29,6 +35,11 @@ export default function Inventory() {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [queryString, setQueryString] = useState('');
   const [open, setOpen] = useState(false);
+  const [selectOpen, setSelectOpen] = useState(false);
+  const [shopifyConnectOpen, setShopifyConnectOpen] = useState(false);
+  const [shopifySyncOpen, setShopifySyncOpen] = useState(false);
+  const { store } = useStore();
+  const [merchantId, setMerchantId] = useState('');
   const filterFields = [
     {
       id: "category",
@@ -67,8 +78,8 @@ export default function Inventory() {
       format: (value) => value.toLocaleString("en-US"),
     },
     {
-      id: "purchasePrice",
-      label: "Purchase Price",
+      id: "sellingPrice",
+      label: "Selling Price",
       minWidth: 100,
       format: (value) => value.toLocaleString("en-US"),
     },
@@ -82,36 +93,6 @@ export default function Inventory() {
       id: "measure",
       label: "Measure",
     },
-    // {
-    //   id: "cancellable",
-    //   label: "Cancellable",
-    //   boolean: true,
-    //   minWidth: 100,
-    // },
-    // {
-    //   id: "returnable",
-    //   label: "Returnable",
-    //   boolean: true,
-    //   minWidth: 100,
-    // },
-    // { id: "variationOn", label: "Variation", minWidth: 100 },
-    /*{
-      id: "customizationGroupId",
-      label: "Customization",
-      format: (value) => {
-        for (let i = 0; i < customizationGroups.length; i++) {
-          if (customizationGroups[i]._id === value) {
-            console.log("customizationGroupId", customizationGroups[i]);
-            if (customizationGroups[i].description) {
-              return `${customizationGroups[i].name} ( ${customizationGroups[i].description} )`;
-            } else {
-              return `${customizationGroups[i].name}`;
-            }
-          }
-        }
-        return "-";
-      },
-    },*/
     {
       id: "published",
       label: "Published",
@@ -132,23 +113,9 @@ export default function Inventory() {
     stock: false,
   });
 
-  const [customizationGroups, setCustomizationGroups] = useState([]);
-
-  const [showCustomizationModal, setShowCustomizationModal] = useState(false);
-  const [customizationId, setCustomizationId] = useState(null);
-  const [newCustomizationData, setNewCustomizationData] = useState({
-    productName: "",
-    MRP: 0,
-    UOM: "",
-    UOMValue: "",
-    quantity: "",
-    maxAllowedQty: "",
-    vegNonVeg: "veg",
-  });
-
   const getProducts = async (storeId) => {
     try {
-      const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
+      const res = await cancellablePromise(getCall(`/api/v1/seller/${category}/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}`));
       setProducts(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
@@ -158,7 +125,12 @@ export default function Inventory() {
 
   const getTempProducts = async () => {
     try {
-      const res = await cancellablePromise(getCall(`/api/v1/seller/storeId/${storeId}/products?pageSize=${rowsPerPage}&fromIndex=${page}&${queryString}`));
+      const baseUrl = `/api/v1/seller/${category}/storeId/${storeId}/products`;
+      const paginationParams = `pageSize=${rowsPerPage}&fromIndex=${page}`;
+      //const queryParams = queryString ? `&${queryString}` : "";
+      const finalUrl = `${baseUrl}?${paginationParams}`;
+
+      const res = await cancellablePromise(getCall(finalUrl));
       setProducts(res.content);
       setTotalRecords(res.totalElements);
     } catch (error) {
@@ -178,60 +150,11 @@ export default function Inventory() {
     return res[0];
   };
 
-  const fetchCustomizationGroups = async () => {
-    const url = `/api/v1/customizationGroups?limit=10&offset=0`;
-
+  const getProductCategory = async () => {
     try {
-      const res = await getCall(url);
-      setCustomizationGroups(res.data);
-      return res.data;
-    } catch (error) {
-      console.log("Error fetching customziation groups:", error);
-    }
-  };
-
-  const fetchCustomizationItem = async (id) => {
-    setCustomizationId(id);
-    try {
-      const url = `/api/v1/product/customization/${id}`;
-      const res = await getCall(url);
-      setNewCustomizationData(res);
-    } catch (error) {
-      console.log("Error fetching customization item: ", error);
-    }
-  };
-
-  const handleAddCustomization = async () => {
-    try {
-      const url = `/api/v1/product/customization`;
-
-      const res = await postCall(url, newCustomizationData);
-      console.log("handleAddCustomization: ", res);
-      setNewCustomizationData({ MRP: 0 });
-      setShowCustomizationModal(false);
-      getProducts();
-    } catch (error) { }
-  };
-
-  const handleUpdateCustomization = async () => {
-    try {
-      const url = `/api/v1/product/customization/${customizationId}`;
-      fieldsToDelete.forEach((field) => {
-        if (newCustomizationData.hasOwnProperty(field)) {
-          delete newCustomizationData[field];
-        }
-      });
-      const res = await putCall(url, newCustomizationData);
-      setNewCustomizationData({ MRP: 0 });
-      setCustomizationId(null);
-      setShowCustomizationModal(false);
-      getProducts();
-    } catch (error) { }
-  };
-
-  const getProductCategory = async (categoryId) => {
-    try {
-      const url = `/api/v1/seller/reference/category/${categoryId}`;
+      console.log("storeId: ", store?.storeId);
+      console.log("category: ", store?.category);
+      const url = `/api/v1/seller/reference/category/${category}`;
       const result = await getCall(url);
       return result.data;
     } catch (error) {
@@ -242,62 +165,106 @@ export default function Inventory() {
   useEffect(() => {
     let data = [...filterFields]; // Create a copy of the fields array
     const subCategoryIndex = data.findIndex((item) => item.id === "category");
-    getProductCategory('RET10').then((categoryList) => {
+    getProductCategory().then((categoryList) => {
       data[subCategoryIndex].options = categoryList;
       setCategoryOptions(categoryList);
     });
-  }, []);
+  }, [category]);
 
   useEffect(() => {
-    const user_id = localStorage.getItem("user_id");
-    getUser(user_id).then((u) => {
-      // roles - Organization Admin, Super Admin
-      if (u?.isSystemGeneratedPassword) {
-        navigate("/initial-steps")
-      } else {
-        if (u.role.name == "Organization Admin") {
-          const merchantId = u?.organization?._id;
-          if (!isObjEmpty(merchantId)) {
-            var isActive = u?.organization?.active;
-            if (!isActive) {
-              navigate(`/user-listings/provider-details/${merchantId}`);
-            } else {
-              getOrgDetails(merchantId).then((org) => {
-                let category = u?.organization?.category;
-                if (!category) {
-                  navigate(`/application/store-details/${merchantId}`);
-                } else {
-                  setStoreId(org.data.storeId);
-                  setCategory(org.data.category);
-                  getProducts(org.data.storeId);
-                }
-              });
-            }
-          } else {
-            navigate("/add-provider-info")
-          }
-        } else if (u.role.name == "Super Admin") {
-          navigate("/application/user-listings");
+    const userId = localStorage.getItem("user_id");
+    // If store is already available from context, use it
+    if (store?.storeId && store?.category) {
+      setStoreId(store.storeId);
+      setCategory(store.category);
+      return;
+    }
+    // Else fetch user and determine path
+    getUser(userId).then((user) => {
+      if (user?.isSystemGeneratedPassword) {
+        navigate("/initial-steps");
+        return;
+      }
+
+      const role = user?.role?.name;
+      console.log("1");
+      if (role === "Organization Admin") {
+        console.log("2");
+        const merchantIdFromUser = user?.organization?._id;
+        const isActive = user?.organization?.active;
+
+        // Set merchantId for Shopify integration
+        if (merchantIdFromUser) {
+          setMerchantId(merchantIdFromUser);
+          localStorage.setItem("organization_id", merchantIdFromUser);
         }
+
+        // Store storeId for Shopify integration if available
+        if (store?.storeId) {
+          localStorage.setItem("store_id", store.storeId);
+        }
+
+        if (!merchantIdFromUser) {
+          navigate("/add-provider-info");
+          return;
+        }
+
+        if (!isActive) {
+          navigate(`/user-listings/provider-details/${merchantIdFromUser}`);
+          return;
+        }
+        const storeDetailsAvailable = user?.organization?.storeDetailsAvailable;
+        if (!storeDetailsAvailable) {
+          navigate(`/application/store-details/${merchantIdFromUser}`);
+          return;
+        }
+
+        // const category = user?.organization?.category;
+        // if (!category) {
+        //   navigate(`/application/store-details/${merchantId}`);
+        //   return;
+        // }
+
+      } else if (role === "Super Admin") {
+        navigate("/application/user-listings");
       }
     });
-    //fetchCustomizationGroups();
-  }, []);
+  }, [store, category]);  // Optional: Add store dependency
+
 
   useEffect(() => {
     if (storeId && storeId !== undefined) {
+      setFilters({
+        name: "",
+        category: null,
+        stock: false,
+      });
+
+      setQueryString("");
       getTempProducts();
     }
-  }, [page, rowsPerPage, storeId]);
+  }, [page, rowsPerPage, storeId, category]);
 
   const handleRefresh = () => {
     getProducts(storeId);
   };
 
   const onReset = () => {
-    setFilters({ name: "", category: null, stock: false });
-    getProducts(storeId);
+    setFilters({
+      name: "",
+      category: null,
+      stock: false,
+    });
+
+    setQueryString("");
+
+    if (storeId) {
+      getProducts(storeId);
+    } else {
+      console.warn("Store ID is missing. Cannot fetch products.");
+    }
   };
+
 
   const onFilter = async () => {
     const filterParams = [];
@@ -306,7 +273,7 @@ export default function Inventory() {
     }
 
     if (filters.category != undefined && filters.category !== "") {
-      filterParams.push(`category=${encodeURIComponent(filters.category)}`);
+      filterParams.push(`subCategory=${encodeURIComponent(filters.category)}`);
     }
 
     if (!filters.stock) {
@@ -316,7 +283,7 @@ export default function Inventory() {
     }
 
     const queryString = filterParams.join("&");
-    const url = `/api/v1/seller/storeId/${storeId}/products?${queryString}`;
+    const url = `/api/v1/seller/${category}/storeId/${storeId}/products?${queryString}`;
 
     const res = await cancellablePromise(getCall(url));
     setProducts(res.content);
@@ -335,13 +302,25 @@ export default function Inventory() {
             Inventory
           </label>
           <div className="flex flex-col sm:flex-row">
-            <div className="mb-2 sm:mb-0 sm:mr-4">
-              {/* <Button
+            {/* <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
                 variant="contained"
                 icon={<AddIcon />}
-                title="ADD PRODUCT"
+                title="ADD Old PRODUCT"
                 onClick={() => navigate("/application/add-products")}
-              /> */}
+              />
+            </div> */}
+            <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
+                variant="contained"
+                icon={<AddIcon />}
+                title="SELECT PRODUCT"
+                onClick={() => setSelectOpen(true)}
+              >
+                SELECT PRODUCT
+              </Button>
+            </div>
+            <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
                 variant="contained"
                 icon={<AddIcon />}
@@ -350,7 +329,10 @@ export default function Inventory() {
               >
                 ADD PRODUCT
               </Button>
-              <AddProductDialog storeId={storeId} category={category} open={open} onClose={() => setOpen(false)} refreshProducts={handleRefresh}/>
+              <AddProductDialog storeId={storeId} category={category} open={open} onClose={() => setOpen(false)} refreshProducts={handleRefresh} />
+              <SelectProductDialog storeId={storeId} category={category} open={selectOpen} onClose={() => setSelectOpen(false)} refreshProducts={handleRefresh} />
+              <ConnectShopifyDialog open={shopifyConnectOpen} onClose={() => setShopifyConnectOpen(false)} />
+              <SyncShopifyDialog open={shopifySyncOpen} onClose={() => setShopifySyncOpen(false)} refreshProducts={handleRefresh} merchantId={merchantId} storeId={storeId} />
             </div>
             <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
@@ -368,6 +350,27 @@ export default function Inventory() {
                 onClick={() => downloadExcel(storeId)} // Pass storeId here
               />
             </div>
+            {/* Shopify Integration Buttons */}
+            <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
+                variant="contained"
+                icon={<StorefrontIcon />}
+                title="Connect Shopify Store"
+                onClick={() => setShopifyConnectOpen(true)}
+              >
+                CONNECT SHOPIFY
+              </Button>
+            </div>
+            <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
+                variant="contained"
+                icon={<SyncIcon />}
+                title="Sync from Shopify"
+                onClick={() => setShopifySyncOpen(true)}
+              >
+                SYNC SHOPIFY
+              </Button>
+            </div>
             {/* Additional buttons can be added here */}
           </div>
         </div>
@@ -384,37 +387,12 @@ export default function Inventory() {
           onRefresh={handleRefresh}
           totalRecords={totalRecords}
           page={page}
+          category={category}
           rowsPerPage={rowsPerPage}
-          customizationGroups={customizationGroups}
-          setShowCustomizationModal={setShowCustomizationModal}
           getProducts={getProducts}
           storeId={storeId}
-          //fetchCustomizationItem={fetchCustomizationItem}
           handlePageChange={(val) => setPage(val)}
           handleRowsPerPageChange={(val) => setRowsPerPage(val)}
-        />
-
-        <AddCustomization
-          mode={!customizationId ? "add" : "edit"}
-          showModal={showCustomizationModal}
-          handleCloseModal={() => {
-            setNewCustomizationData({
-              productName: "",
-              MRP: 0,
-              UOM: "",
-              UOMValue: "",
-              quantity: "",
-              maxAllowedQty: "",
-            });
-            setShowCustomizationModal(false);
-            setCustomizationId(null);
-          }}
-          newCustomizationData={newCustomizationData}
-          setNewCustomizationData={setNewCustomizationData}
-          handleAddCustomization={() => {
-            if (customizationId) handleUpdateCustomization();
-            else handleAddCustomization();
-          }}
         />
       </div>
     </>

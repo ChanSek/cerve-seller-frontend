@@ -65,7 +65,7 @@ const InviteAdmin = () => {
         cogoToast.success("Admin created successfully and invitation sent on e-mail");
       }
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 

@@ -58,8 +58,6 @@ export function generateSKU(domain, category) {
     const categoryCode = cleanAndAbbreviate(category, 3);
 
     const timestampPart = Date.now().toString().slice(-4);
-    console.log("timestampPart "+timestampPart);
-    console.log("Date.now().toString() "+Date.now().toString());
     const randomPart = generateRandomAlphanumeric(2); // 2 random alphanumeric characters
 
     const uniqueSuffix = `${timestampPart}${randomPart}`;

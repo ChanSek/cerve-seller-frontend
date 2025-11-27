@@ -4,18 +4,15 @@ import {
   SwipeableDrawer,
   List,
   Divider,
-  ListItem,
   ListItemButton,
   ListItemText,
   Collapse,
   Stack,
   Typography,
-  IconButton,
 } from "@mui/material";
 import logo from "../../Assets/Images/logo.png";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import LogoutIcon from "@mui/icons-material/Logout";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { deleteAllCookies } from "../../utils/cookies";
 import { getCall, postCall } from "../../Api/axios";
@@ -32,15 +29,6 @@ export default function Sidebar({ open, setOpen }) {
   const toggleDrawer = (anchor, open) => () => {
     setDrawerState({ ...drawerState, [anchor]: open });
     setOpen(false);
-  };
-
-  const logout = async () => {
-    if (window.confirm("Are you sure you want to logout your session?")) {
-      await postCall(`/api/v1/auth/logout`);
-      deleteAllCookies();
-      localStorage.clear();
-      navigate("/");
-    }
   };
 
   const getUser = async (id) => {
@@ -123,6 +111,11 @@ export default function Sidebar({ open, setOpen }) {
                     <ListItemText primary="User Listings" />
                   </ListItemButton>
                 </NavLink>
+                <NavLink to="/application/category-taxonomy" className="no-underline text-black">
+                  <ListItemButton sx={{ pl: 4 }}>
+                    <ListItemText primary="Category Taxonomy" />
+                  </ListItemButton>
+                </NavLink>
 
                 <NavLink to="/application/settlement" className="no-underline text-black">
                   <ListItemButton sx={{ pl: 4 }}>
@@ -164,14 +157,7 @@ export default function Sidebar({ open, setOpen }) {
           </Stack>
           <Divider />
           {renderMenuItems()}
-          <List sx={{ position: "absolute", bottom: 0, width: "100%" }}>
-            <ListItem disablePadding>
-              <ListItemButton onClick={logout}>
-                <LogoutIcon />
-                <ListItemText primary="Log Out" sx={{ ml: 2 }} />
-              </ListItemButton>
-            </ListItem>
-          </List>
+          
         </Box>
       </SwipeableDrawer>
       <Outlet />

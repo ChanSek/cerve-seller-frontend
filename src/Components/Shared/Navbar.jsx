@@ -1,85 +1,72 @@
 import * as React from "react";
 import { styled, alpha } from "@mui/material/styles";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import InputBase from "@mui/material/InputBase";
-import Badge from "@mui/material/Badge";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
-import SearchIcon from "@mui/icons-material/Search";
-import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import MoreIcon from "@mui/icons-material/MoreVert";
-import Sidebar from "../Shared/Sidebar";
-import { debounce } from "../../utils/search";
-import { getCall } from "../../Api/axios";
+import {
+  AppBar,
+  Box,
+  Toolbar,
+  IconButton,
+  InputBase,
+  Menu,
+  MenuItem,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { useNavigate } from "react-router-dom";
+import {
+  Menu as MenuIcon,
+  MoreVert as MoreIcon,
+} from "@mui/icons-material";
+import StoreSwitcher from "./StoreSwitcher";
+import { postCall } from "../../Api/axios";
+import { deleteAllCookies,getValueFromCookie } from "../../utils/cookies";
 
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(3),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("md")]: {
-      width: "20ch",
-    },
-  },
-}));
 
 export default function Navbar({ sidebarOpen, setSidebarOpen }) {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [openLogoutDialog, setOpenLogoutDialog] = React.useState(false);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
+  const merchantId = localStorage.getItem("organization_id");
+  const isMerchantIdEmpty = merchantId === undefined || merchantId === "undefined" || !merchantId || merchantId.trim() === "";
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const handleMobileMenuOpen = (event) => {
+    setMobileMoreAnchorEl(event.currentTarget);
+  };
+
+  const handleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleOpenLogoutDialog = () => {
+    setOpenLogoutDialog(true);
     handleMobileMenuClose();
   };
 
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
+  const handleCloseLogoutDialog = () => {
+    setOpenLogoutDialog(false);
+  };
+
+  const confirmLogout = async () => {
+    handleCloseLogoutDialog();
+    try {
+      await postCall(`/api/v1/auth/logout`);
+      deleteAllCookies();
+      localStorage.clear();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const menuId = "primary-search-account-menu";
@@ -97,103 +84,45 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
         horizontal: "right",
       }}
       open={isMenuOpen}
-      onClose={handleMenuClose}
+      onClose={() => setAnchorEl(null)}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem>Profile</MenuItem>
+      <MenuItem>My account</MenuItem>
     </Menu>
   );
 
   const mobileMenuId = "primary-search-account-menu-mobile";
-  // // const renderMobileMenu = (
-  // //   <Menu
-  // //     anchorEl={mobileMoreAnchorEl}
-  // //     anchorOrigin={{
-  // //       vertical: "top",
-  // //       horizontal: "right",
-  // //     }}
-  // //     id={mobileMenuId}
-  // //     keepMounted
-  // //     transformOrigin={{
-  // //       vertical: "top",
-  // //       horizontal: "right",
-  // //     }}
-  // //     open={isMobileMenuOpen}
-  // //     onClose={handleMobileMenuClose}
-  // //   >
-  // //     <MenuItem>
-  // //       <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-  // //         <Badge badgeContent={4} color="error">
-  // //           <MailIcon />
-  // //         </Badge>
-  // //       </IconButton>
-  // //       <p>Messages</p>
-  // //     </MenuItem>
-  // //     <MenuItem>
-  // //       <IconButton
-  // //         size="large"
-  // //         aria-label="show 17 new notifications"
-  // //         color="inherit"
-  // //       >
-  // //         <Badge badgeContent={17} color="error">
-  // //           <NotificationsIcon />
-  // //         </Badge>
-  // //       </IconButton>
-  // //       <p>Notifications</p>
-  // //     </MenuItem>
-  // //     <MenuItem onClick={handleProfileMenuOpen}>
-  // //       <IconButton
-  // //         size="large"
-  // //         aria-label="account of current user"
-  // //         aria-controls="primary-search-account-menu"
-  // //         aria-haspopup="true"
-  // //         color="inherit"
-  // //       >
-  // //         <AccountCircle />
-  // //       </IconButton>
-  // //       <p>Profile</p>
-  // //     </MenuItem>
-  // //   </Menu>
-  // );
-
-  const handleSidebar = () => {
-    if (sidebarOpen) {
-      setSidebarOpen(false);
-    } else {
-      setSidebarOpen(true);
-    }
-  };
-
-  const handleSearch = (e) => {
-    debounce(() => {
-      fetchQuery(e.target.value);
-    }, 800)();
-  };
-
-  const fetchQuery = (q) => {
-    const url = ``;
-    if (q && q?.length > 0) {
-      url += `&name=${q}`;
-    }
-    getCall(url)
-      .then((res) => {
-        let data = res?.data;
-        data.forEach((d) => {
-          d["key"] = d?.id;
-        });
-        // set products
-      })
-      .catch((e) => {
-        console.log(e);
-      })
-      .finally(() => {});
-  };
+  const renderMobileMenu = (
+    <Menu
+      anchorEl={mobileMoreAnchorEl}
+      anchorOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      id={mobileMenuId}
+      keepMounted
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      open={isMobileMenuOpen}
+      onClose={handleMobileMenuClose}
+    >
+      <MenuItem onClick={handleOpenLogoutDialog}>
+        <IconButton size="large" aria-label="logout" color="inherit">
+          <LogoutIcon />
+        </IconButton>
+        <p>Logout</p>
+      </MenuItem>
+    </Menu>
+  );
 
   return (
     <>
-      {/* <Box sx={{ flexGrow: 1 }}> */}
-        <AppBar position="sticky">
-          <Toolbar>
+      <AppBar position="sticky">
+        <Toolbar>
+          {/* Left section: Sidebar Toggle & Store Switcher */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <IconButton
               size="large"
               edge="start"
@@ -204,50 +133,62 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
             >
               <MenuIcon />
             </IconButton>
-            {/* <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder="Search…"
-                inputProps={{ "aria-label": "search" }}
-                onChange={handleSearch}
-              />
-            </Search> */}
-            <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="account of current user"
-                aria-controls={menuId}
-                aria-haspopup="true"
-                //  onClick={handleProfileMenuOpen}
-                color="inherit"
-                disabled
-              >
-                <AccountCircle
-                  style={{fill: '#fff'}}
-                />
-              </IconButton>
-            </Box>
-            <Box sx={{ display: { xs: "flex", md: "none" } }}>
-              <IconButton
-                size="large"
-                aria-label="show more"
-                aria-controls={mobileMenuId}
-                aria-haspopup="true"
-                onClick={handleMobileMenuOpen}
-                color="inherit"
-              >
-                <MoreIcon />
-              </IconButton>
-            </Box>
-          </Toolbar>
-        </AppBar>
-        {/* {renderMobileMenu} */}
-        {renderMenu}
-      {/* </Box> */}
+            {/* StoreSwitcher now a placeholder */}
+            {!isMerchantIdEmpty && <StoreSwitcher />}
+          </Box>
+
+          {/* Spacer that pushes everything else to the right */}
+          <Box sx={{ flexGrow: 1 }} />
+
+          {/* Right section: Logout Button (Desktop) & Mobile More Icon */}
+          <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center" }}>
+            <IconButton
+              onClick={handleOpenLogoutDialog}
+              sx={{ color: "white" }}
+              aria-label="logout"
+              title="Logout"
+            >
+              <LogoutIcon />
+            </IconButton>
+          </Box>
+          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+            <IconButton
+              size="large"
+              aria-label="show more"
+              aria-controls={mobileMenuId}
+              aria-haspopup="true"
+              onClick={handleMobileMenuOpen}
+              color="inherit"
+            >
+              <MoreIcon />
+            </IconButton>
+          </Box>
+        </Toolbar>
+      </AppBar>
+      {renderMobileMenu}
+      {renderMenu}
+
+      <Dialog
+        open={openLogoutDialog}
+        onClose={handleCloseLogoutDialog}
+        aria-labelledby="logout-dialog-title"
+        aria-describedby="logout-dialog-description"
+      >
+        <DialogTitle id="logout-dialog-title">{"Confirm Logout"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="logout-dialog-description">
+            Are you sure you want to logout your session?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseLogoutDialog} color="primary">
+            No
+          </Button>
+          <Button onClick={confirmLogout} color="primary" autoFocus>
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

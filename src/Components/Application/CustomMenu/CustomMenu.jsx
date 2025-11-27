@@ -60,7 +60,7 @@ const CustomMenu = () => {
       setMenuData({});
       cogoToast.success("New menu created successfully");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 
@@ -83,7 +83,7 @@ const CustomMenu = () => {
       setReordering(false);
       cogoToast.success("Menu order updated successfully");
     } catch (error) {
-      cogoToast.error(error.response.data.error);
+      cogoToast.error(error.response.data.message);
     }
   };
 

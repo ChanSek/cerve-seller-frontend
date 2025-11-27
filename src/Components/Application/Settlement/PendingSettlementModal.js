@@ -56,7 +56,7 @@ const PendingSettlementModal = ({ open, onClose, loading, settlementDetails, err
       })
       .catch((error) => {
         console.error(error);
-        cogoToast.error(error.response.data.error);
+        cogoToast.error(error.response.data.message);
       });
   };
 
