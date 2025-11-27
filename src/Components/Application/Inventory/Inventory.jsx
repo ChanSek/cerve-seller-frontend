@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import InventoryTable from "../Inventory/InventoryTable";
 import Button from "../../Shared/Button";
 import { Add as AddIcon, Download as DownloadIcon, FileUpload as FileUploadIcon } from "@mui/icons-material";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import SyncIcon from "@mui/icons-material/Sync";
 import { useNavigate } from "react-router-dom";
 import { getCall, postCall, putCall } from "../../../Api/axios";
 import useCancellablePromise from "../../../Api/cancelRequest";
@@ -13,6 +15,8 @@ import FilterComponent from "../../Shared/FilterComponent";
 import AddCustomization from "../Product/AddCustomization";
 import downloadExcel from "../Inventory/DownloadExcel";
 import { useStore } from "../../../Router/StoreContext";
+import ConnectShopifyDialog from "../Shopify/ConnectShopifyDialog";
+import SyncShopifyDialog from "../Shopify/SyncShopifyDialog";
 
 const fieldsToDelete = [
   "_id",
@@ -32,7 +36,10 @@ export default function Inventory() {
   const [queryString, setQueryString] = useState('');
   const [open, setOpen] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
+  const [shopifyConnectOpen, setShopifyConnectOpen] = useState(false);
+  const [shopifySyncOpen, setShopifySyncOpen] = useState(false);
   const { store } = useStore();
+  const [merchantId, setMerchantId] = useState('');
   const filterFields = [
     {
       id: "category",
@@ -183,21 +190,32 @@ export default function Inventory() {
       console.log("1");
       if (role === "Organization Admin") {
         console.log("2");
-        const merchantId = user?.organization?._id;
+        const merchantIdFromUser = user?.organization?._id;
         const isActive = user?.organization?.active;
 
-        if (!merchantId) {
+        // Set merchantId for Shopify integration
+        if (merchantIdFromUser) {
+          setMerchantId(merchantIdFromUser);
+          localStorage.setItem("organization_id", merchantIdFromUser);
+        }
+
+        // Store storeId for Shopify integration if available
+        if (store?.storeId) {
+          localStorage.setItem("store_id", store.storeId);
+        }
+
+        if (!merchantIdFromUser) {
           navigate("/add-provider-info");
           return;
         }
 
         if (!isActive) {
-          navigate(`/user-listings/provider-details/${merchantId}`);
+          navigate(`/user-listings/provider-details/${merchantIdFromUser}`);
           return;
         }
         const storeDetailsAvailable = user?.organization?.storeDetailsAvailable;
         if (!storeDetailsAvailable) {
-          navigate(`/application/store-details/${merchantId}`);
+          navigate(`/application/store-details/${merchantIdFromUser}`);
           return;
         }
 
@@ -313,6 +331,8 @@ export default function Inventory() {
               </Button>
               <AddProductDialog storeId={storeId} category={category} open={open} onClose={() => setOpen(false)} refreshProducts={handleRefresh} />
               <SelectProductDialog storeId={storeId} category={category} open={selectOpen} onClose={() => setSelectOpen(false)} refreshProducts={handleRefresh} />
+              <ConnectShopifyDialog open={shopifyConnectOpen} onClose={() => setShopifyConnectOpen(false)} />
+              <SyncShopifyDialog open={shopifySyncOpen} onClose={() => setShopifySyncOpen(false)} refreshProducts={handleRefresh} merchantId={merchantId} storeId={storeId} />
             </div>
             <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
@@ -329,6 +349,27 @@ export default function Inventory() {
                 title="Download Products"
                 onClick={() => downloadExcel(storeId)} // Pass storeId here
               />
+            </div>
+            {/* Shopify Integration Buttons */}
+            <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
+                variant="contained"
+                icon={<StorefrontIcon />}
+                title="Connect Shopify Store"
+                onClick={() => setShopifyConnectOpen(true)}
+              >
+                CONNECT SHOPIFY
+              </Button>
+            </div>
+            <div className="mb-2 sm:mb-0 sm:mr-4">
+              <Button
+                variant="contained"
+                icon={<SyncIcon />}
+                title="Sync from Shopify"
+                onClick={() => setShopifySyncOpen(true)}
+              >
+                SYNC SHOPIFY
+              </Button>
             </div>
             {/* Additional buttons can be added here */}
           </div>

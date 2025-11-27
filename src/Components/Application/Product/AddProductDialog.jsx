@@ -1,44 +1,42 @@
 // AddProductDialog.jsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {
-    Box,
-    Typography,
-    Button,
-    TextField,
-    IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    CircularProgress,
-    Snackbar,
     Autocomplete,
+    Box,
+    Button,
     Checkbox,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     FormControlLabel,
-    Tabs,
-    Tab,
     Grid,
+    IconButton,
     InputAdornment,
-    Tooltip
+    Snackbar,
+    Tab,
+    Tabs,
+    TextField,
+    Tooltip,
+    Typography
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { getCall, postCall, putCall } from "../../../Api/axios";
+import {getCall, postCall, putCall} from "../../../Api/axios";
 import RenderInput from "../../../utils/RenderInput";
-import { allProductFieldDetails, variantProductFieldDetails } from "./gen-product-fields";
-import { validateProductForm } from "./validateProductForm";
+import {allProductFieldDetails, categorySpecificFields, variantProductFieldDetails} from "./gen-product-fields";
+import {validateProductForm} from "./validateProductForm";
 import cogoToast from "cogo-toast";
 import './AddProductDialog.css';
-import { validateVariantForm } from "./ValidateVariants";
-import { generateSKU } from "../../Shared/SkuGenerator";
-import { v4 as uuidv4 } from 'uuid';
+import {validateVariantForm} from "./ValidateVariants";
+import {generateSKU} from "../../Shared/SkuGenerator";
+import {v4 as uuidv4} from 'uuid';
 import VariantSection from "./ProductVariantSection";
-import { allProperties } from "./categoryProperties";
+import {getSizeOptions} from "./categoryProperties";
 import VitalInfoSection from "./ProductVitalInfoSection";
-import { getSizeOptions } from "./categoryProperties";
-import { categorySpecificFields } from "./gen-product-fields";
-import { highlightText } from "../../../utils/textHighlight";
+import {highlightText} from "../../../utils/textHighlight";
 import getDefaultProductValues from "./getDefaultProductValues";
 
 const variationFields = ["price", "sellingPrice", "availableQty", "uom", "uomValue", "sku", "imageUrls", "backImage"];
@@ -488,10 +486,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                 setProductOptions(prev => {
                     // Remove the "Add New Product" option if it exists
                     const filteredPrev = prev.filter(opt => opt.pid !== -999);
-                    const newOptions = [...filteredPrev, ...products];
-                    // Always add "Add New Product" option at the end
-                    newOptions.push({ pid: -999, name: "➕ Add New Product" });
-                    return newOptions;
+                    return [...filteredPrev, ...products];
                 });
             } else {
                 // Replace results for new search
@@ -499,10 +494,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                 const sortedProducts = products.length ?
                     products.sort((a, b) => (b.score || 0) - (a.score || 0)) :
                     [];
-                const newOptions = [...sortedProducts];
-                // Always add "Add New Product" option at the end
-                newOptions.push({ pid: -999, name: "➕ Add New Product" });
-                setProductOptions(newOptions);
+                setProductOptions(sortedProducts);
             }
 
             // Update pagination state
@@ -512,7 +504,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
         } catch (error) {
             console.error("Error fetching search products:", error);
             if (!append) {
-                setProductOptions([{ pid: -999, name: "➕ Add New Product" }]);
+                setProductOptions([]);
             }
         } finally {
             setLoadingOptions(false);
@@ -522,7 +514,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
 
     useEffect(() => {
         if (!searchText || searchText.length < 3) {
-            setProductOptions([{ pid: -999, name: "➕ Add New Product" }]);
+            setProductOptions([]);
             setCurrentPage(0);
             setHasMoreResults(false);
             return;
@@ -725,13 +717,33 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     const getPlaceholder = (category) => {
         return "Type any product name here";
     };
+
+    const handleAddNewProduct = () => {
+        const newProductOption = { pid: -999, name: "➕ Add New Product" };
+        handleProductSelect(null, newProductOption);
+    };
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle className="dialog-title">
                 <Typography variant="h6" component="div" sx={{ color: 'primary.main' }}>
                     {isEditMode ? "Edit Product" : "Add New Product"}
                 </Typography>
-                <IconButton onClick={onClose}><CloseIcon /></IconButton>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    {!isEditMode && (
+                        <Tooltip title="Add New Product">
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleAddNewProduct}
+                                startIcon={<AddCircleOutlineIcon />}
+                                size="small"
+                            >
+                                Add Product Manually
+                            </Button>
+                        </Tooltip>
+                    )}
+                    <IconButton onClick={onClose}><CloseIcon /></IconButton>
+                </Box>
             </DialogTitle>
             <DialogContent>
                 <div>
