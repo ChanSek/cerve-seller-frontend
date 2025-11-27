@@ -34,6 +34,7 @@ import SellerVerification from "../Components/Application/UserListings/SellerVer
 import ReturnDetails from "../Components/Application/Returns/ReturnDetails.jsx";
 import MallGrid from "../Components/Application/VirtualMall/MallGrid.jsx";
 import CategoryTaxonomy from "../Components/Application/CategoryTaxonomy/CategoryTaxonomy.jsx";
+import ShopifyCallback from "../Components/Application/Shopify/ShopifyCallback.jsx";
 
 export default function OndcRoutes() {
   return (
@@ -56,6 +57,14 @@ export default function OndcRoutes() {
           element={
             <PrivateRoute>
               <Inventory />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path={"/application/shopify/callback"}
+          element={
+            <PrivateRoute>
+              <ShopifyCallback />
             </PrivateRoute>
           }
         />
