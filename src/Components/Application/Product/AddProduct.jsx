@@ -11,17 +11,13 @@ import DynamicSubcategorySelect from "./DynamicSubcategorySelect"
 import { PRODUCT_SUBCATEGORY } from "../../../utils/constants";
 import { allProperties } from "./categoryProperties";
 import Box from "@mui/material/Box";
-import FormLabel from "@mui/material/FormLabel";
 import FormControl from "@mui/material/FormControl";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import FormHelperText from "@mui/material/FormHelperText";
 import Checkbox from "@mui/material/Checkbox";
-import { Input } from "@material-ui/core";
 import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
 import { getCall } from "../../../Api/axios";
-import axios from "axios";
 
 
 const customization_groups = [

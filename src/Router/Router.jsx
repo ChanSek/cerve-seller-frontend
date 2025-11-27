@@ -15,7 +15,7 @@ import AdminDetails from "../Components/Application/AdminActivity/AdminDetails.j
 import ProviderInitialSteps from "../Components/Auth/ProviderInitialSteps/ProviderInitialSteps";
 import ProviderDetails from "../Components/Application/UserListings/ProviderDetails";
 import InviteAdmin from "../Components/OnBoarding/InviteAdmin";
-import AddProvider from "../Components/OnBoarding/addProvider";
+import AddProvider from "../Components/OnBoarding/kyc/addProvider";
 import ForgotPassword from "../Components/Auth/ForgotPassword/ForgotPassword";
 import BulkUpload from "../Components/Application/Product/BulkUpload";
 import Complaints from "../Components/Application/Complaints/Complaints";

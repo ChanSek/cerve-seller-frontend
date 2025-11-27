@@ -196,9 +196,7 @@ export const useProductData = (category) => {
 
     // Update grouped products whenever filtered products change
     useEffect(() => {
-        console.log('Filtering products for grouping:', filteredProducts.length, 'products');
         const grouped = groupProductsByParentId(filteredProducts);
-        console.log('Grouped products:', grouped.length, 'groups');
         setGroupedProducts(grouped);
     }, [filteredProducts, groupProductsByParentId]);
 

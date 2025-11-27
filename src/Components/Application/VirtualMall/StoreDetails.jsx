@@ -296,10 +296,7 @@ const StoreDetails = ({ isFromUserListing = false, storeId }) => {
 
     const onUpdate = () => {
         const isFormValid = runValidation();
-        console.log("isFormValid ", isFormValid);
-        console.log("errors ", errors);
         if (!isFormValid) return;
-        console.log("anyChangeInData ", isFormValid);
         if (!anyChangeInData()) return;
         const provider_id = params?.id;
         let url = `/api/v1/seller/merchantId/${provider_id}/store`;

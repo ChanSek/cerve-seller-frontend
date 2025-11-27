@@ -64,14 +64,13 @@ export default function Sidebar({ open, setOpen }) {
 
         <Collapse in={menuOpen} timeout="auto" unmountOnExit onClick={toggleDrawer("left", false)}>
           <List component="div" disablePadding>
+            <NavLink to="/application/inventory" className="no-underline text-black">
+              <ListItemButton sx={{ pl: 4 }}>
+                <ListItemText primary="Inventory" />
+              </ListItemButton>
+            </NavLink>
             {isOrgAdmin && (
               <>
-                <NavLink to="/application/inventory" className="no-underline text-black">
-                  <ListItemButton sx={{ pl: 4 }}>
-                    <ListItemText primary="Inventory" />
-                  </ListItemButton>
-                </NavLink>
-
                 <NavLink to={`/user-listings/provider-details/${user?.organization?._id}`} className="no-underline text-black">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Seller Details" />
@@ -157,7 +156,7 @@ export default function Sidebar({ open, setOpen }) {
           </Stack>
           <Divider />
           {renderMenuItems()}
-          
+
         </Box>
       </SwipeableDrawer>
       <Outlet />

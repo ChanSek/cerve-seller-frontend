@@ -4,7 +4,7 @@ export default [
     title: "Account Holder Name",
     placeholder: "Enter Account Holder Name",
     type: "input",
-    required: true,
+    required: false,
   },
   {
     id: "accNumber",
@@ -12,7 +12,7 @@ export default [
     placeholder: "Enter Account Number",
     type: "input",
     maxLength: 17,
-    required: true,
+    required: false,
   },
   {
     id: "IFSC",
@@ -20,14 +20,14 @@ export default [
     placeholder: "Enter IFSC Code",
     type: "input",
     maxLength: 11,
-    required: true,
+    required: false,
   },
   {
     id: "bankName",
     title: "Bank Name",
     placeholder: "Enter Bank Name",
     type: "input",
-    required: true,
+    required: false,
     isDisabled: true,
   },
   {
@@ -35,15 +35,15 @@ export default [
     title: "Branch Name",
     placeholder: "Enter Branch Name",
     type: "input",
-    required: true,
+    required: false,
     isDisabled: true,
   },
   {
     id: "cancelledCheque",
     title: "Cancelled Cheque",
-    type: "upload",
+    type: "fileUpload",
     file_type: "cancelled_cheque",
-    required: true,
+    required: false,
     fontColor: "#ffffff",
   },
 ];

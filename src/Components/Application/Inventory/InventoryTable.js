@@ -31,7 +31,8 @@ import {
   DialogTitle,
   Typography,
   Box,
-  useTheme
+  useTheme,
+  Checkbox,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -107,7 +108,7 @@ export default function InventoryTable(props) {
   const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false);
   const [productToEditId, setProductToEditId] = useState(null);
   const [productToEditCategory, setProductToEditCategory] = useState(null);
-
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [viewProductDialogOpen, setViewProductDialogOpen] = useState(false);
   const [productToViewId, setProductToViewId] = useState(null);
 
@@ -139,6 +140,63 @@ export default function InventoryTable(props) {
   const onRowsPerPageChange = (event) => {
     handleRowsPerPageChange(parseInt(event.target.value, 10));
     handlePageChange(0);
+  };
+
+  /** ✅ Handle conditional checkbox selection */
+  const handleSelectOne = (item) => {
+    const productId = item.commonDetails.productId;
+
+    // If currently selecting for publish, don't allow selecting already published ones
+    const anyUnpublishedSelected = data.some(
+      (d) =>
+        selectedProducts.includes(d.commonDetails.productId) &&
+        !d.commonDetails.published
+    );
+
+    if (anyUnpublishedSelected && item.commonDetails.published) {
+      cogoToast.warn("Cannot select published items while publishing.");
+      return;
+    }
+
+    // If currently selecting for unpublish, don't allow selecting already unpublished ones
+    const anyPublishedSelected = data.some(
+      (d) =>
+        selectedProducts.includes(d.commonDetails.productId) &&
+        d.commonDetails.published
+    );
+
+    if (anyPublishedSelected && !item.commonDetails.published) {
+      cogoToast.warn("Cannot select unpublished items while unpublishing.");
+      return;
+    }
+
+    setSelectedProducts((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  /** ✅ Bulk publish/unpublish */
+  const handleBulkPublish = async (publishState) => {
+    try {
+      const requestBody = {
+        productIds: selectedProducts, // list of selected product IDs
+        published: publishState,      // true or false
+      };
+
+      await putCall(`/api/v1/seller/${category}/publish`, requestBody);
+
+      cogoToast.success(
+        `Products ${publishState ? "published" : "unpublished"} successfully!`
+      );
+
+      setSelectedProducts([]);
+      onRefresh();
+    } catch (error) {
+      console.error("Bulk publish error:", error);
+      cogoToast.error(error.response?.data?.error || "Failed to update products.");
+    }
   };
 
   // ThreeDotsMenu (inline as requested, but be aware of React Hook rule violation)
@@ -216,10 +274,10 @@ export default function InventoryTable(props) {
           <MenuItem onClick={handleEditProductClick}>
             <EditIcon sx={{ mr: 1 }} fontSize="small" /> Edit
           </MenuItem>
-          <MenuItem onClick={() => handlePublishState(row?.commonDetails?.productId, row?.commonDetails?.published)}>
+          {/* <MenuItem onClick={() => handlePublishState(row?.commonDetails?.productId, row?.commonDetails?.published)}>
             <PublishIcon sx={{ mr: 1 }} fontSize="small" />
             {row?.commonDetails?.published ? "Unpublish" : "Publish"}
-          </MenuItem>
+          </MenuItem> */}
           {/* {row.type !== "customization" && (
             <MenuItem onClick={handleChooseInitialGroupClick}>
               <LinkIcon sx={{ mr: 1 }} fontSize="small" /> Choose Initial Group
@@ -321,6 +379,30 @@ export default function InventoryTable(props) {
     { id: 'updatedAt', label: 'Updated At', minWidth: 100, align: 'left' },
   ];
 
+  /** ✅ Determine button state */
+  const anyUnpublishedSelected = data.some(
+    (item) =>
+      selectedProducts.includes(item.commonDetails.productId) &&
+      !item.commonDetails.published
+  );
+  const anyPublishedSelected = data.some(
+    (item) =>
+      selectedProducts.includes(item.commonDetails.productId) &&
+      item.commonDetails.published
+  );
+
+  let bulkActionLabel = null;
+  let publishState = null;
+  if (selectedProducts.length > 0) {
+    if (anyUnpublishedSelected && !anyPublishedSelected) {
+      bulkActionLabel = "Publish";
+      publishState = true;
+    } else if (anyPublishedSelected && !anyUnpublishedSelected) {
+      bulkActionLabel = "Unpublish";
+      publishState = false;
+    }
+  }
+
   const renderUnitAbbreviation = (unit) => {
     if (!unit || unit.trim() === "") {
       return "Unknown unit";
@@ -352,39 +434,32 @@ export default function InventoryTable(props) {
 
   return (
     <StyledPaper>
-      {/* <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold', color: theme.palette.text.primary }}>
-          Product Inventory
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <TextField
-            size="small"
-            variant="outlined"
-            placeholder="Search products..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
-              sx: { borderRadius: theme.shape.borderRadius * 2 }
-            }}
-            sx={{ minWidth: 200 }}
-          />
-          <Tooltip title="Refresh Inventory">
-            <IconButton onClick={onRefresh} color="primary" sx={{ p: 1, borderRadius: '50%' }}>
-              <CachedIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box> */}
-
+      <Box
+  sx={{
+    p: 2,
+    display: "flex",
+    flexDirection: "column", // keep buttons stacked if needed
+    alignItems: "flex-end",  // push content to the right
+    gap: 1,
+  }}
+>
+  {/* ✅ Single conditional button */}
+  {bulkActionLabel && (
+    <Button
+      variant="contained"
+      color={publishState ? "primary" : "warning"}
+      startIcon={<PublishIcon />}
+      onClick={() => handleBulkPublish(publishState)}
+    >
+      {bulkActionLabel}
+    </Button>
+  )}
+</Box>
       <TableContainer>
         <Table stickyHeader aria-label="inventory table">
           <TableHead>
             <TableRow>
+              <StyledTableHeadCell />
               {columns.map((column) => (
                 <StyledTableHeadCell
                   key={column.id}
@@ -420,6 +495,15 @@ export default function InventoryTable(props) {
                       {/* Common details for the product (rowSpanned) */}
                       {idx === 0 && (
                         <>
+                          <StyledTableBodyCell>
+                            <Checkbox
+                              color="primary"
+                              checked={selectedProducts.includes(
+                                item.commonDetails.productId
+                              )}
+                              onChange={() => handleSelectOne(item)}
+                            />
+                          </StyledTableBodyCell>
                           <StyledTableBodyCell rowSpan={item.variantSpecificDetails.length}>
                             {renderCellContent(columns.find(c => c.id === 'subCategory'), item.commonDetails.subCategory)}
                           </StyledTableBodyCell>

@@ -1,11 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Tabs, Tab } from "@mui/material";
+import {
+  Button,
+  Tabs,
+  Tab,
+  Typography,
+  Box,
+  Container,
+  Paper,
+  Alert,
+} from "@mui/material";
+// Assuming getCall, postCall, BackNavigationButton, UserDetailsCard, deleteAllCookies, and dayjs are available
 import { getCall, postCall } from "../../../Api/axios";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
 import { useTheme } from "@mui/material/styles";
-import UserDetailsCard from "./UserDetailsCard.js";
+import UserDetailsCard from "./UserDetailsCard"; // Ensure this is the refactored component
 import { deleteAllCookies } from "../../../utils/cookies";
+import dayjs from "dayjs";
+
+const TabPanel = (props) => {
+  const { children, value, index, ...other } = props;
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+};
 
 const SellerVerification = () => {
   const theme = useTheme();
@@ -15,8 +41,10 @@ const SellerVerification = () => {
   const [kycDetails, setKycDetails] = useState({});
   const [bankDetails, setBankDetails] = useState({});
   const [reviewDetails, setReviewDetails] = useState({});
-  const [activeTab, setActiveTab] = useState("provider");
+  const [activeTab, setActiveTab] = useState(0); // Use index for MUI Tabs
   const [sellerActive, setSellerActive] = useState(false);
+  const userRole = JSON.parse(localStorage.getItem("user"))?.role?.name;
+
   async function logout() {
     if (window.confirm("Are you sure want to logout your session?")) {
       await postCall(`/api/v1/auth/logout`);
@@ -25,7 +53,9 @@ const SellerVerification = () => {
       navigate("/");
     }
   }
+
   const getOrgDetails = async (id) => {
+    
     let userRole = JSON.parse(localStorage.getItem("user"))?.role?.name;
     const isSuperAdmin = userRole === "Super Admin";
     try {
@@ -38,6 +68,7 @@ const SellerVerification = () => {
         name: { "title": "Name", "value": res.user.name, "editable": false },
         email: { "title": "Email", "value": res.user.email, "editable": false },
         mobile: { "title": "Mobile No.(+91) ", "value": res.user.mobile, "editable": false },
+        createDateTime: { "title": "Create DateTime ", "value": dayjs(res?.providerDetail?.createdAt).format("DD MMM YYYY, hh:mm A"), "editable": false },
       });
 
       var addressStatus = res?.providerDetail?.merchantReview?.addressStatus;
@@ -89,106 +120,105 @@ const SellerVerification = () => {
     getOrgDetails(provider_id);
   }, [params.id]);
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "provider":
-        return <UserDetailsCard selectedTab="provider" details={providerDetails} />;
-      case "kyc":
-        return <UserDetailsCard selectedTab="kyc" details={kycDetails} />;
-      case "bank":
-        return <UserDetailsCard selectedTab="bank" details={bankDetails} />;
-      case "review":
-        return <UserDetailsCard selectedTab="review" details={reviewDetails} />;
-      default:
-        return null;
-    }
-  };
-
   const tabItems = [
-    { label: "Basic Details", key: "provider" },
-    { label: "KYC Details", key: "kyc" },
-    { label: "Bank Details", key: "bank" },
-    { label: "Review Details", key: "review" },
+    { label: "Basic Details", key: "provider", details: providerDetails },
+    { label: "KYC Details", key: "kyc", details: kycDetails },
+    { label: "Bank Details", key: "bank", details: bankDetails },
+    { label: "Review Details", key: "review", details: reviewDetails },
   ];
-  const userRole = JSON.parse(localStorage.getItem("user"))?.role?.name;
 
   return (
-    <div>
-      <div className="container mx-auto my-8">
-        <div className="w-full bg-white px-4 py-4 rounded-md h-full scrollbar-hidden">
-          <div className="m-auto w-full md:w-3/4">
-            <br />
-            {(sellerActive || userRole === "Super Admin") ? (
-              <>
-                <BackNavigationButton
-                  onClick={() => {
-                    if (userRole === "Super Admin") {
-                      navigate("/application/user-listings?view=provider");
-                    } else {
-                      navigate("/application/inventory");
-                    }
-                  }}
-                />
-                <div className="mb-4 flex flex-col md:flex-row justify-between items-left">
-                  <label
-                    style={{ color: theme.palette.primary.main }}
-                    className="font-semibold text-2xl"
-                  >
-                    Merchant Details
-                  </label>
-                </div>
-              </>
-            ) : (
-              <>
-                <div
-                  style={{ display: "flex", justifyContent: "flex-end", width: "100%" }}
-                  className="mb-4"
-                >
-                  <Button
-                    type="button"
-                    size="small"
-                    style={{ marginRight: 10 }}
-                    variant="contained"
-                    color="primary"
-                    onClick={() => logout()}
-                  >
-                    Exit
-                  </Button>
-                </div>
-                <div style={{ display: "flex", width: "100%" }} className="flex-col">
-                  <div className="document-review-message">
-                    <p>
-                      Your documents are currently under review. Please allow up to 2 working days
-                      for the review process to be completed. Thank you for your patience.
-                    </p>
-                  </div>
-                </div>
-              </>
-            )}
-  
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <Tabs
-                value={activeTab}
-                onChange={(event, newValue) => setActiveTab(newValue)}
-                indicatorColor="primary"
-                textColor="primary"
-                variant="scrollable"
-                scrollButtons="auto"
-                allowScrollButtonsMobile
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Paper elevation={3} sx={{ p: { xs: 2, md: 4 } }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 3,
+            flexDirection: { xs: "column", md: "row" },
+          }}
+        >
+          {sellerActive || userRole === "Super Admin" ? (
+            <Box>
+              <BackNavigationButton
+                onClick={() => {
+                  if (userRole === "Super Admin") {
+                    navigate("/application/user-listings?view=provider");
+                  } else {
+                    navigate("/application/inventory");
+                  }
+                }}
+              />
+              {/* <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  color: theme.palette.primary.main,
+                  fontWeight: "bold",
+                  mt: 1,
+                }}
               >
-                {tabItems.map((tab) => (
-                  <Tab key={tab.key} label={tab.label} value={tab.key} />
-                ))}
-              </Tabs>
-            </div>
-  
-            <div>{renderTabContent()}</div>
-            <br />
-            <br />
-          </div>
-        </div>
-      </div>
-    </div>
+                Seller Details
+              </Typography> */}
+            </Box>
+          ) : (
+            <Box sx={{ width: "100%" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  mb: 2,
+                }}
+              >
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={logout}
+                  size="small"
+                >
+                  Exit
+                </Button>
+              </Box>
+              <Alert severity="info" sx={{ mb: 3 }}>
+                Your documents are currently under review. Please allow up to 2
+                working days for the review process to be completed. Thank you
+                for your patience.
+              </Alert>
+            </Box>
+          )}
+        </Box>
+
+        {/* Tabs for Navigation */}
+        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+          <Tabs
+            value={activeTab}
+            onChange={(event, newValue) => setActiveTab(newValue)}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
+          >
+            {tabItems.map((tab, index) => (
+              <Tab key={tab.key} label={tab.label} value={index} />
+            ))}
+          </Tabs>
+        </Box>
+
+        {/* Tab Content */}
+        {tabItems.map((tab, index) => (
+          <TabPanel key={tab.key} value={activeTab} index={index}>
+            <UserDetailsCard
+              selectedTab={tab.key}
+              details={tab.details}
+              // Pass getOrgDetails as a prop to refresh data after edit
+              onUpdateSuccess={() => getOrgDetails(params.id)} 
+            />
+          </TabPanel>
+        ))}
+      </Paper>
+    </Container>
   );
 };
 

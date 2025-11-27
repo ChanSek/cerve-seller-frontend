@@ -50,7 +50,7 @@ const kycFields = [
     title: "FSSAI Number",
     placeholder: "FSSAI Number",
     type: "input",
-    required: true,
+    required: false,
   },
   {
     id: "address",
@@ -207,7 +207,6 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
     }
   };
 
-  //   console.log("storeDetails=====>", storeDetails);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

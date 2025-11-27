@@ -53,7 +53,6 @@ const UpdateOrderStatusModal = ({
     }, [deliveryData]);
 
     useEffect(() => {
-        console.log("rtoData -> "+rtoData);
         if (rtoData) {
             const currentSeq = RTO_FULFILLMENT_STATUS.find(
                 (status) => status.fulfillmentStatus === rtoData?.state?.descriptor.code
