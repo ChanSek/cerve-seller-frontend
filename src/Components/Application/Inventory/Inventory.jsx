@@ -4,11 +4,13 @@ import Button from "../../Shared/Button";
 import { Add as AddIcon, Download as DownloadIcon, FileUpload as FileUploadIcon } from "@mui/icons-material";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import SyncIcon from "@mui/icons-material/Sync";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { useNavigate } from "react-router-dom";
 import { getCall, postCall, putCall } from "../../../Api/axios";
 import useCancellablePromise from "../../../Api/cancelRequest";
 import { isObjEmpty } from "../../../utils/validations";
 import { useTheme } from "@mui/material/styles";
+import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
 import AddProductDialog from "../Product/AddProductDialog";
 import SelectProductDialog from "../Product/SelectProductDialog";
 import FilterComponent from "../../Shared/FilterComponent";
@@ -17,6 +19,8 @@ import downloadExcel from "../Inventory/DownloadExcel";
 import { useStore } from "../../../Router/StoreContext";
 import ConnectShopifyDialog from "../Shopify/ConnectShopifyDialog";
 import SyncShopifyDialog from "../Shopify/SyncShopifyDialog";
+import ConnectWooCommerceDialog from "../WooCommerce/ConnectWooCommerceDialog";
+import SyncWooCommerceDialog from "../WooCommerce/SyncWooCommerceDialog";
 
 const fieldsToDelete = [
   "_id",
@@ -38,6 +42,10 @@ export default function Inventory() {
   const [selectOpen, setSelectOpen] = useState(false);
   const [shopifyConnectOpen, setShopifyConnectOpen] = useState(false);
   const [shopifySyncOpen, setShopifySyncOpen] = useState(false);
+  const [wooCommerceConnectOpen, setWooCommerceConnectOpen] = useState(false);
+  const [wooCommerceSyncOpen, setWooCommerceSyncOpen] = useState(false);
+  const [connectMenuAnchor, setConnectMenuAnchor] = useState(null);
+  const [syncMenuAnchor, setSyncMenuAnchor] = useState(null);
   const { store } = useStore();
   const [merchantId, setMerchantId] = useState('');
   const filterFields = [
@@ -325,6 +333,8 @@ useEffect(() => {
               <SelectProductDialog storeId={storeId} category={category} open={selectOpen} onClose={() => setSelectOpen(false)} refreshProducts={handleRefresh} />
               <ConnectShopifyDialog open={shopifyConnectOpen} onClose={() => setShopifyConnectOpen(false)} />
               <SyncShopifyDialog open={shopifySyncOpen} onClose={() => setShopifySyncOpen(false)} refreshProducts={handleRefresh} merchantId={merchantId} storeId={storeId} />
+              <ConnectWooCommerceDialog open={wooCommerceConnectOpen} onClose={() => setWooCommerceConnectOpen(false)} />
+              <SyncWooCommerceDialog open={wooCommerceSyncOpen} onClose={() => setWooCommerceSyncOpen(false)} refreshProducts={handleRefresh} merchantId={merchantId} storeId={storeId} />
             </div>
             <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
@@ -342,28 +352,93 @@ useEffect(() => {
                 onClick={() => downloadExcel(storeId, category)} // Pass storeId here
               />
             </div>
-            {/* Shopify Integration Buttons */}
+            {/* Non-Cerve Store Integration Dropdowns */}
             <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
                 variant="contained"
                 icon={<StorefrontIcon />}
-                title="Connect Shopify Store"
-                onClick={() => setShopifyConnectOpen(true)}
+                title="Connect Non-Cerve Store"
+                onClick={(e) => setConnectMenuAnchor(e.currentTarget)}
+                endIcon={<KeyboardArrowDownIcon />}
               >
-                CONNECT SHOPIFY
+                CONNECT STORE
               </Button>
+              <Menu
+                anchorEl={connectMenuAnchor}
+                open={Boolean(connectMenuAnchor)}
+                onClose={() => setConnectMenuAnchor(null)}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+              >
+                <MenuItem onClick={() => {
+                  setConnectMenuAnchor(null);
+                  setShopifyConnectOpen(true);
+                }}>
+                  <ListItemIcon>
+                    <StorefrontIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Connect Shopify Store</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={() => {
+                  setConnectMenuAnchor(null);
+                  setWooCommerceConnectOpen(true);
+                }}>
+                  <ListItemIcon>
+                    <StorefrontIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Connect WooCommerce Store</ListItemText>
+                </MenuItem>
+              </Menu>
             </div>
             <div className="mb-2 sm:mb-0 sm:mr-4">
               <Button
                 variant="contained"
                 icon={<SyncIcon />}
-                title="Sync from Shopify"
-                onClick={() => setShopifySyncOpen(true)}
+                title="Sync Non-Cerve Store"
+                onClick={(e) => setSyncMenuAnchor(e.currentTarget)}
+                endIcon={<KeyboardArrowDownIcon />}
               >
-                SYNC SHOPIFY
+                SYNC STORE
               </Button>
+              <Menu
+                anchorEl={syncMenuAnchor}
+                open={Boolean(syncMenuAnchor)}
+                onClose={() => setSyncMenuAnchor(null)}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+              >
+                <MenuItem onClick={() => {
+                  setSyncMenuAnchor(null);
+                  setShopifySyncOpen(true);
+                }}>
+                  <ListItemIcon>
+                    <SyncIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Sync with Shopify</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={() => {
+                  setSyncMenuAnchor(null);
+                  setWooCommerceSyncOpen(true);
+                }}>
+                  <ListItemIcon>
+                    <SyncIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Sync with WooCommerce</ListItemText>
+                </MenuItem>
+              </Menu>
             </div>
-            {/* Additional buttons can be added here */}
           </div>
         </div>
         <FilterComponent
