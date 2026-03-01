@@ -1,5 +1,5 @@
-# Name the node stage "builder"
-FROM node:14 AS builder
+# Stage 1: Build seller frontend (CRA)
+FROM node:14 AS seller-builder
 
 ARG REACT_APP_BASE_URL
 ARG REACT_APP_FIREBASE_API_KEY
@@ -8,21 +8,29 @@ ARG REACT_APP_FIREBASE_AUTH_DOMAIN
 ENV REACT_APP_BASE_URL ${REACT_APP_BASE_URL}
 ENV REACT_APP_FIREBASE_API_KEY ${REACT_APP_FIREBASE_API_KEY}
 ENV REACT_APP_FIREBASE_AUTH_DOMAIN ${REACT_APP_FIREBASE_AUTH_DOMAIN}
-# Set working directory
-WORKDIR /app
-# Copy all files from current directory to working dir in image
-COPY . .
-# install node modules and build assets
-RUN npm install && npm run-script build
 
-# nginx state for serving content
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
+COPY . .
+RUN npm run-script build
+
+# Stage 2: Build Claw marketing website (Vite)
+FROM node:18 AS claw-builder
+
+WORKDIR /app/claw
+COPY claw/package.json claw/package-lock.json* ./
+RUN npm install
+COPY claw/ .
+RUN npm run build
+
+# Stage 3: nginx for serving both apps
 FROM nginx:alpine
-# Set working directory to nginx asset directory
 WORKDIR /usr/share/nginx/html
-# Remove default nginx static assets
 RUN rm -rf ./*
-# Copy static assets from builder stage
-COPY --from=builder /app/build .
+# Copy seller frontend
+COPY --from=seller-builder /app/build ./seller
+# Copy claw website
+COPY --from=claw-builder /app/claw/dist ./claw
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-# Containers run nginx with global directives and daemon off
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

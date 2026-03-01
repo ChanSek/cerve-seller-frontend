@@ -12,6 +12,8 @@
 
 # production
 /build
+/claw/dist
+/claw/node_modules
 
 # misc
 .DS_Store

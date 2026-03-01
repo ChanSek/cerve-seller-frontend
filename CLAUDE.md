@@ -15,10 +15,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - For local development, typically uses `http://localhost:9090/`
 - Firebase config requires `REACT_APP_FIREBASE_API_KEY` and `REACT_APP_FIREBASE_AUTH_DOMAIN`
 
+### Claw Marketing Website (`claw/`)
+The `claw/` subdirectory is a **separate Vite + React sub-project** for the Claw AI phone agent marketing site (claw.cerve.in). It has its own dependencies and build process, completely independent from the seller CRA app.
+
+```bash
+cd claw/
+npm install
+npm run dev              # Starts Vite dev server on port 5173
+npm run build            # Production build to claw/dist/
+npm run preview          # Preview production build
+```
+
+**Tech stack**: Vite + React 18 + TailwindCSS v3 + Framer Motion + React Router v6
+**Pages**: Home (landing), Features, How It Works, Safety, FAQ
+**Design**: Dark theme with purple-cyan gradient accents, "by Cerve" branding
+
 ### Docker Deployment
-- `Dockerfile` - Production build with nginx
-- `DockerfileWithoutSSL` - Alternative without SSL
+- `Dockerfile` - Multi-stage build: seller app (CRA) + claw site (Vite) + nginx
+- `DockerfileWithoutSSL` - Alternative without SSL (seller only)
 - Build args: `REACT_APP_BASE_URL`, `REACT_APP_FIREBASE_API_KEY`, `REACT_APP_FIREBASE_AUTH_DOMAIN`
+- `nginx.conf` serves seller at `__domain_name__` and claw at `claw.cerve.in`
 
 ## Architecture Overview
 
