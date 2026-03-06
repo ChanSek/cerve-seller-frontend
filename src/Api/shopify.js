@@ -11,17 +11,16 @@ export const initiateShopifyOAuth = (shopName) => {
 
 /**
  * Complete Shopify store onboarding
- * @param {string} shop - Shopify store domain
- * @param {string} accessToken - OAuth access token
- * @param {string} scope - Granted scopes
+ * @param {string} sessionCode - Short-lived server-side session code from OAuth redirect
  * @param {string} merchantId - Cerve merchant ID
  * @param {string} storeId - Cerve store ID
  */
-export const completeShopifyOnboarding = async (shop, accessToken, scope, merchantId, storeId) => {
+export const completeShopifyOnboarding = async (sessionCode, merchantId, storeId) => {
   try {
     const response = await postCall(
-      `/api/v1/adapter/shopify/auth/complete-onboarding?shop=${shop}&accessToken=${accessToken}&scope=${scope}`,
+      `/api/v1/adapter/shopify/auth/complete-onboarding`,
       {
+        sessionCode,
         merchantId,
         storeId
       }

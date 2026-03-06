@@ -15,10 +15,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - For local development, typically uses `http://localhost:9090/`
 - Firebase config requires `REACT_APP_FIREBASE_API_KEY` and `REACT_APP_FIREBASE_AUTH_DOMAIN`
 
+### Claw Marketing Website (`claw/`)
+The `claw/` subdirectory is a **separate Vite + React sub-project** for the Claw AI phone agent marketing site (claw.cerve.in). It has its own dependencies and build process, completely independent from the seller CRA app.
+
+```bash
+cd claw/
+npm install
+npm run dev              # Starts Vite dev server on port 5173
+npm run build            # Production build to claw/dist/
+npm run preview          # Preview production build
+```
+
+**Tech stack**: Vite + React 18 + TailwindCSS v3 + Framer Motion + React Router v6
+**Pages**: Home (landing), Features, How It Works, Safety, FAQ
+**Design**: Dark theme with purple-cyan gradient accents, "by Cerve" branding
+
 ### Docker Deployment
-- `Dockerfile` - Production build with nginx
-- `DockerfileWithoutSSL` - Alternative without SSL
+- `Dockerfile` - Multi-stage build: seller app (CRA) + claw site (Vite) + nginx
+- `DockerfileWithoutSSL` - Alternative without SSL (seller only)
 - Build args: `REACT_APP_BASE_URL`, `REACT_APP_FIREBASE_API_KEY`, `REACT_APP_FIREBASE_AUTH_DOMAIN`
+- `nginx.conf` serves seller at `__domain_name__` and claw at `claw.cerve.in`
 
 ## Architecture Overview
 
@@ -189,3 +205,22 @@ The application expects these environment variables:
 - Text highlighting utility supports case-insensitive matching and regex escaping for safe search
 - Infinite scroll implementation includes debouncing to prevent excessive API calls
 - **New dependency**: `react-json-view` for debugging - ensure it's included in production builds if needed
+
+## Test Coverage Requirement
+
+**Every new file added to this codebase MUST have 100% test coverage (statements, branches, functions, lines).**
+
+### Rules
+- No PR may introduce new files without accompanying test files achieving 100% coverage
+- Tests must cover every branch: all `if`/`else`, ternary conditions, conditional renders, and event handlers
+- For the **Claw sub-project** (`claw/`), use **Vitest + React Testing Library**:
+  - Run tests: `cd claw && npm test:run`
+  - Run with coverage: `cd claw && npm run test:coverage`
+  - Coverage thresholds are enforced in `claw/vite.config.js` — the build fails if below 100%
+- For the **main seller app**, use **Jest + React Testing Library** (via `npm test`)
+- Mock `framer-motion` using the alias in `claw/vite.config.js` (points to `claw/src/__mocks__/framer-motion.jsx`)
+- Wrap React Router-dependent components with `<MemoryRouter>` in tests
+
+### Test file locations
+- Claw: `claw/src/__tests__/<mirror-of-src-path>.test.{js,jsx}`
+- Main app: alongside source files or in `__tests__` subdirectory
