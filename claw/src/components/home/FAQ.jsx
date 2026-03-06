@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedSection from '../shared/AnimatedSection';
 import SectionHeading from '../shared/SectionHeading';
 import Icon from '../shared/Icon';
 import { faqItems } from '../../constants/faq';
 
-function FAQItem({ item, isOpen, onToggle }) {
+const FAQItem = memo(function FAQItem({ item, isOpen, onToggle }) {
   return (
     <div className="border-b border-white/5 last:border-0">
       <button
@@ -38,7 +38,7 @@ function FAQItem({ item, isOpen, onToggle }) {
       </AnimatePresence>
     </div>
   );
-}
+});
 
 export default function FAQ({ limit = 6 }) {
   const [openIndex, setOpenIndex] = useState(null);

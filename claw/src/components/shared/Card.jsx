@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 
-export default function Card({ children, className = '', hover = true, gradient = false }) {
+const Card = memo(function Card({ children, className = '', hover = true, gradient = false }) {
   return (
     <motion.div
       whileHover={hover ? { y: -4, scale: 1.02 } : {}}
@@ -11,4 +12,6 @@ export default function Card({ children, className = '', hover = true, gradient 
       {children}
     </motion.div>
   );
-}
+});
+
+export default Card;

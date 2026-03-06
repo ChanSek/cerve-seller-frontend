@@ -18,34 +18,34 @@ const renderApp = (path = '/') =>
   );
 
 describe('App', () => {
-  it('renders the home page at /', () => {
+  it('renders the home page at /', async () => {
     renderApp('/');
-    expect(screen.getByText(/AI-Powered/)).toBeInTheDocument();
+    expect(await screen.findByText(/AI-Powered/)).toBeInTheDocument();
   });
 
-  it('renders the features page at /features', () => {
+  it('renders the features page at /features', async () => {
     renderApp('/features');
-    expect(screen.getByRole('heading', { name: 'Features', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Features', level: 1 })).toBeInTheDocument();
   });
 
-  it('renders the how-it-works page at /how-it-works', () => {
+  it('renders the how-it-works page at /how-it-works', async () => {
     renderApp('/how-it-works');
-    expect(screen.getByRole('heading', { name: 'How Claw Works', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'How Claw Works', level: 1 })).toBeInTheDocument();
   });
 
-  it('renders the safety page at /safety', () => {
+  it('renders the safety page at /safety', async () => {
     renderApp('/safety');
-    expect(screen.getByRole('heading', { name: 'Safety & Privacy', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Safety & Privacy', level: 1 })).toBeInTheDocument();
   });
 
-  it('renders the FAQ page at /faq', () => {
+  it('renders the FAQ page at /faq', async () => {
     renderApp('/faq');
-    expect(screen.getByRole('heading', { name: 'FAQ', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'FAQ', level: 1 })).toBeInTheDocument();
   });
 
-  it('wraps all pages with Layout (Navbar + Footer)', () => {
+  it('wraps all pages with Layout (Navbar + Footer)', async () => {
     renderApp('/');
-    expect(screen.getByRole('navigation')).toBeInTheDocument();
+    expect(await screen.findByRole('navigation')).toBeInTheDocument();
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
   });
 });

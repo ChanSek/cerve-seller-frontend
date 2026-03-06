@@ -1,4 +1,6 @@
-export default function SectionHeading({ title, subtitle, gradient = true, align = 'center' }) {
+import { memo } from 'react';
+
+const SectionHeading = memo(function SectionHeading({ title, subtitle, gradient = true, align = 'center' }) {
   const alignment = align === 'center' ? 'text-center' : 'text-left';
   return (
     <div className={`mb-12 ${alignment}`}>
@@ -10,4 +12,6 @@ export default function SectionHeading({ title, subtitle, gradient = true, align
       )}
     </div>
   );
-}
+});
+
+export default SectionHeading;

@@ -38,7 +38,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <span className="flex items-center">
-              <img src="/cerve-logo.png" alt="Cerve" className="h-7 w-7 object-contain" />
+              <img src="/cerve-logo.png" alt="Cerve" className="h-7 w-7 object-contain" loading="eager" />
               <span className="text-2xl font-extrabold text-gradient -ml-0.5">law</span>
             </span>
             <span className="text-xs text-claw-cerve font-medium mt-1">by Cerve</span>

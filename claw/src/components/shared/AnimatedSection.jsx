@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 
-export default function AnimatedSection({ children, className = '', delay = 0 }) {
+const AnimatedSection = memo(function AnimatedSection({ children, className = '', delay = 0 }) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 40 }}
@@ -12,4 +13,6 @@ export default function AnimatedSection({ children, className = '', delay = 0 })
       {children}
     </motion.section>
   );
-}
+});
+
+export default AnimatedSection;
