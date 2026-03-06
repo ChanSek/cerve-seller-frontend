@@ -4,49 +4,68 @@
 
 ---
 
-## Vuln 1: Shopify Access Token Exposed in POST URL Query Parameters
+## Vuln 1: RabbitMQ Management UI Exposed Publicly
 
-**File:** `src/Api/shopify.js:23`
+**File:** `nginx.conf:109-113`
 **Severity:** High
-**Category:** `credential_exposure`
+**Category:** `service_exposure`
 
-**Description:** The `completeShopifyOnboarding` function sends the Shopify OAuth access token as a URL query parameter rather than in the POST request body:
-```javascript
-const response = await postCall(
-  `/api/v1/adapter/shopify/auth/complete-onboarding?shop=${shop}&accessToken=${accessToken}&scope=${scope}`,
-  { merchantId, storeId }
-);
+**Description:** The RabbitMQ management dashboard (port 15672) is reverse-proxied to the public internet at `/rabbitmq/` with wildcard CORS:
+```nginx
+location /rabbitmq/ {
+    proxy_pass http://rabbitmq:15672/;
+    proxy_read_timeout 240s;
+    add_header 'Access-Control-Allow-Origin' '*';
+}
 ```
-The `postCall` wrapper passes the URL directly to axios, so the access token remains in the URL. This means the token is logged in web server access logs (nginx), visible in browser developer tools network tab, and potentially captured by proxies, CDNs, or monitoring infrastructure.
+Even though RabbitMQ has its own authentication, exposing the management interface publicly increases attack surface significantly (brute-force, credential stuffing, known CVEs).
 
-**Exploit Scenario:** An attacker with access to nginx access logs, load balancer logs, or any intermediate proxy logs can extract the long-lived Shopify access token. With `write_products` scope, they can modify product listings, read store data, or perform unauthorized operations on the merchant's Shopify store.
+**Exploit Scenario:** An attacker discovers the `/rabbitmq/` endpoint, brute-forces the default `guest/guest` credentials (or any weak credentials), and gains full control over the message broker — reading messages, publishing malicious payloads, or disrupting service.
 
-**Recommendation:** Move all sensitive parameters into the POST request body:
-```javascript
-const response = await postCall(
-  `/api/v1/adapter/shopify/auth/complete-onboarding`,
-  { shop, accessToken, scope, merchantId, storeId }
-);
+**Recommendation:** Remove this proxy location entirely, or restrict it with IP allowlisting or HTTP basic auth at the nginx level.
+
+**Status:** [ ] Fixed
+
+---
+
+## Vuln 2: Missing Security Headers on Claw Server Block
+
+**File:** `nginx.conf:161-176`
+**Severity:** Low
+**Category:** `hardening`
+
+**Description:** The claw server block serving `claw.cerve.in` does not include standard security headers:
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+
+Without `X-Frame-Options`, the site can be embedded in iframes on any domain (clickjacking).
+
+**Recommendation:** Add security headers to the claw server block:
+```nginx
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-Frame-Options "DENY" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 ```
 
 **Status:** [ ] Fixed
 
 ---
 
-## Vuln 2: Shopify Access Token Passed via Browser Redirect URL
+## Vuln 3: Seller Dockerfile Uses EOL Node 14
 
-**File:** `src/Components/Application/Shopify/ShopifyCallback.jsx:38`
-**Severity:** High
-**Category:** `credential_exposure`
+**File:** `Dockerfile:2`
+**Severity:** Low
+**Category:** `outdated_runtime`
 
-**Description:** The OAuth callback flow redirects the browser to a URL containing the actual Shopify access token as a query parameter:
-```javascript
-const accessToken = searchParams.get("accessToken");
+**Description:** The seller builder stage uses `node:14`, which reached End-of-Life in April 2023 and no longer receives security patches. The claw builder stage correctly uses `node:18`.
+```dockerfile
+FROM node:14 AS seller-builder
 ```
-This means the backend redirects to something like `/application/shopify/callback?accessToken=shpat_xxxxx&shop=...`. Standard OAuth flows pass short-lived authorization codes in URLs (not long-lived access tokens). The access token is exposed in browser history, the Referer header on subsequent navigation, browser extensions with URL access, and shared/public computer scenarios.
 
-**Exploit Scenario:** (1) A browser extension or tracking script captures the URL containing the access token. (2) If the user navigates to an external link from the callback page, the full URL with the token leaks via the `Referer` header. (3) On a shared computer, the token persists in browser history indefinitely, allowing any subsequent user to extract it.
-
-**Recommendation:** The backend should complete the token exchange entirely server-side, store the token securely, and redirect the browser with only a non-sensitive reference identifier (e.g., a connection ID or status). The access token should never appear in a browser URL.
+**Recommendation:** Upgrade to at least `node:18` (or `node:20` for current LTS):
+```dockerfile
+FROM node:18 AS seller-builder
+```
 
 **Status:** [ ] Fixed
