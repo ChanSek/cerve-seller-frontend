@@ -30,17 +30,14 @@ const ShopifyCallback = () => {
   const handleCallback = async () => {
     try {
       // Get URL parameters from backend redirect
-      const code = searchParams.get("code");
       const shop = searchParams.get("shop");
-      const hmac = searchParams.get("hmac");
-      const timestamp = searchParams.get("timestamp");
-      const state = searchParams.get("state");
-      const accessToken = searchParams.get("accessToken");
-      const scope = searchParams.get("scope");
+      const sessionCode = searchParams.get("sessionCode");
+
+      // Strip params from browser history immediately — sessionCode is single-use but shouldn't linger
+      window.history.replaceState({}, document.title, window.location.pathname);
 
       // Validate required parameters
-      // Backend sends either 'code' (for manual flow) or 'accessToken' (for automatic flow)
-      if (!shop || (!code && !accessToken)) {
+      if (!shop || !sessionCode) {
         throw new Error("Missing required authorization parameters");
       }
 
@@ -54,47 +51,25 @@ const ShopifyCallback = () => {
         throw new Error("Missing merchant or store information");
       }
 
-      // Backend automatically exchanges the code for an access token and provides it in URL params
-      if (accessToken) {
-        // Complete onboarding with the provided access token
-        const response = await completeShopifyOnboarding(
-          shop,
-          accessToken,
-          scope || "read_products,write_products",
-          merchantId,
-          storeId
-        );
+      // Exchange sessionCode for completed onboarding — the access token stays server-side
+      const response = await completeShopifyOnboarding(sessionCode, merchantId, storeId);
 
-        if (response && response.success && response.data?.shopifyStoreId) {
-          // Store the Shopify store ID for future sync operations
-          localStorage.setItem("shopify_store_id", response.data.shopifyStoreId);
+      if (response && response.success && response.data?.shopifyStoreId) {
+        // Store the Shopify store ID for future sync operations
+        localStorage.setItem("shopify_store_id", response.data.shopifyStoreId);
 
-          // Clean up temporary storage
-          localStorage.removeItem("shopify_merchant_id");
+        // Clean up temporary storage
+        localStorage.removeItem("shopify_merchant_id");
 
-          setStatus("success");
-          setMessage("Shopify store connected successfully!");
-          cogoToast.success("Shopify store connected! You can now sync products.");
-
-          // Redirect to inventory page after 2 seconds
-          setTimeout(() => {
-            navigate("/application/inventory");
-          }, 2000);
-        } else {
-          throw new Error("Failed to complete store connection");
-        }
-      } else {
-        // If no access token in params, the backend should have already handled the callback
-        // Just show success and redirect
         setStatus("success");
-        setMessage("Shopify authorization received. Completing setup...");
+        setMessage("Shopify store connected successfully!");
+        cogoToast.success("Shopify store connected! You can now sync products.");
 
-        cogoToast.info("Shopify authorization successful. Please sync your products.");
-
-        // Redirect to inventory page after 2 seconds
         setTimeout(() => {
           navigate("/application/inventory");
         }, 2000);
+      } else {
+        throw new Error("Failed to complete store connection");
       }
     } catch (error) {
       console.error("Shopify callback error:", error);
