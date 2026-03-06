@@ -205,3 +205,22 @@ The application expects these environment variables:
 - Text highlighting utility supports case-insensitive matching and regex escaping for safe search
 - Infinite scroll implementation includes debouncing to prevent excessive API calls
 - **New dependency**: `react-json-view` for debugging - ensure it's included in production builds if needed
+
+## Test Coverage Requirement
+
+**Every new file added to this codebase MUST have 100% test coverage (statements, branches, functions, lines).**
+
+### Rules
+- No PR may introduce new files without accompanying test files achieving 100% coverage
+- Tests must cover every branch: all `if`/`else`, ternary conditions, conditional renders, and event handlers
+- For the **Claw sub-project** (`claw/`), use **Vitest + React Testing Library**:
+  - Run tests: `cd claw && npm test:run`
+  - Run with coverage: `cd claw && npm run test:coverage`
+  - Coverage thresholds are enforced in `claw/vite.config.js` — the build fails if below 100%
+- For the **main seller app**, use **Jest + React Testing Library** (via `npm test`)
+- Mock `framer-motion` using the alias in `claw/vite.config.js` (points to `claw/src/__mocks__/framer-motion.jsx`)
+- Wrap React Router-dependent components with `<MemoryRouter>` in tests
+
+### Test file locations
+- Claw: `claw/src/__tests__/<mirror-of-src-path>.test.{js,jsx}`
+- Main app: alongside source files or in `__tests__` subdirectory
