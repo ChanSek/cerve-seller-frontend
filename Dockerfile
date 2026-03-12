@@ -24,7 +24,16 @@ RUN npm install
 COPY claw/ .
 RUN npm run build
 
-# Stage 3: nginx for serving both apps
+# Stage 3: Build Cerve root marketing website (Vite)
+FROM node:18 AS website-builder
+
+WORKDIR /app/website
+COPY website/package.json website/package-lock.json* ./
+RUN npm install
+COPY website/ .
+RUN npm run build
+
+# Stage 4: nginx for serving all apps
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
@@ -32,5 +41,7 @@ RUN rm -rf ./*
 COPY --from=seller-builder /app/build ./seller
 # Copy claw website
 COPY --from=claw-builder /app/claw/dist ./claw
+# Copy root marketing website
+COPY --from=website-builder /app/website/dist ./website
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

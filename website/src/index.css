@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-cerve-bg text-cerve-text font-sans;
+    margin: 0;
+  }
+
+  ::selection {
+    background-color: rgba(108, 92, 231, 0.3);
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0a0a0f;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a3e;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a3a5e;
+  }
+}
+
+@layer components {
+  .glow-primary {
+    box-shadow: 0 0 20px rgba(108, 92, 231, 0.3), 0 0 60px rgba(108, 92, 231, 0.1);
+  }
+
+  .glow-secondary {
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.3), 0 0 60px rgba(0, 210, 255, 0.1);
+  }
+
+  .text-gradient {
+    @apply bg-cerve-gradient bg-clip-text text-transparent;
+  }
+
+  .border-gradient {
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+
+  .border-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #6c5ce7, #00d2ff);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
