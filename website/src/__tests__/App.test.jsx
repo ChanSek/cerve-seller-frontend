@@ -42,4 +42,18 @@ describe('App', () => {
     );
     expect(container).toBeInTheDocument();
   });
+
+  it('wraps content with ErrorBoundary', async () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>
+    );
+
+    // ErrorBoundary renders children when no error
+    await waitFor(() => {
+      expect(screen.getByText('Reimagined.')).toBeInTheDocument();
+    });
+  });
 });

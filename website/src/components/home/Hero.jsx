@@ -12,10 +12,10 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
       {/* Background gradient orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-cerve-primary/10 blur-[128px]" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-cerve-secondary/10 blur-[128px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-cerve-primary/5 blur-[200px]" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none will-change-transform">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-cerve-primary/10 blur-[64px] sm:blur-[128px]" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-cerve-secondary/10 blur-[64px] sm:blur-[128px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-cerve-primary/5 blur-[100px] sm:blur-[200px]" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">

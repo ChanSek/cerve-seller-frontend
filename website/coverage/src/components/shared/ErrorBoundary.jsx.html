@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/components/shared/AnimatedSection.jsx</title>
+    <title>Code coverage report for src/components/shared/ErrorBoundary.jsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../prettify.css" />
     <link rel="stylesheet" href="../../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/components/shared</a> AnimatedSection.jsx</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/components/shared</a> ErrorBoundary.jsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>41/41</span>
+                <span class='fraction'>39/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>9/9</span>
+                <span class='fraction'>7/7</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>5/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>41/41</span>
+                <span class='fraction'>39/39</span>
             </div>
         
             
@@ -102,90 +102,84 @@
 <a name='L37'></a><a href='#L37'>37</a>
 <a name='L38'></a><a href='#L38'>38</a>
 <a name='L39'></a><a href='#L39'>39</a>
-<a name='L40'></a><a href='#L40'>40</a>
-<a name='L41'></a><a href='#L41'>41</a>
-<a name='L42'></a><a href='#L42'>42</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L40'></a><a href='#L40'>40</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">87x</span>
-<span class="cline-any cline-yes">87x</span>
-<span class="cline-any cline-yes">87x</span>
-<span class="cline-any cline-yes">87x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">87x</span>
-<span class="cline-any cline-yes">87x</span>
-<span class="cline-any cline-yes">87x</span>
-<span class="cline-any cline-yes">87x</span>
-<span class="cline-any cline-yes">87x</span>
-<span class="cline-any cline-yes">87x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
-<span class="cline-any cline-yes">89x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { memo, useRef, useState, useEffect } from 'react';
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Component } from 'react';
 &nbsp;
-const AnimatedSection = memo(function AnimatedSection({ children, className = '', delay = 0 }) {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
+export default class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
 &nbsp;
-  useEffect(() =&gt; {
-    const element = ref.current;
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
 &nbsp;
-    const observer = new IntersectionObserver(
-      ([entry]) =&gt; {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.unobserve(element);
-        }
-      },
-      { rootMargin: '-80px' }
-    );
+  componentDidCatch(error, errorInfo) {
+    console.error('[ErrorBoundary]', error, errorInfo);
+  }
 &nbsp;
-    observer.observe(element);
+  render() {
+    if (this.state.hasError) {
+      return (
+        &lt;div className="min-h-screen bg-cerve-bg flex items-center justify-center px-4" role="alert"&gt;
+          &lt;div className="text-center max-w-md"&gt;
+            &lt;h1 className="text-3xl font-bold text-white mb-4"&gt;Something went wrong&lt;/h1&gt;
+            &lt;p className="text-cerve-muted mb-6"&gt;
+              An unexpected error occurred. Please try refreshing the page.
+            &lt;/p&gt;
+            &lt;button
+              onClick={() =&gt; window.location.reload()}
+              className="px-6 py-3 rounded-xl bg-cerve-primary text-white font-medium hover:opacity-90 transition-opacity"
+            &gt;
+              Refresh Page
+            &lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      );
+    }
 &nbsp;
-    return () =&gt; observer.disconnect();
-  }, []);
-&nbsp;
-  return (
-    &lt;section
-      ref={ref}
-      className={className}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'translateY(0)' : 'translateY(40px)',
-        transition: `opacity 0.6s ease-out ${delay}s, transform 0.6s ease-out ${delay}s`,
-        willChange: 'opacity, transform',
-      }}
-    &gt;
-      {children}
-    &lt;/section&gt;
-  );
-});
-&nbsp;
-export default AnimatedSection;
+    return this.props.children;
+  }
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -193,7 +187,7 @@ export default AnimatedSection;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-12T18:19:19.683Z
+                at 2026-03-12T18:19:19.694Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
