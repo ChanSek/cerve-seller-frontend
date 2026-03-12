@@ -90,7 +90,7 @@ describe('Navbar', () => {
 
   it('opens mobile menu when hamburger button is clicked', () => {
     renderNavbar();
-    const menuButton = screen.getByRole('button');
+    const menuButton = screen.getByRole('button', { name: 'Open menu' });
     fireEvent.click(menuButton);
     // Now both desktop and mobile links are rendered
     expect(screen.getAllByRole('link', { name: 'Features' })).toHaveLength(2);
@@ -98,10 +98,18 @@ describe('Navbar', () => {
 
   it('closes mobile menu when hamburger button is clicked again', () => {
     renderNavbar();
-    const menuButton = screen.getByRole('button');
+    const menuButton = screen.getByRole('button', { name: 'Open menu' });
     fireEvent.click(menuButton);
-    fireEvent.click(menuButton);
+    fireEvent.click(screen.getByRole('button', { name: 'Close menu' }));
     expect(screen.getAllByRole('link', { name: 'Features' })).toHaveLength(1);
+  });
+
+  it('sets aria-expanded correctly on mobile menu button', () => {
+    renderNavbar();
+    const menuButton = screen.getByRole('button', { name: 'Open menu' });
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(menuButton);
+    expect(screen.getByRole('button', { name: 'Close menu' })).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('shows mobile background when mobile menu is open', () => {
@@ -109,7 +117,7 @@ describe('Navbar', () => {
     const nav = screen.getByRole('navigation');
     expect(nav).toHaveClass('bg-transparent');
 
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
     expect(nav).not.toHaveClass('bg-transparent');
   });
 
@@ -129,7 +137,7 @@ describe('Navbar', () => {
 
   it('renders mobile menu link with active style when path matches', () => {
     renderNavbar('/safety');
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
     // Mobile menu safety link (second occurrence) should have active class
     const safetyLinks = screen.getAllByRole('link', { name: 'Safety' });
     const mobileLink = safetyLinks[safetyLinks.length - 1];

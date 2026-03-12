@@ -16,9 +16,9 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
       {/* Background gradient orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-claw-primary/10 blur-[128px]" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-claw-secondary/10 blur-[128px]" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-claw-primary/10 blur-[128px]" style={{ willChange: 'transform' }} />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-claw-secondary/10 blur-[128px]" style={{ willChange: 'transform' }} />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
@@ -77,6 +77,7 @@ export default function Hero() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
             className="relative flex justify-center"
+            aria-hidden="true"
           >
             {/* Phone frame */}
             <div className="relative w-64 rounded-[2.5rem] bg-claw-elevated border-2 border-white/20 shadow-2xl glow-primary overflow-hidden"

@@ -65,6 +65,13 @@ describe('Footer', () => {
     expect(screen.getByText(new RegExp(year))).toBeInTheDocument();
   });
 
+  it('renders GitHub icon link with aria-label', () => {
+    renderFooter();
+    const githubIconLink = screen.getByRole('link', { name: 'Claw on GitHub' });
+    expect(githubIconLink).toHaveAttribute('href', 'https://github.com/AsClaw/CerveAIClaw');
+    expect(githubIconLink).toHaveAttribute('target', '_blank');
+  });
+
   it('renders How It Works link', () => {
     renderFooter();
     expect(screen.getByRole('link', { name: 'How It Works' })).toHaveAttribute('href', '/how-it-works');
