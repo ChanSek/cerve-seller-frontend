@@ -1,5 +1,5 @@
 # Stage 1: Build seller frontend (CRA)
-FROM node:14 AS seller-builder
+FROM node:18 AS seller-builder
 
 ARG REACT_APP_BASE_URL
 ARG REACT_APP_FIREBASE_API_KEY
