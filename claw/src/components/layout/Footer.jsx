@@ -52,6 +52,7 @@ export default function Footer() {
                 className="text-claw-muted hover:text-claw-text transition-colors"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Claw on GitHub"
               >
                 <Icon name="github" size={20} />
               </a>

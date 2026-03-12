@@ -67,6 +67,8 @@ export default function Navbar() {
           <button
             className="md:hidden p-2 text-claw-muted hover:text-claw-text"
             onClick={() => setMobileOpen(!mobileOpen)}
+            aria-expanded={mobileOpen}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
           >
             <Icon name={mobileOpen ? 'x' : 'menu'} size={24} />
           </button>

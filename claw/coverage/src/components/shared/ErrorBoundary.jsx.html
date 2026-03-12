@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/components/home/Features.jsx</title>
+    <title>Code coverage report for src/components/shared/ErrorBoundary.jsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../../prettify.css" />
     <link rel="stylesheet" href="../../../base.css" />
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/components/home</a> Features.jsx</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/components/shared</a> ErrorBoundary.jsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>32/32</span>
+                <span class='fraction'>35/35</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>2/2</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>32/32</span>
+                <span class='fraction'>35/35</span>
             </div>
         
             
@@ -95,69 +95,78 @@
 <a name='L30'></a><a href='#L30'>30</a>
 <a name='L31'></a><a href='#L31'>31</a>
 <a name='L32'></a><a href='#L32'>32</a>
-<a name='L33'></a><a href='#L33'>33</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import AnimatedSection from '../shared/AnimatedSection';
-import SectionHeading from '../shared/SectionHeading';
-import Card from '../shared/Card';
-import Icon from '../shared/Icon';
-import { features } from '../../constants/features';
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Component } from 'react';
 &nbsp;
-export default function Features() {
-  return (
-    &lt;AnimatedSection className="py-24 px-4 sm:px-6 lg:px-8" id="features"&gt;
-      &lt;div className="mx-auto max-w-7xl"&gt;
-        &lt;SectionHeading
-          title="Powerful by Design"
-          subtitle="Built with intelligence, safety, and extensibility at its core."
-        /&gt;
+export default class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
 &nbsp;
-        &lt;div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"&gt;
-          {features.map((feature, i) =&gt; (
-            &lt;AnimatedSection key={feature.title} delay={i * 0.1}&gt;
-              &lt;Card className="h-full"&gt;
-                &lt;div className="mb-4 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-claw-primary/10"&gt;
-                  &lt;Icon name={feature.icon} size={24} className="text-claw-primary" /&gt;
-                &lt;/div&gt;
-                &lt;h3 className="text-lg font-bold text-white mb-2"&gt;{feature.title}&lt;/h3&gt;
-                &lt;p className="text-sm text-claw-muted leading-relaxed"&gt;{feature.description}&lt;/p&gt;
-              &lt;/Card&gt;
-            &lt;/AnimatedSection&gt;
-          ))}
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+&nbsp;
+  render() {
+    if (this.state.hasError) {
+      return (
+        &lt;div className="min-h-screen bg-claw-bg flex items-center justify-center px-4" role="alert"&gt;
+          &lt;div className="text-center max-w-md"&gt;
+            &lt;h1 className="text-3xl font-bold text-white mb-4"&gt;Something went wrong&lt;/h1&gt;
+            &lt;p className="text-claw-muted mb-6"&gt;
+              An unexpected error occurred. Please try refreshing the page.
+            &lt;/p&gt;
+            &lt;button
+              onClick={() =&gt; window.location.reload()}
+              className="px-6 py-3 rounded-xl bg-claw-primary text-white font-medium hover:opacity-90 transition-opacity"
+            &gt;
+              Refresh Page
+            &lt;/button&gt;
+          &lt;/div&gt;
         &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/AnimatedSection&gt;
-  );
+      );
+    }
+&nbsp;
+    return this.props.children;
+  }
 }
 &nbsp;</pre></td></tr></table></pre>
 
