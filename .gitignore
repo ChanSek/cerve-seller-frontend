@@ -12,7 +12,7 @@ node_modules/
 coverage/
 
 # production builds
-/build
+build/
 **/dist/
 
 # misc

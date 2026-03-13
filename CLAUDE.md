@@ -4,14 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-### Core Commands
-- `npm start` - Start development server on port 3000
-- `npm run build` - Build production bundle 
-- `npm test` - Run test suite with Jest/React Testing Library
-- `npm run eject` - Eject from Create React App (irreversible)
+### Core Commands (Seller App)
+```bash
+cd seller/
+npm start                # Start development server on port 3000
+npm run build            # Build production bundle
+npm test                 # Run test suite with Jest/React Testing Library
+npm run eject            # Eject from Create React App (irreversible)
+```
 
 ### Environment Setup
-- Copy `.env` file and configure `REACT_APP_BASE_URL` and `REACT_APP_SELLER_BACKEND_URL`
+- Copy `.env` file into `seller/` and configure `REACT_APP_BASE_URL` and `REACT_APP_SELLER_BACKEND_URL`
 - For local development, typically uses `http://localhost:9090/`
 - Firebase config requires `REACT_APP_FIREBASE_API_KEY` and `REACT_APP_FIREBASE_AUTH_DOMAIN`
 
@@ -54,22 +57,22 @@ This is a React 18 seller frontend application for an ONDC (Open Network for Dig
 - Token-based authentication with automatic 401 handling
 - `PrivateRoute` wrapper checks `isLoggedIn()`, `getSellerActive()`, and `isSuperAdmin()`
 - Unauthorized users redirected to `/login`
-- Session management in `src/utils/validateToken.js`
+- Session management in `seller/src/utils/validateToken.js`
 - Auth state managed via `AuthProvider` context
 
 ### Core Module Architecture
 
-#### API Layer (`src/Api/`)
+#### API Layer (`seller/src/Api/`)
 - `axios.js` - HTTP client with interceptors for auth and error handling
 - `firebase-init.js` - Firebase configuration
 - Centralized error handling with automatic logout on 401
 
-#### Routing (`src/Router/`)
+#### Routing (`seller/src/Router/`)
 - `Router.jsx` - Main route definitions with private route protection  
 - `PrivateRoutes.jsx` - Authentication wrapper component
 - `AuthProvider.js` - Authentication context provider
 
-#### Application Modules (`src/Components/Application/`)
+#### Application Modules (`seller/src/Components/Application/`)
 - **Orders** - Order management, details, status updates, cancellation
 - **Inventory** - Product inventory management with Excel download
 - **Product** - Product CRUD, variants, customizations, bulk upload with advanced search and filtering
@@ -93,7 +96,7 @@ This is a React 18 seller frontend application for an ONDC (Open Network for Dig
 
 ### State Management Patterns
 - React hooks (`useState`, `useEffect`) for local component state
-- Custom hooks in `src/hooks/` for reusable logic
+- Custom hooks in `seller/src/hooks/` for reusable logic
 - Context providers for auth state
 - Form state managed via custom `useForm` hook
 
@@ -107,15 +110,15 @@ This is a React 18 seller frontend application for an ONDC (Open Network for Dig
 - Material-UI theme customization
 - SCSS modules for component-specific styles
 - TailwindCSS utilities for layout and spacing
-- Consistent color scheme defined in `src/Components/Shared/Colors.js`
+- Consistent color scheme defined in `seller/src/Components/Shared/Colors.js`
 
 ### Key Utilities
-- Form validation in `src/utils/validations.js`
+- Form validation in `seller/src/utils/validations.js`
 - Date/string formatting utilities
 - Search debouncing and filtering
 - Multi-checkbox selection components
 - Dynamic input rendering based on field configurations
-- **Text highlighting** - `src/utils/textHighlight.js` for highlighting search terms in results
+- **Text highlighting** - `seller/src/utils/textHighlight.js` for highlighting search terms in results
 - **Infinite scroll** - Paginated search implementation with infinite scroll capability
 - **Product filtering** - Advanced filtering options in product selection dialogs
 
@@ -217,7 +220,7 @@ The application expects these environment variables:
   - Run tests: `cd claw && npm test:run`
   - Run with coverage: `cd claw && npm run test:coverage`
   - Coverage thresholds are enforced in `claw/vite.config.js` — the build fails if below 100%
-- For the **main seller app**, use **Jest + React Testing Library** (via `npm test`)
+- For the **main seller app**, use **Jest + React Testing Library** (via `cd seller && npm test`)
 - Mock `framer-motion` using the alias in `claw/vite.config.js` (points to `claw/src/__mocks__/framer-motion.jsx`)
 - Wrap React Router-dependent components with `<MemoryRouter>` in tests
 
