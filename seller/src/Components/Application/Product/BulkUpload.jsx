@@ -97,10 +97,9 @@ const BulkUpload = () => {
             />
           </div>
           {msg && (
-            <p
-              className={`text-xs ${error ? 'text-red-600' : 'text-green-600'} mt-2`}
-              dangerouslySetInnerHTML={{ __html: msg }}
-            />
+            <p className={`text-xs ${error ? 'text-red-600' : 'text-green-600'} mt-2`}>
+              {msg}
+            </p>
           )}
           <div className="mt-6 flex flex-col-1">
             <Button variant="contained" color="primary" onClick={uploadSelectedFile}>

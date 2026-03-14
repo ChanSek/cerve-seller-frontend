@@ -61,10 +61,9 @@ export default function InventoryTable(props) {
       return <span className="ml-2">{value ? "Yes" : "No"}</span>;
     } else if (typeof value === "string" && /<\/?[a-z][\s\S]*>/i.test(value)) {
       return (
-        <div
-          className="html-content"
-          dangerouslySetInnerHTML={{ __html: value }}
-        />
+        <div className="html-content">
+          {value.replace(/<[^>]*>/g, ' ').trim()}
+        </div>
       );
     } else {
       return column.format ? column.format(value) : value;

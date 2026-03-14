@@ -399,8 +399,8 @@ const ProviderInitialSteps = () => {
 
   const handleStoreDetailsReq = async () => {
     const data = Object.assign({}, form2Values);
-    data.defaultCancellable = eval(data.defaultCancellable);
-    data.defaultReturnable = eval(data.defaultReturnable);
+    data.defaultCancellable = data.defaultCancellable === 'true' || data.defaultCancellable === true;
+    data.defaultReturnable = data.defaultReturnable === 'true' || data.defaultReturnable === true;
     data.address = {
       building: form2Values.building,
       city: form2Values.address_city,

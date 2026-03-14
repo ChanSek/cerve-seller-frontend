@@ -1,5 +1,6 @@
 // textHighlight.js - Utility for highlighting search terms in text
 import React from 'react';
+import { ONDC_COLORS } from '../Components/Shared/Colors';
 
 /**
  * Highlights search terms in text by wrapping matches in span elements
@@ -11,8 +12,8 @@ import React from 'react';
 export const highlightText = (text, searchTerm, highlightStyle = {}) => {
     // Default highlight styling
     const defaultStyle = {
-        backgroundColor: '#6c5ce740',
-        color: '#00d2ff',
+        backgroundColor: `${ONDC_COLORS.ACCENTCOLOR}40`,
+        color: ONDC_COLORS.SECONDARYCOLOR,
         fontWeight: 'bold',
         padding: '1px 2px',
         borderRadius: '2px'

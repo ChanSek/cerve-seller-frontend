@@ -1,5 +1,6 @@
 // Shared sx-prop styles for action card components (Complaints module)
 // Replaces the former actionCard.module.scss
+import { ONDC_COLORS } from "../Components/Shared/Colors";
 
 export const actionCardStyles = {
   overlay: {
@@ -21,7 +22,7 @@ export const actionCardStyles = {
   },
   popupCard: {
     minWidth: "40%",
-    backgroundColor: "#12121a",
+    backgroundColor: ONDC_COLORS.CARDCOLOR,
     borderRadius: "10px",
     maxHeight: "95%",
     overflow: "auto",
@@ -34,8 +35,8 @@ export const actionCardStyles = {
   },
   cardHeader: {
     p: "20px 25px",
-    backgroundColor: "#12121a",
-    borderBottom: "1px solid rgba(0, 210, 255, 0.15)",
+    backgroundColor: ONDC_COLORS.CARDCOLOR,
+    borderBottom: `1px solid ${ONDC_COLORS.SECONDARYCOLOR}26`,
     borderTopLeftRadius: "10px",
     borderTopRightRadius: "10px",
     alignItems: "center",
@@ -45,17 +46,17 @@ export const actionCardStyles = {
     fontSize: "18px",
     fontWeight: 500,
     textAlign: "left",
-    color: "#e0e0e0",
+    color: ONDC_COLORS.PRIMARYCOLOR,
     m: 0,
   },
   cardBody: {
     p: "20px 25px",
-    borderBottom: "1px solid rgba(0, 210, 255, 0.15)",
+    borderBottom: `1px solid ${ONDC_COLORS.SECONDARYCOLOR}26`,
   },
   cardBodyText: {
     fontSize: "14px",
     textAlign: "left",
-    color: "#00d2ff",
+    color: ONDC_COLORS.SECONDARYCOLOR,
     m: 0,
   },
   cardFooter: {
@@ -68,7 +69,7 @@ export const actionCardStyles = {
     fontSize: "16px",
     fontWeight: 500,
     textAlign: "left",
-    color: "#e0e0e0",
+    color: ONDC_COLORS.PRIMARYCOLOR,
     m: 0,
   },
 };
@@ -82,7 +83,7 @@ export const radioButtonStyles = {
     flex: 1,
     cursor: "pointer",
     "&:hover": {
-      backgroundColor: "rgba(108, 92, 231, 0.15)",
+      backgroundColor: `${ONDC_COLORS.ACCENTCOLOR}26`,
       transition: "background-color 0.3s",
       borderRadius: "10px",
     },
@@ -97,8 +98,8 @@ export const radioButtonStyles = {
     width: "20px",
     height: "20px",
     borderRadius: "50%",
-    backgroundColor: "#12121a",
-    border: "1px solid #6c5ce7",
+    backgroundColor: ONDC_COLORS.CARDCOLOR,
+    border: `1px solid ${ONDC_COLORS.ACCENTCOLOR}`,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -108,14 +109,14 @@ export const radioButtonStyles = {
     width: "10px",
     height: "10px",
     borderRadius: "50%",
-    backgroundColor: "#6c5ce7",
+    backgroundColor: ONDC_COLORS.ACCENTCOLOR,
     border: 0,
   },
   nonActive: {
     width: "10px",
     height: "10px",
     borderRadius: "50%",
-    backgroundColor: "#12121a",
+    backgroundColor: ONDC_COLORS.CARDCOLOR,
     border: 0,
   },
   parentRadio: {
@@ -124,14 +125,14 @@ export const radioButtonStyles = {
   },
   editButton: {
     fontSize: "12px",
-    color: "#6c5ce7",
+    color: ONDC_COLORS.ACCENTCOLOR,
     textAlign: "left",
     m: 0,
     backgroundColor: "transparent",
     border: 0,
     cursor: "pointer",
     "&:hover": {
-      backgroundColor: "rgba(108, 92, 231, 0.15)",
+      backgroundColor: `${ONDC_COLORS.ACCENTCOLOR}26`,
       transition: "background-color 0.3s",
       borderRadius: "10px",
     },
