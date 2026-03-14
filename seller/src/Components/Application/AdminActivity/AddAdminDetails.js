@@ -288,13 +288,13 @@ const AddAdminDetails = ({ isOpen, onClose, onSave, selectedSection, initialData
                 <div className="flex justify-end space-x-4 mt-4">
                     <button
                         onClick={onClose}
-                        className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                        className="bg-seller-elevated px-4 py-2 rounded hover:bg-seller-accent text-seller-text"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSave}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                        className="bg-seller-accent text-white px-4 py-2 rounded hover:bg-[#5a4bd6]"
                     >
                         Save
                     </button>

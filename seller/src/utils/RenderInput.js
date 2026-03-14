@@ -33,8 +33,9 @@ import DatePanel from "react-multi-date-picker/plugins/date_panel";
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
+    color: "#e0e0e0",
     "& fieldset": {
-      borderColor: "black",
+      borderColor: "#8888aa",
     },
     "&:hover fieldset": {
       borderColor: "#6c5ce7",
@@ -42,6 +43,25 @@ const CssTextField = styled(TextField)({
     "&.Mui-focused fieldset": {
       borderColor: "#6c5ce7",
     },
+  },
+  "& .MuiInput-root": {
+    color: "#e0e0e0",
+    "&:before": {
+      borderBottomColor: "#8888aa",
+    },
+    "&:hover:not(.Mui-disabled):before": {
+      borderBottomColor: "#6c5ce7",
+    },
+    "&:after": {
+      borderBottomColor: "#6c5ce7",
+    },
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#8888aa",
+    opacity: 1,
+  },
+  "& .MuiInputLabel-root": {
+    color: "#8888aa",
   },
 });
 
@@ -131,7 +151,7 @@ const RenderInput = (props) => {
           }
         >
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         <CssTextField
           variant={item.variant ? item.variant : "standard"}
@@ -139,7 +159,7 @@ const RenderInput = (props) => {
           className={
             props.inputClasses
               ? props.inputClasses
-              : "w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+              : "w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
           }
           sx={props.inputStyles && props.inputStyles}
           required={item.required}
@@ -189,7 +209,7 @@ const RenderInput = (props) => {
           }
         >
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         <CssTextField
           variant={item.variant ? item.variant : "standard"}
@@ -197,7 +217,7 @@ const RenderInput = (props) => {
           className={
             props.inputClasses
               ? props.inputClasses
-              : "w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+              : "w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
           }
           sx={props.inputStyles && props.inputStyles}
           required={item.required}
@@ -268,13 +288,13 @@ const RenderInput = (props) => {
               }
             >
               {item.title}
-              {item.required && <span className="text-[#FF0000]"> *</span>}
+              {item.required && <span className="text-seller-error"> *</span>}
             </label>
             <RadioGroup
               className={
                 props.inputClasses
                   ? props.inputClasses
-                  : "w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+                  : "w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
               }
               aria-label={item.id}
               name={item.id}
@@ -330,7 +350,7 @@ const RenderInput = (props) => {
       <div className="py-1 flex flex-col">
         <label className="text-sm py-2 ml-0 font-medium text-left text-seller-text inline-block">
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         <FormGroup row>
           {item.options.map((checkboxItem) => (
@@ -368,7 +388,7 @@ const RenderInput = (props) => {
           }
         >
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         <FormControl error={item.error || false}>
           <Autocomplete
@@ -434,7 +454,7 @@ const RenderInput = (props) => {
       <div className="py-1 flex flex-col">
         <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-seller-text inline-block">
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         <div style={{ width: "100%", height: "400px" }}>
           <PlacePickerMap
@@ -483,7 +503,7 @@ const RenderInput = (props) => {
       <div className="py-1 flex flex-col">
         <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-seller-text inline-block">
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
@@ -534,7 +554,7 @@ const RenderInput = (props) => {
         {item.title && (
           <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-seller-text inline-block">
             {item.title}
-            {item.required && <span className="text-[#FF0000]"> *</span>}
+            {item.required && <span className="text-seller-error"> *</span>}
           </label>
         )}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -594,7 +614,7 @@ const RenderInput = (props) => {
       <div className="py-1 flex flex-col">
         <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-seller-text inline-block">
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         <DaysPicker
           value={values || []}
@@ -661,7 +681,7 @@ const RenderInput = (props) => {
           }
         >
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         <CssTextField
           variant={item.variant ? item.variant : "standard"}
@@ -669,7 +689,7 @@ const RenderInput = (props) => {
           className={
             props.inputClasses
               ? props.inputClasses
-              : "w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+              : "w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
           }
           sx={props.inputStyles && props.inputStyles}
           required={item.required}
@@ -706,7 +726,7 @@ const RenderInput = (props) => {
         {item.title && (
           <label className="text-sm py-2 ml-0 mb-1 font-medium text-left text-seller-text inline-block">
             {item.title}
-            {item.required && <span className="text-[#FF0000]"> *</span>}
+            {item.required && <span className="text-seller-error"> *</span>}
           </label>
         )}
         <FormControl>
@@ -857,7 +877,7 @@ const RenderInput = (props) => {
           className="text-sm py-2 ml-0 font-medium text-left text-seller-text inline-block"
         >
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         {/* <Button sx={{ textTransform: 'none' }} variant="contained">
           <label for="contained-button-file">
@@ -969,7 +989,7 @@ const RenderInput = (props) => {
           }
         >
           {item.title}
-          {item.required && <span className="text-[#FF0000]"> *</span>}
+          {item.required && <span className="text-seller-error"> *</span>}
         </label>
         <FormControlLabel
           control={

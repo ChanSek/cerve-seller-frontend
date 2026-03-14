@@ -166,13 +166,13 @@ const Customization = (props) => {
             >
               <div>
                 <span className="flex items-center">
-                  <p className="text-[#181818] text-medium">
+                  <p className="text-seller-muted text-medium">
                     [{customization.id}] &nbsp;
                   </p>
-                  <p className="text-[#000000] text-medium">
+                  <p className="text-seller-text text-medium">
                     {customization.name} &nbsp; => &nbsp;
                   </p>
-                  <p className="text-[#000000] text-medium">
+                  <p className="text-seller-text text-medium">
                     {customization.price} Rupees
                   </p>
                 </span>

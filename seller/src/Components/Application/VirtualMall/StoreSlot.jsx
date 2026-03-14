@@ -23,7 +23,7 @@ const StoreSlot = ({ store, onClick, index }) => {
         alignItems: "center",
         cursor: "pointer",
         borderRadius: 4,
-        backgroundColor: isEmpty ? "#f5f5f5" : "#ffffff",
+        backgroundColor: isEmpty ? "#1a1a2e" : "#12121a",
         border: isEmpty ? "2px dashed #aaa" : "1px solid #ddd",
         "&:hover": {
           boxShadow: 6,

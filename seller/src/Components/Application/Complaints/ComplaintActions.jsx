@@ -17,8 +17,9 @@ import MultiResolutionModal from "./MultiResolutionModal";
 
 const CssTextField = styled(TextField)({
     "& .MuiOutlinedInput-root": {
+        color: "#e0e0e0",
         "& fieldset": {
-            borderColor: "black",
+            borderColor: "#8888aa",
         },
         "&:hover fieldset": {
             borderColor: "#6c5ce7",
@@ -26,6 +27,25 @@ const CssTextField = styled(TextField)({
         "&.Mui-focused fieldset": {
             borderColor: "#6c5ce7",
         },
+    },
+    "& .MuiInput-root": {
+        color: "#e0e0e0",
+        "&:before": {
+            borderBottomColor: "#8888aa",
+        },
+        "&:hover:not(.Mui-disabled):before": {
+            borderBottomColor: "#6c5ce7",
+        },
+        "&:after": {
+            borderBottomColor: "#6c5ce7",
+        },
+    },
+    "& .MuiInputBase-input::placeholder": {
+        color: "#8888aa",
+        opacity: 1,
+    },
+    "& .MuiInputLabel-root": {
+        color: "#8888aa",
     },
 });
 
@@ -197,7 +217,7 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
                         {/* Like and Dislike Icons */}
                         <div className="flex mt-3">
                             <span
-                                className={`cursor-pointer p-2 rounded-full ${rating === "THUMBS_UP" ? "bg-green-500 text-white" : "text-gray-500"
+                                className={`cursor-pointer p-2 rounded-full ${rating === "THUMBS_UP" ? "bg-green-500 text-white" : "text-seller-muted"
                                     }`}
                                 onClick={() => setRating("THUMBS_UP")}
                                 title="Like"
@@ -205,7 +225,7 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
                                 <ThumbUp fontSize="small" />
                             </span>
                             <span
-                                className={`cursor-pointer p-2 rounded-full ${rating === "THUMBS_DOWN" ? "bg-red-500 text-white" : "text-gray-500"
+                                className={`cursor-pointer p-2 rounded-full ${rating === "THUMBS_DOWN" ? "bg-red-500 text-white" : "text-seller-muted"
                                     }`}
                                 onClick={() => setRating("THUMBS_DOWN")}
                                 title="Dislike"
@@ -224,7 +244,7 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
                         width: "100%",
                     }}
                     type="text"
-                    className="h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+                    className="h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
                     required
                     size="small"
                     autoComplete="off"
@@ -270,7 +290,7 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
                         width: "100%",
                     }}
                     type="text"
-                    className="h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+                    className="h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
                     required
                     size="small"
                     autoComplete="off"
@@ -313,23 +333,23 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
             (res) => res.ref_id === refId || (initiatedBy === 'SELLER' && res.id === refId)
         );
         return relatedResolutions.map(({ id, descriptor, tags, proposed_by, updated_at }) => (
-            <div key={id} className="p-4 bg-gray-50 rounded-lg shadow-md my-3">
+            <div key={id} className="p-4 bg-seller-card rounded-lg shadow-md my-3">
                 <div className="mb-2">
-                    <p className="text-sm font-semibold text-gray-800">{descriptor?.code}</p>
-                    <p className="text-sm text-gray-700">{descriptor?.short_desc}</p>
+                    <p className="text-sm font-semibold text-seller-text">{descriptor?.code}</p>
+                    <p className="text-sm text-seller-text">{descriptor?.short_desc}</p>
                 </div>
                 {tags?.length > 0 && (
                     <div className="mb-2">
                         {tags.map((tag, index) =>
                             tag.list?.map((item, idx) => (
-                                <p key={`${index}-${idx}`} className="text-xs text-gray-600">
+                                <p key={`${index}-${idx}`} className="text-xs text-seller-muted">
                                     {item.descriptor?.code}: {item.value || "N/A"}
                                 </p>
                             ))
                         )}
                     </div>
                 )}
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-seller-muted">
                     <p>Proposed by: {proposed_by || "Unknown"}</p>
                     <p>Updated at: {moment(updated_at).format("MMMM Do, YYYY hh:mm a")}</p>
                 </div>
@@ -394,7 +414,7 @@ const ComplaintActions = ({ actors, actions, resolutions, complaintId, initiated
                         <TimelineContent>
                             <Box
                                 onClick={() => toggleExpand(action.id)}
-                                className={`cursor-pointer ${isExpanded ? "bg-gray-100" : ""}`}
+                                className={`cursor-pointer ${isExpanded ? "bg-seller-elevated" : ""}`}
                                 sx={{
                                     padding: "0.5rem",
                                     borderRadius: "8px",
@@ -560,7 +580,7 @@ const getCodeColor = (code) => {
         case "OPEN":
             return "text-green-500";
         case "CLOSED":
-            return "text-gray-500";
+            return "text-seller-muted";
         case "PROCESSING":
             return "text-blue-500";
         case "RESOLVED":
@@ -580,7 +600,7 @@ const getCodeColor = (code) => {
         case "ESCALATED":
             return "text-red-500";
         default:
-            return "text-black";
+            return "text-seller-text";
     }
 };
 

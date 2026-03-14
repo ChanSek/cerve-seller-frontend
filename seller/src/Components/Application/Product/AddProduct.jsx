@@ -434,7 +434,7 @@ export default function AddProduct() {
     <>
       <div className="container mx-auto my-8">
         <div
-          className="w-full bg-white px-4 py-4 rounded-md h-full scrollbar-hidden"
+          className="w-full bg-seller-card px-4 py-4 rounded-md h-full scrollbar-hidden"
           style={{ minHeight: "95%", maxHeight: "100%", overflow: "auto" }}
         >
           <BackNavigationButton
@@ -452,14 +452,14 @@ export default function AddProduct() {
               <MyButton
                 type="button"
                 title="CANCEL"
-                className="text-black"
+                className="text-seller-text"
                 onClick={() => navigate("/application/inventory")}
               />
               {renderCategories && (
                 <MyButton
                   type="button"
                   title="NEXT"
-                  className="text-black"
+                  className="text-seller-text"
                   disabled={
                     !(
                       categoryForm.formValues["productCategory"] &&

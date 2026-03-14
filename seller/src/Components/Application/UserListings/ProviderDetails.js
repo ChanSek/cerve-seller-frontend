@@ -228,7 +228,7 @@ const ProviderDetails = ({ isFromUserListing = false }) => {
       <div className="container mx-auto my-8">
         <div>
           <div
-            className="w-full bg-white px-4 py-4 rounded-md h-full scrollbar-hidden"
+            className="w-full bg-seller-card px-4 py-4 rounded-md h-full scrollbar-hidden"
             style={{ minHeight: "95%", maxHeight: "100%", overflow: "auto" }}
           >
             <div className="m-auto w-10/12 md:w-3/4 h-max">

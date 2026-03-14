@@ -115,7 +115,7 @@ const CustomMenu = () => {
       <div>
         <div
           style={{ borderStyle: reordering ? "dashed" : "solid" }}
-          className={`flex items-center justify-between py-2 px-8 mb-2 border-2 border-[#1876d1a1] rounded-xl bg-white `}
+          className={`flex items-center justify-between py-2 px-8 mb-2 border-2 border-seller-accent rounded-xl bg-seller-card `}
           onClick={(e) => e.stopPropagation()}
         >
           <p>{data.name}</p>
@@ -229,7 +229,7 @@ const CustomMenu = () => {
             ) : (
               <div>
                 <div
-                  className={`flex items-center justify-between py-4 px-4 mb-2 rounded-lg bg-white `}
+                  className={`flex items-center justify-between py-4 px-4 mb-2 rounded-lg bg-seller-card `}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <p>No menus available.</p>
@@ -303,7 +303,7 @@ const AddMenuModal = (props) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            backgroundColor: "#fff",
+            backgroundColor: "#12121a",
             padding: "24px 40px",
             borderRadius: 20,
           }}

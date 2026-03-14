@@ -153,7 +153,7 @@ const UpdateOrderStatus = (props) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            backgroundColor: "#fff",
+            backgroundColor: "#12121a",
             padding: "24px 40px",
             borderRadius: 20,
           }}

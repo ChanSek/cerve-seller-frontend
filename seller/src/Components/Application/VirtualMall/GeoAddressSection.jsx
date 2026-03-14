@@ -5,8 +5,8 @@ export const GeoAddressSection = ({ fields, storeDetails, setStoreDetails, error
   const fullWidthFields = ["building", "street", "locality"];
 
   return (
-    <div className="bg-[#f9f9f9] border border-gray-300 rounded-xl p-6 mb-6 shadow-sm">
-      <p className="text-lg font-semibold mb-4 text-gray-700">Store Geo Location & Address</p>
+    <div className="bg-seller-elevated border border-seller-elevated rounded-xl p-6 mb-6 shadow-sm">
+      <p className="text-lg font-semibold mb-4 text-seller-text">Store Geo Location & Address</p>
       <div className="flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-3/4">
           {fields

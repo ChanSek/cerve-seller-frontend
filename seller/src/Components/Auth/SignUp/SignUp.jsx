@@ -285,11 +285,11 @@ const SignUp = () => {
     <div className="mx-auto !p-5 h-screen min-vh-100 overflow-auto bg-seller-bg">
       <div className="h-full flex fex-row items-center justify-center">
         <div
-          className="flex w-full md:w-2/4 bg-white px-4 py-4 rounded-md shadow-xl h-max"
+          className="flex w-full md:w-2/4 bg-seller-card px-4 py-4 rounded-md shadow-xl h-max border border-seller-elevated"
           style={{ minHeight: "75%" }}
         >
           <div className="m-auto w-10/12 md:w-3/4 h-max">
-            <p className="text-2xl font-semibold mb-4 text-center">
+            <p className="text-2xl font-semibold mb-4 text-center text-seller-text">
               {renderHeading()}
             </p>
             <div>{renderSteps()}</div>

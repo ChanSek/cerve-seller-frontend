@@ -468,7 +468,7 @@ const StoreDetails = ({ isFromUserListing = false, storeId }) => {
                 border: '2px solid #e0e0e0',
                 borderRadius: '12px',
                 padding: '24px',
-                backgroundColor: '#fff',
+                backgroundColor: '#12121a',
                 boxShadow: 2,
                 marginTop: '20px',
             }}

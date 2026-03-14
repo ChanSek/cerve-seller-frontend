@@ -147,7 +147,7 @@ const UserTable = (props) => {
                 align={column.align}
                 style={{
                   minWidth: column.minWidth,
-                  backgroundColor: "#1976d2",
+                  backgroundColor: "#6c5ce7",
                   color: "#fff",
                 }}
               >

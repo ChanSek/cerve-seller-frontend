@@ -189,12 +189,12 @@ const MallGrid = ({ handleClick }) => {
                           size="small"
                           sx={{
                             backgroundColor:
-                              categoryColorMap[c] || "#1976d2",
+                              categoryColorMap[c] || "#6c5ce7",
                             color: "#fff",
                             fontWeight: 500,
                             borderRadius: "16px",
                             px: 1,
-                            "&:hover": { backgroundColor: "#1565c0" },
+                            "&:hover": { backgroundColor: "#5a4bd6" },
                           }}
                         />
                       ))}

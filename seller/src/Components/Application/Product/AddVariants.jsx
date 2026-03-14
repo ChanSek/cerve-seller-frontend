@@ -63,7 +63,7 @@ const AddVariants = ({
   return (
     <>
       {renderForms()}
-      <MyButton type="button" title="Add Variation" className="text-black" onClick={() => addNewVariationForm()} />
+      <MyButton type="button" title="Add Variation" className="text-seller-text" onClick={() => addNewVariationForm()} />
     </>
   );
 };

@@ -4,8 +4,9 @@ import { Button, FormControl, MenuItem, Modal, Select, TextField, Checkbox } fro
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
+    color: "#e0e0e0",
     "& fieldset": {
-      borderColor: "black",
+      borderColor: "#8888aa",
     },
     "&:hover fieldset": {
       borderColor: "#6c5ce7",
@@ -14,8 +15,24 @@ const CssTextField = styled(TextField)({
       borderColor: "#6c5ce7",
     },
   },
-  "& .MuiInputBase-input": {
-    fontSize: "14px",
+  "& .MuiInput-root": {
+    color: "#e0e0e0",
+    "&:before": {
+      borderBottomColor: "#8888aa",
+    },
+    "&:hover:not(.Mui-disabled):before": {
+      borderBottomColor: "#6c5ce7",
+    },
+    "&:after": {
+      borderBottomColor: "#6c5ce7",
+    },
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#8888aa",
+    opacity: 1,
+  },
+  "& .MuiInputLabel-root": {
+    color: "#8888aa",
   },
 });
 
@@ -91,7 +108,7 @@ const AddCustomizationGroup = (props) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            backgroundColor: "#fff",
+            backgroundColor: "#12121a",
             padding: "24px 40px",
             borderRadius: 20,
           }}
@@ -107,7 +124,7 @@ const AddCustomizationGroup = (props) => {
             <CssTextField
               required
               type={"input"}
-              className="w-80 h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+              className="w-80 h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
               size="small"
               autoComplete="off"
               placeholder={"Enter Customisation Group Name"}
@@ -155,7 +172,7 @@ const AddCustomizationGroup = (props) => {
               required
               disabled={newCustomizationGroupData.optional}
               type="number"
-              className="w-80 h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+              className="w-80 h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
               size="small"
               autoComplete="off"
               placeholder={"Enter Minimum Quantity"}
@@ -182,7 +199,7 @@ const AddCustomizationGroup = (props) => {
             <CssTextField
               required
               type="number"
-              className="w-80 h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+              className="w-80 h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
               size="small"
               autoComplete="off"
               placeholder={"Enter Maximum Quantity"}

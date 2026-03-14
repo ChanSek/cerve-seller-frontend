@@ -123,7 +123,7 @@ const ActionMenu = ({ row, fetchReturns, actionName, isBulk }) => {
                     onClick={handleClick}
                     onMouseDown={e => e.stopPropagation()}
                     disabled={!availableStatuses.length}
-                    sx={{ border: "1px solid #1976d2", borderRadius: 1, backgroundColor: "white", '&:hover': { backgroundColor: "#e3f2fd" } }}
+                    sx={{ border: "1px solid #6c5ce7", borderRadius: 1, backgroundColor: "#1a1a2e", '&:hover': { backgroundColor: "#2a2a4e" } }}
                 >
                     <EditOutlined />
                 </IconButton>
@@ -448,8 +448,8 @@ const ReturnDetails = ({ id, category, open, onClose }) => {
                                 triggerComponent={<Typography
                                     variant="h6"
                                     sx={{
-                                        color: "#1565c0", // Bluish text color
-                                        cursor: "pointer", // Pointer cursor for hover effect
+                                        color: "#6c5ce7",
+                                        cursor: "pointer",
                                         "&:hover": {
                                             textDecoration: "underline", // Underline on hover for emphasis
                                         },

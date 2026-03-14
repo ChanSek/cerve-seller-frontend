@@ -8,10 +8,10 @@ const palette = {
         disableColor: Theme.disableColor,
     },
     text: {
-      // primary: '#fff',
-      // secondary: '#fff',
+        primary: '#e0e0e0',
+        secondary: '#8888aa',
         success: Theme.successColor,
-        disabled: 'rgba(0, 0, 0, 0.38)',
+        disabled: '#555566',
     },
     primary: {
         main: Theme.primaryColor,
@@ -44,8 +44,8 @@ const palette = {
         contrastText: Theme.errorContrastTextColor,
     },
     background: {
-        default: '#fff',
-        paper: "#fff",
+        default: '#0a0a0f',
+        paper: "#12121a",
     },
     action: {
         disabled: Theme.disableColor,

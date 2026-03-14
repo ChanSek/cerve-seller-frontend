@@ -102,7 +102,7 @@ const OrderDetails = () => {
     setConfirmMessage(
       <>
         Are you sure you want to update the order status to{" "}
-        <strong style={{ color: "#1976d2" }}>{status}</strong>?
+        <strong style={{ color: "#6c5ce7" }}>{status}</strong>?
       </>
     );
     setPendingStatusData({ orderId, status });

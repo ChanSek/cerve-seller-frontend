@@ -8,7 +8,7 @@ const FilterComponent = (props) => {
   return (
     <div className="mb-4 items-center mt-8">
       <div className="mr-12">
-        <p className="text-xl font-semibold" style={{ color: "#1876D1", letterSpacing: ".2px" }}>
+        <p className="text-xl font-semibold" style={{ color: "#6c5ce7", letterSpacing: ".2px" }}>
           Filters
         </p>
       </div>

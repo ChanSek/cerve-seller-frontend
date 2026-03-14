@@ -24,7 +24,7 @@ const StoreTimingSection = ({
       <div className="py-1 flex flex-col">
         <FormControl component="fieldset">
           <label className="text-sm py-2 ml-1 font-medium text-left text-seller-text inline-block">
-            Store Status<span className="text-[#FF0000]"> *</span>
+            Store Status<span className="text-seller-error"> *</span>
           </label>
           <RadioGroup
             value={storeStatus}

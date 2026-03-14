@@ -161,7 +161,7 @@ const PendingSettlementModal = ({ open, onClose, loading, settlementDetails, err
                           triggerComponent={
                             <Typography
                               sx={{
-                                color: "#1565c0",
+                                color: "#6c5ce7",
                                 cursor: "pointer",
                                 "&:hover": { textDecoration: "underline" },
                               }}

@@ -5,8 +5,9 @@ import { TextField } from "@mui/material";
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
+    color: "#e0e0e0",
     "& fieldset": {
-      borderColor: "black",
+      borderColor: "#8888aa",
     },
     "&:hover fieldset": {
       borderColor: "#6c5ce7",
@@ -15,8 +16,24 @@ const CssTextField = styled(TextField)({
       borderColor: "#6c5ce7",
     },
   },
-  "& .MuiInputBase-input": {
-    fontSize: "14px",
+  "& .MuiInput-root": {
+    color: "#e0e0e0",
+    "&:before": {
+      borderBottomColor: "#8888aa",
+    },
+    "&:hover:not(.Mui-disabled):before": {
+      borderBottomColor: "#6c5ce7",
+    },
+    "&:after": {
+      borderBottomColor: "#6c5ce7",
+    },
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#8888aa",
+    opacity: 1,
+  },
+  "& .MuiInputLabel-root": {
+    color: "#8888aa",
   },
 });
 const OfferQualifier = ({ formData, onFormUpdate, offerQualifierFormErrors, offerType }) => {
@@ -49,7 +66,7 @@ const OfferQualifier = ({ formData, onFormUpdate, offerQualifierFormErrors, offe
           <CssTextField
             required
             type="number"
-            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
             size="small"
             autoComplete="off"
             placeholder={"Enter Min Value"}
@@ -75,7 +92,7 @@ const OfferQualifier = ({ formData, onFormUpdate, offerQualifierFormErrors, offe
           <CssTextField
             required
             type="number"
-            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
             size="small"
             autoComplete="off"
             placeholder={"Enter Buy Item Count"}

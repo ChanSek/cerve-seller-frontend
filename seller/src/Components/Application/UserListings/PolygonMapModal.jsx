@@ -11,14 +11,14 @@ const PolygonMapModal = ({ open, onClose, polygonPoints, setPolygonPoints }) => 
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          backgroundColor: "#fff",
+          backgroundColor: "#12121a",
           padding: "16px 20px",
           borderRadius: 4,
         }}
       >
         <div style={{ width: "70vw" }}>
           <div className="flex justify-between mb-4">
-            <h1 style={{ fontSize: 16, marginBottom: 10, fontWeight: 600 }}>
+            <h1 style={{ fontSize: 16, marginBottom: 10, fontWeight: 600, color: "#e0e0e0" }}>
               Mark Your Locations and Define a Custom Area
             </h1>
           </div>

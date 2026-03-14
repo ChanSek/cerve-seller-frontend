@@ -53,7 +53,7 @@ export default function Sidebar({ open, setOpen }) {
 
     return (
       <List
-        sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+        sx={{ width: "100%", maxWidth: 360, bgcolor: "#12121a" }}
         component="nav"
         aria-labelledby="nested-list-subheader"
       >
@@ -66,25 +66,25 @@ export default function Sidebar({ open, setOpen }) {
           <List component="div" disablePadding>
             {isOrgAdmin && (
               <>
-                <NavLink to="/application/inventory" className="no-underline text-black">
+                <NavLink to="/application/inventory" className="no-underline text-seller-text">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Inventory" />
                   </ListItemButton>
                 </NavLink>
 
-                <NavLink to={`/user-listings/provider-details/${user?.organization?._id}`} className="no-underline text-black">
+                <NavLink to={`/user-listings/provider-details/${user?.organization?._id}`} className="no-underline text-seller-text">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Seller Details" />
                   </ListItemButton>
                 </NavLink>
 
-                <NavLink to={`/application/store-details/${user?.organization?._id}`} className="no-underline text-black">
+                <NavLink to={`/application/store-details/${user?.organization?._id}`} className="no-underline text-seller-text">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Store Details" />
                   </ListItemButton>
                 </NavLink>
 
-                <NavLink to="/application/returns" className="no-underline text-black">
+                <NavLink to="/application/returns" className="no-underline text-seller-text">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Returns" />
                   </ListItemButton>
@@ -92,13 +92,13 @@ export default function Sidebar({ open, setOpen }) {
               </>
             )}
 
-            <NavLink to="/application/orders" className="no-underline text-black">
+            <NavLink to="/application/orders" className="no-underline text-seller-text">
               <ListItemButton sx={{ pl: 4 }}>
                 <ListItemText primary="Orders" />
               </ListItemButton>
             </NavLink>
 
-            <NavLink to="/application/complaints" className="no-underline text-black">
+            <NavLink to="/application/complaints" className="no-underline text-seller-text">
               <ListItemButton sx={{ pl: 4 }}>
                 <ListItemText primary="Complaints" />
               </ListItemButton>
@@ -106,30 +106,30 @@ export default function Sidebar({ open, setOpen }) {
 
             {isSuperAdmin && (
               <>
-                <NavLink to="/application/user-listings" className="no-underline text-black">
+                <NavLink to="/application/user-listings" className="no-underline text-seller-text">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="User Listings" />
                   </ListItemButton>
                 </NavLink>
-                <NavLink to="/application/category-taxonomy" className="no-underline text-black">
+                <NavLink to="/application/category-taxonomy" className="no-underline text-seller-text">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Category Taxonomy" />
                   </ListItemButton>
                 </NavLink>
 
-                <NavLink to="/application/settlement" className="no-underline text-black">
+                <NavLink to="/application/settlement" className="no-underline text-seller-text">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Order Settlement" />
                   </ListItemButton>
                 </NavLink>
 
-                <NavLink to="/application/gateway-activity" className="no-underline text-black">
+                <NavLink to="/application/gateway-activity" className="no-underline text-seller-text">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Gateway Activity" />
                   </ListItemButton>
                 </NavLink>
 
-                <NavLink to="/application/admin-activity" className="no-underline text-black">
+                <NavLink to="/application/admin-activity" className="no-underline text-seller-text">
                   <ListItemButton sx={{ pl: 4 }}>
                     <ListItemText primary="Admin Activity" />
                   </ListItemButton>
@@ -150,7 +150,7 @@ export default function Sidebar({ open, setOpen }) {
         onClose={toggleDrawer("left", false)}
         onOpen={toggleDrawer("left", true)}
       >
-        <Box sx={{ width: 250, position: "relative", height: "100%" }}>
+        <Box sx={{ width: 250, position: "relative", height: "100%", bgcolor: "#12121a", color: "#e0e0e0" }}>
           <Stack direction="row" alignItems="center" sx={{ p: 2 }}>
             <img src={logo} alt="logo" style={{ height: "45px", marginRight: 8 }} />
             <Typography variant="h6">CERVE SELLER</Typography>

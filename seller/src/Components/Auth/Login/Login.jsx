@@ -15,9 +15,29 @@ import { v4 as uuidv4 } from "uuid";
 
 
 const CssTextField = styled(TextField)({
+  "& .MuiInput-root": {
+    color: "#e0e0e0",
+    "&:before": {
+      borderBottomColor: "#8888aa",
+    },
+    "&:hover:not(.Mui-disabled):before": {
+      borderBottomColor: "#6c5ce7",
+    },
+    "&:after": {
+      borderBottomColor: "#6c5ce7",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    color: "#8888aa",
+  },
+  "& .MuiInput-input::placeholder": {
+    color: "#8888aa",
+    opacity: 1,
+  },
   "& .MuiOutlinedInput-root": {
+    color: "#e0e0e0",
     "& fieldset": {
-      borderColor: "black",
+      borderColor: "#8888aa",
     },
     "&:hover fieldset": {
       borderColor: "#6c5ce7",
@@ -147,7 +167,7 @@ export default function Login() {
           className="text-sm py-2 ml-0 font-medium text-left text-seller-text inline-block"
         >
           Email
-          <span className="text-[#FF0000]"> *</span>
+          <span className="text-seller-error"> *</span>
         </label>
 
 <CssTextField
@@ -157,7 +177,7 @@ export default function Login() {
   type="email"
   placeholder="Enter Email"
   autoComplete="off"
-  className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+  className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
   onChange={(event) => {
     setLogin({ ...login, username: event.target.value });
     setInlineError((inlineError) => ({
@@ -181,7 +201,7 @@ export default function Login() {
           className="text-sm py-2 ml-0 font-medium text-left text-seller-text inline-block"
         >
           Password
-          <span className="text-[#FF0000]"> *</span>
+          <span className="text-seller-error"> *</span>
         </label>
         <CssTextField
           id={
@@ -223,7 +243,7 @@ export default function Login() {
               type="text"
               placeholder="Enter Captcha Value"
               autoComplete="off"
-              className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+              className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
               onChange={(event) => {
                 setCaptchaVal(event.target.value);
                 setInlineError((inlineError) => ({
@@ -257,13 +277,13 @@ export default function Login() {
   const navigation_link = (
     <div className="py-2 text-center">
       <NavLink to="/forgot-password" className="">
-        <p className="text-xs text-[#3d629ad2] hover:text-[#0066ffd2]">
+        <p className="text-xs text-seller-accent hover:text-seller-cyan">
           Forgot password
         </p>
       </NavLink>
       <br />
       <NavLink to="/sign-up" className="">
-        <p className="text-xs text-[#3d629ad2] hover:text-[#0066ffd2]">
+        <p className="text-xs text-seller-accent hover:text-seller-cyan">
           Create New Account
         </p>
       </NavLink>

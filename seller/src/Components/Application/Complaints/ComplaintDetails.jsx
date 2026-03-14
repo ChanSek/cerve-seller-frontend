@@ -43,16 +43,16 @@ const ComplaintDetails = () => {
       <BackNavigationButton onClick={() => navigate("/application/complaints")} />
       <div className="flex flex-wrap gap-4 p-4">
         {/* First Row */}
-        <div className="flex-1 bg-white shadow rounded-2xl p-4 min-w-[600px]">
+        <div className="flex-1 bg-seller-card shadow rounded-2xl p-4 min-w-[600px]">
           {/* Title */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-800">Complaints Summary</h2>
+            <h2 className="text-xl font-bold text-seller-text">Complaints Summary</h2>
             {orderRef?.ref_id && <OrderDetailsDialog
               orderId={orderRef?.ref_id}
               triggerComponent={<Typography
                 variant="h6"
                 sx={{
-                  color: "#1565c0", // Bluish text color
+                  color: "#6c5ce7", // Purple accent color
                   cursor: "pointer", // Pointer cursor for hover effect
                   "&:hover": {
                     textDecoration: "underline", // Underline on hover for emphasis
@@ -65,7 +65,7 @@ const ComplaintDetails = () => {
           </div>
 
           {/* Complaint Details */}
-          <div className="grid grid-cols-2 gap-4 text-gray-700">
+          <div className="grid grid-cols-2 gap-4 text-seller-text">
             <div className="flex justify-between items-center border-b pb-2">
               <p className="text-sm font-medium">Issue ID</p>
               <p className="text-sm">{issue?.id || '-'}</p>
@@ -98,12 +98,12 @@ const ComplaintDetails = () => {
           <div className="my-4 border-t"></div>
 
           {/* Descriptions */}
-          <div className="text-gray-800">
+          <div className="text-seller-text">
             <h3 className="text-base font-semibold mb-2">Short Description</h3>
-            <p className="text-sm text-gray-700">{issue?.descriptor?.short_desc || '-'}</p>
+            <p className="text-sm text-seller-text">{issue?.descriptor?.short_desc || '-'}</p>
 
             <h3 className="text-base font-semibold mt-4 mb-2">Long Description</h3>
-            <p className="text-sm text-gray-700">{issue?.descriptor?.long_desc || '-'}</p>
+            <p className="text-sm text-seller-text">{issue?.descriptor?.long_desc || '-'}</p>
           </div>
           {(issue?.descriptor?.images?.length > 0 ||
             issue?.descriptor?.media?.length > 0 ||
@@ -205,7 +205,7 @@ const ComplaintDetails = () => {
 
 
         </div>
-        <div className="flex-1 bg-white shadow rounded-2xl p-4 min-w-[600px]">
+        <div className="flex-1 bg-seller-card shadow rounded-2xl p-4 min-w-[600px]">
           <h2 className="text-xl font-semibold mb-2">Actions Taken</h2>
           <ComplaintActions
             actors={issue?.actors}
@@ -218,13 +218,13 @@ const ComplaintDetails = () => {
         </div>
 
         {/* Second Row */}
-        <div className="flex-1 bg-white shadow rounded-2xl p-4 min-w-[600px]">
+        <div className="flex-1 bg-seller-card shadow rounded-2xl p-4 min-w-[600px]">
           <h2 className="text-xl font-semibold mb-2">Actor Details</h2>
           {issue?.actors && actorsInfo(issue?.actors)}
         </div>
-        {/* <div className="flex-1 bg-white shadow rounded-2xl p-4 min-w-[600px]">
+        {/* <div className="flex-1 bg-seller-card shadow rounded-2xl p-4 min-w-[600px]">
           <h2 className="text-xl font-semibold mb-2">Actions Taken</h2>
-          <p className="text-sm text-gray-600">Details about actions taken go here.</p>
+          <p className="text-sm text-seller-muted">Details about actions taken go here.</p>
         </div> */}
       </div>
     </div>
@@ -237,17 +237,17 @@ function actorsInfo(data) {
       {data && data.length > 0 ? (
         <table className="min-w-full border-collapse border border-gray-200 shadow-lg rounded-lg">
           <thead>
-            <tr className="bg-gray-100">
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">
+            <tr className="bg-seller-elevated">
+              <th className="px-6 py-3 text-left text-sm font-medium text-seller-text border-b">
                 Type
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">
+              <th className="px-6 py-3 text-left text-sm font-medium text-seller-text border-b">
                 Organization
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">
+              <th className="px-6 py-3 text-left text-sm font-medium text-seller-text border-b">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-700 border-b">
+              <th className="px-6 py-3 text-left text-sm font-medium text-seller-text border-b">
                 Contact
               </th>
             </tr>
@@ -256,19 +256,19 @@ function actorsInfo(data) {
             {data.map((actor, index) => (
               <tr
                 key={actor.id}
-                className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-gray-100`}
+                className={`${index % 2 === 0 ? "bg-seller-card" : "bg-seller-card"
+                  } hover:bg-seller-elevated`}
               >
-                <td className="px-6 py-4 text-sm text-gray-700 border-b">
+                <td className="px-6 py-4 text-sm text-seller-text border-b">
                   {actor.type}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-700 border-b">
+                <td className="px-6 py-4 text-sm text-seller-text border-b">
                   {actor.info.org.name}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-700 border-b">
+                <td className="px-6 py-4 text-sm text-seller-text border-b">
                   {actor.info.person.name}
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-700 border-b">
+                <td className="px-6 py-4 text-sm text-seller-text border-b">
                   {actor.info.contact.phone} <br />
                   {actor.info.contact.email}
                 </td>
@@ -277,7 +277,7 @@ function actorsInfo(data) {
           </tbody>
         </table>
       ) : (
-        <p className="text-sm text-gray-500">No actor information available.</p>
+        <p className="text-sm text-seller-muted">No actor information available.</p>
       )}
     </div>
   );

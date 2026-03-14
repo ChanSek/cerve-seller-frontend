@@ -13,16 +13,16 @@ const useStyles = makeStyles(() => ({
 headerTitle: {
   fontWeight: 700,
   fontSize: '2.5rem',
-  color: '#1a237e', // deep indigo
+  color: '#e0e0e0',
   marginBottom: '8px',
 },
 
 subHeader: {
   fontWeight: 400,
   fontSize: '2.0rem',
-  color: '#555',
+  color: '#8888aa',
   '& span': {
-    color: '#1976d2',
+    color: '#6c5ce7',
     fontWeight: 600,
   },
 },
@@ -30,7 +30,7 @@ subHeader: {
 headerDivider: {
   width: '80px',
   height: '4px',
-  backgroundColor: '#1976d2',
+  backgroundColor: '#6c5ce7',
   margin: '16px auto 0',
   borderRadius: '4px',
 },
@@ -76,7 +76,7 @@ headerDivider: {
     fontWeight: 600,
     fontSize: '1.3rem',
     marginBottom: '8px',
-    color: '#333',
+    color: '#e0e0e0',
   },
 
   addStoreCard: {
@@ -97,7 +97,7 @@ headerDivider: {
     },
     '& svg': {
       fontSize: '3rem',
-      color: '#1976d2',
+      color: '#6c5ce7',
       marginBottom: '12px',
       transition: 'transform 0.3s ease',
     },
@@ -107,12 +107,12 @@ headerDivider: {
     '& h5': {
       fontWeight: 600,
       fontSize: '1.2rem',
-      color: '#444',
+      color: '#e0e0e0',
     },
   },
 
   updateButton: {
-    background: '#1976d2',
+    background: '#6c5ce7',
     color: '#fff',
     fontWeight: 500,
     padding: '8px 20px',
@@ -120,8 +120,8 @@ headerDivider: {
     marginTop: '12px',
     transition: 'box-shadow 0.3s ease',
     '&:hover': {
-      background: '#1565c0',
-      boxShadow: '0 6px 16px rgba(33, 150, 243, 0.4)',
+      background: '#5a4bd6',
+      boxShadow: '0 6px 16px rgba(108, 92, 231, 0.4)',
     },
   },
 

@@ -28,7 +28,7 @@ const AddMenuProduct = (props) => {
 
     return filteredProducts.map((product) => (
       <div key={product.id}>
-        <div className="flex items-center justify-between w-[550px] py px-2 mb-2 border border-[#1876d1a1] rounded-xl cursor-pointer bg-white">
+        <div className="flex items-center justify-between w-[550px] py px-2 mb-2 border border-seller-accent rounded-xl cursor-pointer bg-seller-card">
           <p className="ml-2">{product.name}</p>
           <Checkbox
             checked={selectedProducts.some((selectedProduct) => selectedProduct.id === product.id)}
@@ -66,7 +66,7 @@ const AddMenuProduct = (props) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          backgroundColor: "#fff",
+          backgroundColor: "#12121a",
           padding: "24px 40px",
           borderRadius: 20,
         }}

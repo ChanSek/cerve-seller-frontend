@@ -21,12 +21,12 @@ const StyledTableCell = styled(TableCell)(({ theme, header }) => ({
     // Replaced theme.palette.primary.main, theme.palette.background.paper,
     // theme.palette.text.primary, theme.spacing, and theme.palette.divider
     // with hardcoded CSS values to prevent TypeError if theme properties are undefined.
-    backgroundColor: header ? '#1976d2' : '#FFFFFF', // Hardcoded primary blue or white
-    color: header ? '#FFFFFF' : 'rgba(0, 0, 0, 0.87)', // Hardcoded white or dark grey text
+    backgroundColor: header ? '#6c5ce7' : '#12121a',
+    color: header ? '#FFFFFF' : '#e0e0e0',
     fontWeight: header ? 'bold' : 'normal',
     fontSize: header ? '1rem' : '0.875rem',
     padding: '12px', // Hardcoded pixel value (approx theme.spacing(1.5))
-    borderBottom: `1px solid rgba(0, 0, 0, 0.12)`, // Hardcoded light grey for divider
+    borderBottom: `1px solid rgba(255, 255, 255, 0.12)`,
     wordBreak: 'break-word',
     // *** CHANGES END HERE ***
 }));
@@ -34,15 +34,13 @@ const StyledTableCell = styled(TableCell)(({ theme, header }) => ({
 // Styled TableRow for hover effect and alternating background
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
     '&:nth-of-type(odd)': {
-        // Hardcoded light grey
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#1a1a2e',
     },
     '&:last-child td, &:last-child th': {
         border: 0,
     },
     '&:hover': {
-        // Hardcoded hover transparency
-        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+        backgroundColor: 'rgba(255, 255, 255, 0.04)',
     },
 }));
 
@@ -55,7 +53,7 @@ const DynamicTableDisplay = ({ data }) => {
                 alignItems="center"
                 sx={{
                     height: '200px',
-                    backgroundColor: 'white',
+                    backgroundColor: '#12121a',
                     borderRadius: '8px',
                     boxShadow: 3,
                     mt: 2

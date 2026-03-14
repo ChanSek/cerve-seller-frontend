@@ -12,8 +12,9 @@ import styled from "@emotion/styled";
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
+    color: "#e0e0e0",
     "& fieldset": {
-      borderColor: "black",
+      borderColor: "#8888aa",
     },
     "&:hover fieldset": {
       borderColor: "#6c5ce7",
@@ -21,6 +22,25 @@ const CssTextField = styled(TextField)({
     "&.Mui-focused fieldset": {
       borderColor: "#6c5ce7",
     },
+  },
+  "& .MuiInput-root": {
+    color: "#e0e0e0",
+    "&:before": {
+      borderBottomColor: "#8888aa",
+    },
+    "&:hover:not(.Mui-disabled):before": {
+      borderBottomColor: "#6c5ce7",
+    },
+    "&:after": {
+      borderBottomColor: "#6c5ce7",
+    },
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#8888aa",
+    opacity: 1,
+  },
+  "& .MuiInputLabel-root": {
+    color: "#8888aa",
   },
 });
 
@@ -255,11 +275,11 @@ export default function CustomerActionCard({
           <div className="py-1 flex flex-col">
             <label className="text-sm py-2 ml-1 font-medium text-left text-seller-text inline-block">
               Short Description
-              <span className="text-[#FF0000]"> *</span>
+              <span className="text-seller-error"> *</span>
             </label>
             <CssTextField
               type={"input"}
-              className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+              className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
               required={true}
               size="small"
               autoComplete="off"
@@ -280,7 +300,7 @@ export default function CustomerActionCard({
             </label>
             <CssTextField
               type={"input"}
-              className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+              className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
               size="small"
               autoComplete="off"
               placeholder={"Long description"}
@@ -295,11 +315,11 @@ export default function CustomerActionCard({
             <div>
               <label className="text-sm py-2 ml-1 font-medium text-left text-seller-text inline-block">
                 Refund Amount
-                <span className="text-[#FF0000]"> *</span>
+                <span className="text-seller-error"> *</span>
               </label>
               <CssTextField
                 type={"number"}
-                className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+                className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
                 required={true}
                 size="small"
                 autoComplete="off"
@@ -327,7 +347,7 @@ export default function CustomerActionCard({
             type="button"
             disabled={loading}
             title="Cancel"
-            className="text-black"
+            className="text-seller-text"
             onClick={() => onClose()}
           />
           <Button

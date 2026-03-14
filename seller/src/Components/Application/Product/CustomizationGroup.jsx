@@ -40,8 +40,8 @@ const CustomizationGroup = (props) => {
         >
           <div>
             <span className="flex">
-              <p className="text-[#181818] text-medium">[{group.id}]&nbsp;</p>
-              <p className="text-[#000000] text-medium">{group.name}</p>
+              <p className="text-seller-muted text-medium">[{group.id}]&nbsp;</p>
+              <p className="text-seller-text text-medium">{group.name}</p>
             </span>
           </div>
           <div style={{ marginRight: "10px" }}>

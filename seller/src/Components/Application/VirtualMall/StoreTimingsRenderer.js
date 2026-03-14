@@ -70,11 +70,11 @@ const StoreTimingsRenderer = (props) => {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-2">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-700">
+        <span className="text-sm font-medium text-seller-text">
           Days: <span className="text-red-600">*</span>
         </span>
         {renderDaysDD("from")}
-        <span className="text-sm font-medium text-gray-700">to</span>
+        <span className="text-sm font-medium text-seller-text">to</span>
         {renderDaysDD("to")}
       </div>
     </div>
@@ -115,7 +115,7 @@ const StoreTimingsRenderer = (props) => {
             variant="outlined"
             type="button"
             title="Add more days & timings"
-            className="text-black"
+            className="text-seller-text"
             onClick={handleAddMoreTimings}
           />
         </div>

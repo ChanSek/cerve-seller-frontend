@@ -90,7 +90,7 @@ const CustomizationGroupItems = (props) => {
       <div key={item._id}>
         <div
           style={{ borderStyle: reordering ? "dashed" : "solid" }}
-          className="flex items-center justify-between py-[12px] px-8 mb-2 border border-[#1876d1a1] rounded-xl bg-white"
+          className="flex items-center justify-between py-[12px] px-8 mb-2 border border-seller-accent rounded-xl bg-seller-card"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center">
@@ -173,7 +173,7 @@ const CustomizationGroupItems = (props) => {
 
     return filteredProducts.map((customizationItem) => (
       <div key={customizationItem._id}>
-        <div className="flex items-center justify-between w-[550px] py px-2 mb-2 border border-[#1876d1a1] rounded-xl cursor-pointer bg-white">
+        <div className="flex items-center justify-between w-[550px] py px-2 mb-2 border border-seller-accent rounded-xl cursor-pointer bg-seller-card">
           <p className="ml-2">{customizationItem.productName}</p>
           <Checkbox
             checked={selectedCustomizations.some((selectedProduct) => selectedProduct._id === customizationItem._id)}
@@ -230,7 +230,7 @@ const CustomizationGroupItems = (props) => {
               <div>
                 <div
                   style={{ borderStyle: reordering ? "dashed" : "solid" }}
-                  className="flex items-center justify-between  mb-2  bg-white"
+                  className="flex items-center justify-between  mb-2  bg-seller-card"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center ml-3">
@@ -252,7 +252,7 @@ const CustomizationGroupItems = (props) => {
             </>
           ) : (
             <div>
-              <div className="flex items-center justify-between py-3 px-4 mb-2 border border-[#1876d1a1] rounded-lg bg-white">
+              <div className="flex items-center justify-between py-3 px-4 mb-2 border border-seller-accent rounded-lg bg-seller-card">
                 <p>No customization items are added in this group.</p>
               </div>
             </div>
@@ -267,7 +267,7 @@ const CustomizationGroupItems = (props) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            backgroundColor: "#fff",
+            backgroundColor: "#12121a",
             padding: "24px 40px",
             borderRadius: 20,
           }}

@@ -169,7 +169,7 @@ const StoreSwitcher = () => {
         >
           <MenuItem value="">Select Store</MenuItem>
           {stores.map((store) => (
-            <MenuItem key={store.storeId} value={store.storeId} sx={{ color: "#000" }}>
+            <MenuItem key={store.storeId} value={store.storeId} sx={{ color: "#e0e0e0" }}>
               {store.cityCode}
             </MenuItem>
           ))}
@@ -212,7 +212,7 @@ const StoreSwitcher = () => {
         >
           <MenuItem value="">Select Category</MenuItem>
           {selectedStore?.categories.map((cat) => (
-            <MenuItem key={cat.category} value={cat.category} sx={{ color: "#000" }}>
+            <MenuItem key={cat.category} value={cat.category} sx={{ color: "#e0e0e0" }}>
               {cat.label}
             </MenuItem>
           ))}

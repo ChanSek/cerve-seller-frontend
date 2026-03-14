@@ -3,7 +3,7 @@ import { Button, Modal } from "@mui/material";
 import RenderInput from "../../../utils/RenderInput";
 
 const containerClasses = "flex items-center";
-const inputClasses = "w-80 h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black flex";
+const inputClasses = "w-80 h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted flex";
 const labelClasses = "w-40 my-4 text-sm py-2 ml-1 font-medium text-left text-seller-text inline-block";
 
 export const customizationFields = [
@@ -174,7 +174,7 @@ const AddCustomization = (props) => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            backgroundColor: "#fff",
+            backgroundColor: "#12121a",
             padding: "24px 40px",
             borderRadius: 20,
           }}

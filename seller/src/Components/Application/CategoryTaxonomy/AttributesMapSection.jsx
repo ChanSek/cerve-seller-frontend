@@ -67,7 +67,7 @@ const AttributesMatrix = ({ activeCategory }) => {
                                 position: "sticky",
                                 left: 0,
                                 zIndex: 3,
-                                backgroundColor: "#fff",
+                                backgroundColor: "#12121a",
                                 fontWeight: "bold",
                                 whiteSpace: "nowrap",
                                 padding: "2px 8px",
@@ -102,7 +102,7 @@ const AttributesMatrix = ({ activeCategory }) => {
                                     position: "sticky",
                                     left: 0,
                                     zIndex: 2,
-                                    backgroundColor: "#fafafa",
+                                    backgroundColor: "#1a1a2e",
                                     fontWeight: "bold",
                                     padding: "2px 8px",
                                     border: "1px solid #ccc",
@@ -167,7 +167,7 @@ const AttributesMatrix = ({ activeCategory }) => {
                                 display: "flex",
                                 justifyContent: "flex-end",
                                 p: 1,
-                                background: "#f5f5f5",
+                                background: "#1a1a2e",
                             }}
                         >
                             <IconButton onClick={() => setFullscreen(false)}>

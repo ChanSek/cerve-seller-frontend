@@ -5,7 +5,7 @@ const BackNavigationButton = ({ onClick }) => {
     return (
         <div>
             <MyButton
-                className="!text-black"
+                className="!text-seller-text"
                 icon={<ArrowBackIcon />}
                 title="BACK"
                 onClick={onClick}

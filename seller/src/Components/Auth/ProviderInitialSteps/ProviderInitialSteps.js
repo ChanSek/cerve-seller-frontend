@@ -590,19 +590,19 @@ const ProviderInitialSteps = () => {
       <div className="mx-auto !p-5 h-screen min-vh-100 overflow-auto bg-seller-bg">
         <div className="h-full flex fex-row items-center justify-center">
           <div
-            className="flex w-full md:w-2/4 bg-white px-4 py-4 rounded-md shadow-xl h-max scrollbar-hidden"
+            className="flex w-full md:w-2/4 bg-seller-card px-4 py-4 rounded-md shadow-xl h-max scrollbar-hidden border border-seller-elevated"
             style={{ minHeight: "85%", maxHeight: "100%", overflow: "auto" }}
           >
             <div className="m-auto w-10/12 md:w-3/4 h-max">
               <form>
-                <p className="text-2xl font-semibold mb-4 text-center">
+                <p className="text-2xl font-semibold mb-4 text-center text-seller-text">
                   {renderHeading()}
                 </p>
                 <div>
                   {renderSteps()}
                   {step == 2 ? (
                     <>
-                      <p className="text-2xl font-semibold mb-4 mt-14">
+                      <p className="text-2xl font-semibold mb-4 mt-14 text-seller-text">
                         Store Timing
                       </p>
                       <RenderInput
@@ -673,7 +673,7 @@ const ProviderInitialSteps = () => {
                           />
                           <label className="text-sm py-2 ml-1 mb-1 font-medium text-left text-seller-text inline-block">
                             Store Time
-                            <span className="text-[#FF0000]"> *</span>
+                            <span className="text-seller-error"> *</span>
                           </label>
                           {form2Values.storeTimes &&
                             form2Values.storeTimes.length > 0 &&

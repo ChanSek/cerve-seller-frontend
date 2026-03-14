@@ -7,7 +7,7 @@ export default function AuthActionCard(props) {
   return (
     <div className="mx-auto !p-5 h-screen min-vh-100 overflow-auto bg-seller-bg">
       <div className="h-full flex fex-row items-center justify-center">
-        <div className="h-3/4 w-full md:w-2/4 bg-white px-2.5 py-2.5 rounded-md shadow-xl">
+        <div className="h-3/4 w-full md:w-2/4 bg-seller-card px-2.5 py-2.5 rounded-md shadow-xl border border-seller-elevated">
           <div
             style={{ height: "20%" }}
             className="flex fex-row items-center justify-center"

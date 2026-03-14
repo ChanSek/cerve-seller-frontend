@@ -194,7 +194,7 @@ const AdminDetails = () => {
           <Button
             type="button"
             title="Set Basic Details"
-            className="text-black"
+            className="text-seller-text"
             onClick={() => handleOpenModal("basic")}
           />
         );
@@ -204,7 +204,7 @@ const AdminDetails = () => {
           <Button
             type="button"
             title="Set Buyer Param"
-            className="text-black"
+            className="text-seller-text"
             onClick={() => handleOpenModal("bppDescriptor")}
           />
         );
@@ -215,14 +215,14 @@ const AdminDetails = () => {
             <Button
               type="button"
               title="Set Operative Bank"
-              className="text-black"
+              className="text-seller-text"
               onClick={() => handleOpenModal("operativeBank")}
             />
             {/* {!nonOperativeDataPresent && (
               <Button
                 type="button"
                 title="Add Non-Operative Bank"
-                className="text-black"
+                className="text-seller-text"
                 onClick={() => handleOpenModal("nonOperativeBank")}
               />
             )} */}
@@ -234,7 +234,7 @@ const AdminDetails = () => {
           <Button
             type="button"
             title="Set contact Details"
-            className="text-black"
+            className="text-seller-text"
             onClick={() => handleOpenModal("contact")}
           />
         );
@@ -272,10 +272,10 @@ const AdminDetails = () => {
 
   return (
     <div className="container mx-auto my-8">
-      <div className="w-full bg-white px-4 py-4 rounded-md h-full">
+      <div className="w-full bg-seller-card px-4 py-4 rounded-md h-full">
         <div className="mb-4 flex flex-col md:flex-row justify-between items-start gap-4">
           <label
-            style={{ color: '#1976d2' }} // Hardcoded color
+            style={{ color: '#6c5ce7' }}
             className="font-semibold text-2xl"
           >
             SNP Details

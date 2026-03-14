@@ -182,7 +182,7 @@ const StoreTimings = ({ storeTiming, setStoreTiming, handleRemoveDaysAndTimings 
             variant="outlined"
             type="button"
             title="Add more timings"
-            className="text-black"
+            className="text-seller-text"
             onClick={handleAddMoreTimings}
           />
         </div>

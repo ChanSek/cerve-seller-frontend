@@ -115,7 +115,7 @@ const SellerVerification = () => {
   return (
     <div>
       <div className="container mx-auto my-8">
-        <div className="w-full bg-white px-4 py-4 rounded-md h-full scrollbar-hidden">
+        <div className="w-full bg-seller-card px-4 py-4 rounded-md h-full scrollbar-hidden">
           <div className="m-auto w-full md:w-3/4">
             <br />
             {(sellerActive || userRole === "Super Admin") ? (

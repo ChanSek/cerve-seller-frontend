@@ -12,8 +12,9 @@ import moment from "moment";
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
+    color: "#e0e0e0",
     "& fieldset": {
-      borderColor: "black",
+      borderColor: "#8888aa",
     },
     "&:hover fieldset": {
       borderColor: "#6c5ce7",
@@ -22,8 +23,24 @@ const CssTextField = styled(TextField)({
       borderColor: "#6c5ce7",
     },
   },
-  "& .MuiInputBase-input": {
-    fontSize: "14px",
+  "& .MuiInput-root": {
+    color: "#e0e0e0",
+    "&:before": {
+      borderBottomColor: "#8888aa",
+    },
+    "&:hover:not(.Mui-disabled):before": {
+      borderBottomColor: "#6c5ce7",
+    },
+    "&:after": {
+      borderBottomColor: "#6c5ce7",
+    },
+  },
+  "& .MuiInputBase-input::placeholder": {
+    color: "#8888aa",
+    opacity: 1,
+  },
+  "& .MuiInputLabel-root": {
+    color: "#8888aa",
   },
 });
 const OfferInfo = ({ formData, onFormUpdate, offerInfoFormErrors, setOfferType, offerType, isEdit }) => {
@@ -150,7 +167,7 @@ const OfferInfo = ({ formData, onFormUpdate, offerInfoFormErrors, setOfferType, 
         <CssTextField
           required
           type="input"
-          className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+          className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
           size="small"
           autoComplete="off"
           placeholder={"Enter Offer Id"}
@@ -173,7 +190,7 @@ const OfferInfo = ({ formData, onFormUpdate, offerInfoFormErrors, setOfferType, 
         <CssTextField
           required
           type={"input"}
-          className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+          className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
           size="small"
           autoComplete="off"
           placeholder={"Enter Description"}
@@ -195,7 +212,7 @@ const OfferInfo = ({ formData, onFormUpdate, offerInfoFormErrors, setOfferType, 
           Auto Apply:
         </label>
         <RadioGroup
-          className="w-full h-full px-2.5 text-seller-text bg-transparent !border-black"
+          className="w-full h-full px-2.5 text-seller-text bg-transparent !border-seller-muted"
           value={formValues.autoApply}
           onChange={(e) =>
             setFormValues({
@@ -228,7 +245,7 @@ const OfferInfo = ({ formData, onFormUpdate, offerInfoFormErrors, setOfferType, 
           Additive:
         </label>
         <RadioGroup
-          className="w-full h-full px-2.5  text-seller-text bg-transparent !border-black"
+          className="w-full h-full px-2.5  text-seller-text bg-transparent !border-seller-muted"
           value={formValues.additve}
           onChange={(e) =>
             setFormValues({

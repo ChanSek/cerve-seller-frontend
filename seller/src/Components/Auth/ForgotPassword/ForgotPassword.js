@@ -13,9 +13,29 @@ import {
 } from "../../../utils/validations";
 
 const CssTextField = styled(TextField)({
+  "& .MuiInput-root": {
+    color: "#e0e0e0",
+    "&:before": {
+      borderBottomColor: "#8888aa",
+    },
+    "&:hover:not(.Mui-disabled):before": {
+      borderBottomColor: "#6c5ce7",
+    },
+    "&:after": {
+      borderBottomColor: "#6c5ce7",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    color: "#8888aa",
+  },
+  "& .MuiInput-input::placeholder": {
+    color: "#8888aa",
+    opacity: 1,
+  },
   "& .MuiOutlinedInput-root": {
+    color: "#e0e0e0",
     "& fieldset": {
-      borderColor: "black",
+      borderColor: "#8888aa",
     },
     "&:hover fieldset": {
       borderColor: "#6c5ce7",
@@ -169,7 +189,7 @@ const ForgotPassword = () => {
             className="text-sm py-2 ml-0 font-medium text-left text-seller-text inline-block"
           >
             Email
-            <span className="text-[#FF0000]"> *</span>
+            <span className="text-seller-error"> *</span>
           </label>
           <CssTextField
             required
@@ -179,7 +199,7 @@ const ForgotPassword = () => {
             variant="standard"
             placeholder="Enter Email"
             autoComplete="off"
-            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
             onChange={(event) => updateEmail(event.target.value)}
             disabled={!checkEnableOtp()}
           />
@@ -190,7 +210,7 @@ const ForgotPassword = () => {
             className="text-sm py-2 ml-0 font-medium text-left text-seller-text inline-block"
           >
             New Password
-            <span className="text-[#FF0000]"> *</span>
+            <span className="text-seller-error"> *</span>
           </label>
           <CssTextField
             required
@@ -200,7 +220,7 @@ const ForgotPassword = () => {
             variant="standard"
             placeholder="Enter Password(mininum 6 characters)"
             autoComplete="off"
-            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
             onChange={(event) => setPassword1(event.target.value)}
             disabled={checkEnableOtp()}
           />
@@ -211,7 +231,7 @@ const ForgotPassword = () => {
             className="text-sm py-2 ml-0 font-medium text-left text-seller-text inline-block"
           >
             Confirm Password
-            <span className="text-[#FF0000]"> *</span>
+            <span className="text-seller-error"> *</span>
           </label>
           <CssTextField
             required
@@ -221,7 +241,7 @@ const ForgotPassword = () => {
             variant="standard"
             placeholder="Confirm Password"
             autoComplete="off"
-            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
             onChange={(event) => setPassword2(event.target.value)}
             disabled={checkEnableOtp()}
           />
@@ -232,7 +252,7 @@ const ForgotPassword = () => {
             className="text-sm py-2 ml-0 font-medium text-left text-seller-text inline-block"
           >
             Email OTP
-            <span className="text-[#FF0000]"> *</span>
+            <span className="text-seller-error"> *</span>
           </label>
           <CssTextField
             required
@@ -242,7 +262,7 @@ const ForgotPassword = () => {
             variant="standard"
             placeholder="Enter OTP Provided Through Email"
             autoComplete="off"
-            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-black"
+            className="w-full h-full px-2.5 py-3.5 text-seller-text bg-transparent !border-seller-muted"
             onChange={(event) => setEmailOtp(event.target.value)}
             disabled={checkEnableOtp()}
           />
@@ -273,7 +293,7 @@ const ForgotPassword = () => {
     <div className="py-2 text-center">
       <p className="text-xs text-seller-text">Already have an account?</p>
       <NavLink to="/login" className="">
-        <p className="text-xs text-[#3d629ad2] hover:text-[#0066ffd2]">Login</p>
+        <p className="text-xs text-seller-accent hover:text-seller-cyan">Login</p>
       </NavLink>
     </div>
   );

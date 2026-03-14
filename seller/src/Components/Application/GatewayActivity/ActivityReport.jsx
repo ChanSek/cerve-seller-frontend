@@ -13,15 +13,15 @@ const ActivityReport = () => {
 
   return (
     <div className="p-4 grid grid-cols-3 gap-4">
-      <div className="bg-white shadow rounded-xl p-4">
+      <div className="bg-seller-card shadow rounded-xl p-4">
         <h2 className="font-semibold text-lg">Last 1 Month</h2>
         <p className="text-2xl">{counts.lastMonth}</p>
       </div>
-      <div className="bg-white shadow rounded-xl p-4">
+      <div className="bg-seller-card shadow rounded-xl p-4">
         <h2 className="font-semibold text-lg">Last 1 Week</h2>
         <p className="text-2xl">{counts.lastWeek}</p>
       </div>
-      <div className="bg-white shadow rounded-xl p-4">
+      <div className="bg-seller-card shadow rounded-xl p-4">
         <h2 className="font-semibold text-lg">Last 1 Day</h2>
         <p className="text-2xl">{counts.lastDay}</p>
       </div>

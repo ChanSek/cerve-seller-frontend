@@ -20,7 +20,7 @@ const MenuProducts = (props) => {
       <div>
         <div
           style={{ borderStyle: reordering ? "dashed" : "solid" }}
-          className="flex items-center justify-between py-[4px] px-8 mb-2 border border-[#1876d1a1] rounded-xl bg-white"
+          className="flex items-center justify-between py-[4px] px-8 mb-2 border border-seller-accent rounded-xl bg-seller-card"
           onClick={(e) => e.stopPropagation()}
         >
           <p>{item.name}</p>
@@ -88,7 +88,7 @@ const MenuProducts = (props) => {
             addedProducts.map((item) => <Product item={item} />)
           ) : (
             <div>
-              <div className="flex items-center justify-between py-3 px-4 mb-2 border border-[#1876d1a1] rounded-lg bg-white">
+              <div className="flex items-center justify-between py-3 px-4 mb-2 border border-seller-accent rounded-lg bg-seller-card">
                 <p>No products are added in this menu.</p>
               </div>
             </div>

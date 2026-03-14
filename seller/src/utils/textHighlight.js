@@ -11,8 +11,8 @@ import React from 'react';
 export const highlightText = (text, searchTerm, highlightStyle = {}) => {
     // Default highlight styling
     const defaultStyle = {
-        backgroundColor: '#fff3cd',
-        color: '#856404',
+        backgroundColor: '#6c5ce740',
+        color: '#00d2ff',
         fontWeight: 'bold',
         padding: '1px 2px',
         borderRadius: '2px'
