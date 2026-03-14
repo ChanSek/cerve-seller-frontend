@@ -179,7 +179,7 @@ const ConnectWooCommerceDialog = ({ open, onClose }) => {
             helperText="Keep this secret - it provides access to your store"
           />
 
-          <Box sx={{ mt: 2, p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
+          <Box sx={{ mt: 2, p: 2, bgcolor: "background.paper", borderRadius: 1 }}>
             <Typography variant="subtitle2" gutterBottom>
               How to get your API credentials:
             </Typography>

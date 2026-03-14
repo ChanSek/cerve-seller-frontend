@@ -393,10 +393,11 @@ const styles = {
   },
   modalContent: {
     position: 'relative',
-    background: '#fff',
+    background: '#1e1e2e',
+    color: '#e0e0e0',
     padding: '20px',
     borderRadius: '3px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
     maxWidth: '90vw', // Limit the width to 90% of the viewport width
     maxHeight: '90vh', // Keep height within 90% of the viewport height
     overflowY: 'auto', // Allow scrolling if content overflows

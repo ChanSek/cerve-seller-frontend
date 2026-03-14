@@ -44,7 +44,7 @@ const useStyles = makeStyles({
     },
     dottedConnector: {
         borderLeft: '2px dashed rgba(0, 0, 0, 0.10) !important',
-        background: '#fff !important'
+        background: 'transparent !important'
     },
     timelineContentHeaderTypo: {
         fontSize: '16px !important',
