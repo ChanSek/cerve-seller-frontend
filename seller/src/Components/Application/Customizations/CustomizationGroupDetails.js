@@ -6,45 +6,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import BackNavigationButton from "../../Shared/BackNavigationButton";
 import { getCall, postCall, putCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
-import { FormControl, MenuItem, Select, TextField, Checkbox } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { FormControl, MenuItem, Select, Checkbox } from "@mui/material";
 import { Add, Delete, Save } from "@mui/icons-material";
 import Button from "../../Shared/Button";
+import CssTextField from "../../Shared/CssTextField";
 import CustomizationGroupItems from "./CustomizationGroupItems";
-
-const CssTextField = styled(TextField)({
-  "& .MuiOutlinedInput-root": {
-    color: "#e0e0e0",
-    "& fieldset": {
-      borderColor: "#8888aa",
-    },
-    "&:hover fieldset": {
-      borderColor: "#6c5ce7",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInput-root": {
-    color: "#e0e0e0",
-    "&:before": {
-      borderBottomColor: "#8888aa",
-    },
-    "&:hover:not(.Mui-disabled):before": {
-      borderBottomColor: "#6c5ce7",
-    },
-    "&:after": {
-      borderBottomColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInputBase-input::placeholder": {
-    color: "#8888aa",
-    opacity: 1,
-  },
-  "& .MuiInputLabel-root": {
-    color: "#8888aa",
-  },
-});
 
 const initialMenuDetails = {
   seq: "",

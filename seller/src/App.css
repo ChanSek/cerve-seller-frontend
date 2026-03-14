@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter&family=Open+Sans&family=Poppins&family=JetBrains+Mono&display=swap");
+/* Google Fonts are loaded via <link> in public/index.html for better performance */
 
 .poppins {
   font-family: "Poppins", sans-serif;

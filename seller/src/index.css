@@ -44,14 +44,8 @@ code {
   background: theme('colors.seller.cyan');
 }
 
-.MuiOutlinedInput-root {
-  border-radius: 10px !important;
-}
-
-::-webkit-input-placeholder {
-  font-size: 14px !important;
-  font-weight: 400 !important;
-}
+/* MuiOutlinedInput border-radius and placeholder styles are now
+   handled via MUI theme component overrides in utils/Theme/index.js */
 
 .container {
   max-width: 90%;
@@ -70,13 +64,13 @@ code {
   height: auto;
   max-width: 350px;
   max-height: 200px;
-  border: 4px solid #1a1a2e;
+  border: 4px solid theme('colors.seller.elevated');
   margin-right: 10px;
   cursor: pointer;
 }
 
 .previewContainer svg {
-  color: #ffffffba;
+  color: rgba(255, 255, 255, 0.73);
   cursor: pointer;
   font-size: 30px;
   position: absolute;
@@ -86,7 +80,7 @@ code {
 }
 
 .previewContainer svg:hover {
-  color: #c6011fca;
+  color: theme('colors.seller.error');
 }
 
 .scrollbar-hidden::-webkit-scrollbar {
@@ -98,27 +92,27 @@ code {
   scrollbar-width: none;
 }
 
-.MuiAutocomplete-popper {
-  z-index: 11111 !important;
-}
+/* MuiAutocomplete popper z-index is now handled via
+   MUI theme component overrides in utils/Theme/index.js */
 
 .inputClass {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.23) !important;
-  padding: 16px 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.23);
+  padding: 16px 14px;
   border-radius: 10px;
-  line-height: 24px !important;
-  background-color: #12121a;
-  color: #e0e0e0;
+  line-height: 24px;
+  background-color: theme('colors.seller.card');
+  color: theme('colors.seller.text');
 }
 
+/* MapMyIndia picker overrides - !important needed to override third-party widget styles */
 #mmiPickerTop {
   border: 0px solid transparent !important;
   background-color: transparent !important;
 }
 
 #Dv_mmiSearch_map {
-  background-color: #12121a !important;
+  background-color: theme('colors.seller.card') !important;
 }
 
 #mmiSearch_map {
@@ -137,13 +131,13 @@ input[type='number']::-webkit-outer-spin-button {
 }
 
 .document-review-message {
-  background-color: #12121a;
-  border: 1px solid #1a1a2e;
+  background-color: theme('colors.seller.card');
+  border: 1px solid theme('colors.seller.elevated');
   border-radius: 5px;
   padding: 15px;
   margin: 20px 0;
   font-family: Arial, sans-serif;
-  color: #e0e0e0;
+  color: theme('colors.seller.text');
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
@@ -160,20 +154,20 @@ input[type='number']::-webkit-outer-spin-button {
 
 .note-title {
   font-weight: bold;
-  color: #e0e0e0;
+  color: theme('colors.seller.text');
   margin-bottom: 5px;
 }
 
 .note-text {
   font-size: 1em;
-  color: #8888aa;
+  color: theme('colors.seller.muted');
   line-height: 1.6;
   padding-left: 5px;
 }
 
 .highlight {
   font-weight: bold;
-  color: #00d2ff;
+  color: theme('colors.seller.cyan');
 }
 
 .image-preview-container {
@@ -189,8 +183,8 @@ input[type='number']::-webkit-outer-spin-button {
   z-index: 2000;
   width: 500px;
   height: auto;
-  border: 1px solid #1a1a2e;
-  background-color: #12121a;
+  border: 1px solid theme('colors.seller.elevated');
+  background-color: theme('colors.seller.card');
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
   display: none;
 }

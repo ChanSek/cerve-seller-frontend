@@ -3,48 +3,11 @@ import Button from "../../Shared/Button";
 import CustomRadioButton from "./CustomRadioButton";
 import { postCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
-import { TextField, Box, Typography } from "@mui/material";
-import styled from "@emotion/styled";
+import { Box, Typography } from "@mui/material";
+import CssTextField from "../../Shared/CssTextField";
 import ErrorMessage from "../../Shared/ErrorMessage";
 import CrossIcon from "../../Shared/svg/cross-icon";
 import { actionCardStyles } from "../../../Styles/actionCardStyles";
-
-// ----------------------
-// Styled MUI TextField
-// ----------------------
-const CssTextField = styled(TextField)({
-  "& .MuiOutlinedInput-root": {
-    color: "#e0e0e0",
-    "& fieldset": {
-      borderColor: "#8888aa",
-    },
-    "&:hover fieldset": {
-      borderColor: "#6c5ce7",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInput-root": {
-    color: "#e0e0e0",
-    "&:before": {
-      borderBottomColor: "#8888aa",
-    },
-    "&:hover:not(.Mui-disabled):before": {
-      borderBottomColor: "#6c5ce7",
-    },
-    "&:after": {
-      borderBottomColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInputBase-input::placeholder": {
-    color: "#8888aa",
-    opacity: 1,
-  },
-  "& .MuiInputLabel-root": {
-    color: "#8888aa",
-  },
-});
 
 // ----------------------
 // Action Types (single selection now)

@@ -1,40 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { styled } from "@mui/material/styles";
-import { Button, FormControl, MenuItem, Modal, Select, TextField, Checkbox } from "@mui/material";
-
-const CssTextField = styled(TextField)({
-  "& .MuiOutlinedInput-root": {
-    color: "#e0e0e0",
-    "& fieldset": {
-      borderColor: "#8888aa",
-    },
-    "&:hover fieldset": {
-      borderColor: "#6c5ce7",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInput-root": {
-    color: "#e0e0e0",
-    "&:before": {
-      borderBottomColor: "#8888aa",
-    },
-    "&:hover:not(.Mui-disabled):before": {
-      borderBottomColor: "#6c5ce7",
-    },
-    "&:after": {
-      borderBottomColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInputBase-input::placeholder": {
-    color: "#8888aa",
-    opacity: 1,
-  },
-  "& .MuiInputLabel-root": {
-    color: "#8888aa",
-  },
-});
+import { Button, FormControl, MenuItem, Modal, Select, Checkbox } from "@mui/material";
+import CssTextField from "../../Shared/CssTextField";
 
 const AddCustomizationGroup = (props) => {
   const {

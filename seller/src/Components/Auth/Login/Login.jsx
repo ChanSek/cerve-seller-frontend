@@ -3,8 +3,7 @@ import Button from "../../Shared/Button";
 import AuthActionCard from "../AuthActionCard/AuthActionCard";
 import { NavLink, useNavigate } from "react-router-dom";
 import ErrorMessage from "../../Shared/ErrorMessage";
-import TextField from "@mui/material/TextField";
-import { styled } from "@mui/material/styles";
+import CssTextField from "../../Shared/CssTextField";
 import { isEmailValid } from "../../../utils/validations";
 import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
 import { AddCookie, getValueFromCookie } from "../../../utils/cookies";
@@ -13,40 +12,6 @@ import cogoToast from "cogo-toast";
 import { isObjEmpty } from "../../../utils/validations";
 import { v4 as uuidv4 } from "uuid";
 
-
-const CssTextField = styled(TextField)({
-  "& .MuiInput-root": {
-    color: "#e0e0e0",
-    "&:before": {
-      borderBottomColor: "#8888aa",
-    },
-    "&:hover:not(.Mui-disabled):before": {
-      borderBottomColor: "#6c5ce7",
-    },
-    "&:after": {
-      borderBottomColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInputLabel-root": {
-    color: "#8888aa",
-  },
-  "& .MuiInput-input::placeholder": {
-    color: "#8888aa",
-    opacity: 1,
-  },
-  "& .MuiOutlinedInput-root": {
-    color: "#e0e0e0",
-    "& fieldset": {
-      borderColor: "#8888aa",
-    },
-    "&:hover fieldset": {
-      borderColor: "#6c5ce7",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#6c5ce7",
-    },
-  },
-});
 
 export default function Login() {
   const navigate = useNavigate();

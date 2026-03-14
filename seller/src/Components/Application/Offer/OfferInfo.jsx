@@ -1,48 +1,14 @@
 import { useEffect, useState } from "react";
 import useForm from "../../../hooks/useForm";
-import { styled } from "@mui/material/styles";
 import { Button, FormControl, MenuItem, Modal, Autocomplete, Select, TextField, Checkbox, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import RenderInput from "../../../utils/RenderInput";
+import CssTextField from "../../Shared/CssTextField";
 import { getCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
 import moment from "moment";
-
-const CssTextField = styled(TextField)({
-  "& .MuiOutlinedInput-root": {
-    color: "#e0e0e0",
-    "& fieldset": {
-      borderColor: "#8888aa",
-    },
-    "&:hover fieldset": {
-      borderColor: "#6c5ce7",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInput-root": {
-    color: "#e0e0e0",
-    "&:before": {
-      borderBottomColor: "#8888aa",
-    },
-    "&:hover:not(.Mui-disabled):before": {
-      borderBottomColor: "#6c5ce7",
-    },
-    "&:after": {
-      borderBottomColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInputBase-input::placeholder": {
-    color: "#8888aa",
-    opacity: 1,
-  },
-  "& .MuiInputLabel-root": {
-    color: "#8888aa",
-  },
-});
 const OfferInfo = ({ formData, onFormUpdate, offerInfoFormErrors, setOfferType, offerType, isEdit }) => {
   const { formValues, setFormValues, errors, setErrors } = useForm({
     ...formData,

@@ -107,34 +107,32 @@ const StoreSwitcher = () => {
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: { xs: 1, sm: 2 }, // Reduced gap on small screens
-        flexDirection: { xs: "column", sm: "row" }, // Stack vertically on small screens
-        width: { xs: '100%', sm: 'auto' }, // Full width on small screens
-        justifyContent: { xs: 'center', sm: 'flex-start' }, // Center items when stacked
-        mt: { xs: 1, sm: 0 }, // Add top margin on small screens when stacked
+        gap: { xs: 1, sm: 2 },
+        flexDirection: { xs: "column", sm: "row" },
+        width: { xs: '100%', sm: 'auto' },
+        justifyContent: { xs: 'center', sm: 'flex-start' },
+        mt: { xs: 1, sm: 0 },
       }}
     >
       <Typography
         sx={{
-          color: "#fff",
+          color: "common.white",
           fontWeight: 600,
-          fontSize: { xs: "0.8rem", sm: "0.95rem" }, // Smaller font on small screens
+          fontSize: { xs: "0.8rem", sm: "0.95rem" },
           px: 1,
           py: 0.5,
           borderRadius: "4px",
           textTransform: "uppercase",
           letterSpacing: "0.5px",
-          whiteSpace: "nowrap", // Prevent text wrapping
-          alignItems: "center", // Align items when display is flex
-          // Combined display property to avoid duplication warning
-          display: { xs: 'none', sm: 'flex' }, // Hide on extra-small, show as flex on small and above
+          whiteSpace: "nowrap",
+          alignItems: "center",
+          display: { xs: 'none', sm: 'flex' },
         }}
       >
         Current Store
         <ChevronRightIcon sx={{ ml: 0.5, fontSize: "1.1rem" }} />
       </Typography>
 
-      {/* Store Dropdown */}
       {/* Store Dropdown */}
       <FormControl
         size="small"
@@ -143,33 +141,32 @@ const StoreSwitcher = () => {
           width: { xs: '100%', sm: 'auto' },
           maxWidth: { xs: 200, sm: 'auto' },
         }}
-        disabled={stores.length === 1} // 🔹 disable if only one store
+        disabled={stores.length === 1}
       >
         <Select
           value={selectedStoreId || ""}
           onChange={handleStoreChange}
           displayEmpty
           sx={{
-            color: "#fff",
+            color: "common.white",
             "& .MuiSelect-select": {
-              color: "#fff", // normal state
+              color: "common.white",
             },
             "&.Mui-disabled .MuiSelect-select": {
-              color: "#fff !important",   // 🔹 force white when disabled
-              WebkitTextFillColor: "#fff", // 🔹 Safari fix
+              WebkitTextFillColor: (theme) => theme.palette.common.white,
             },
-            "& .MuiSvgIcon-root": { color: "#fff" },
+            "& .MuiSvgIcon-root": { color: "common.white" },
             "& .MuiOutlinedInput-notchedOutline": {
               borderColor: "rgba(255,255,255,0.6)",
             },
             "&:hover .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#fff",
+              borderColor: "common.white",
             },
           }}
         >
           <MenuItem value="">Select Store</MenuItem>
           {stores.map((store) => (
-            <MenuItem key={store.storeId} value={store.storeId} sx={{ color: "#e0e0e0" }}>
+            <MenuItem key={store.storeId} value={store.storeId} sx={{ color: "text.primary" }}>
               {store.cityCode}
             </MenuItem>
           ))}
@@ -193,26 +190,25 @@ const StoreSwitcher = () => {
           onChange={handleCategoryChange}
           displayEmpty
           sx={{
-            color: "#fff",
+            color: "common.white",
             "& .MuiSelect-select": {
-              color: "#fff",
+              color: "common.white",
             },
             "&.Mui-disabled .MuiSelect-select": {
-              color: "#fff !important",
-              WebkitTextFillColor: "#fff",
+              WebkitTextFillColor: (theme) => theme.palette.common.white,
             },
-            "& .MuiSvgIcon-root": { color: "#fff" },
+            "& .MuiSvgIcon-root": { color: "common.white" },
             "& .MuiOutlinedInput-notchedOutline": {
               borderColor: "rgba(255,255,255,0.6)",
             },
             "&:hover .MuiOutlinedInput-notchedOutline": {
-              borderColor: "#fff",
+              borderColor: "common.white",
             },
           }}
         >
           <MenuItem value="">Select Category</MenuItem>
           {selectedStore?.categories.map((cat) => (
-            <MenuItem key={cat.category} value={cat.category} sx={{ color: "#e0e0e0" }}>
+            <MenuItem key={cat.category} value={cat.category} sx={{ color: "text.primary" }}>
               {cat.label}
             </MenuItem>
           ))}

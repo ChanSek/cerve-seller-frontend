@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { styled } from "@mui/material/styles";
 import {
   Autocomplete,
   Checkbox,
@@ -16,6 +15,7 @@ import {
   Switch,
   InputAdornment,
 } from "@mui/material";
+import CssTextField from "../Components/Shared/CssTextField";
 import { DeleteOutlined } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -30,40 +30,6 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
 import DaysPicker from "react-multi-date-picker";
 import DatePanel from "react-multi-date-picker/plugins/date_panel";
-
-const CssTextField = styled(TextField)({
-  "& .MuiOutlinedInput-root": {
-    color: "#e0e0e0",
-    "& fieldset": {
-      borderColor: "#8888aa",
-    },
-    "&:hover fieldset": {
-      borderColor: "#6c5ce7",
-    },
-    "&.Mui-focused fieldset": {
-      borderColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInput-root": {
-    color: "#e0e0e0",
-    "&:before": {
-      borderBottomColor: "#8888aa",
-    },
-    "&:hover:not(.Mui-disabled):before": {
-      borderBottomColor: "#6c5ce7",
-    },
-    "&:after": {
-      borderBottomColor: "#6c5ce7",
-    },
-  },
-  "& .MuiInputBase-input::placeholder": {
-    color: "#8888aa",
-    opacity: 1,
-  },
-  "& .MuiInputLabel-root": {
-    color: "#8888aa",
-  },
-});
 
 const RenderInput = (props) => {
   const { item, state, stateHandler, onChange, previewOnly, setFocusedField, handleChange = undefined, args } = props;
@@ -894,7 +860,7 @@ const RenderInput = (props) => {
             name="contained-button-file"
             style={{
               opacity: "none",
-              color: item.fontColor ? item.fontColor : "#e0e0e0",
+              color: item.fontColor ? item.fontColor : "inherit",
               marginBottom: 10,
             }}
             accept="image/*"
