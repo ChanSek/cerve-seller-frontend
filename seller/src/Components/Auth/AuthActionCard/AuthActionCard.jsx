@@ -1,0 +1,32 @@
+import React from "react";
+import logo from "../../../Assets/Images/logo.png";
+
+export default function AuthActionCard(props) {
+  const { action_form, navigation_link } = props;
+  return (
+    <div className="mx-auto !p-5 h-screen min-vh-100 overflow-auto bg-seller-bg">
+      <div className="h-full flex fex-row items-center justify-center">
+        <div className="h-3/4 w-full md:w-2/4 bg-seller-card px-2.5 py-2.5 rounded-md shadow-xl border border-seller-elevated">
+          <div
+            style={{ height: "20%" }}
+            className="flex fex-row items-center justify-center"
+          >
+            <img src={logo} alt="logo" style={{ height: "50px" }} />
+          </div>
+          <div
+            style={{ height: "70%" }}
+            className="overflow-auto flex justify-center"
+          >
+            {action_form}
+          </div>
+          <div
+            style={{ height: "10%" }}
+            className="flex fex-row items-center justify-center"
+          >
+            {navigation_link}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

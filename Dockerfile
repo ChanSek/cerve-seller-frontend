@@ -9,10 +9,10 @@ ENV REACT_APP_BASE_URL ${REACT_APP_BASE_URL}
 ENV REACT_APP_FIREBASE_API_KEY ${REACT_APP_FIREBASE_API_KEY}
 ENV REACT_APP_FIREBASE_AUTH_DOMAIN ${REACT_APP_FIREBASE_AUTH_DOMAIN}
 
-WORKDIR /app
-COPY package.json package-lock.json ./
+WORKDIR /app/seller
+COPY seller/package.json seller/package-lock.json ./
 RUN npm install
-COPY . .
+COPY seller/ .
 RUN npm run-script build
 
 # Stage 2: Build Claw marketing website (Vite)
@@ -38,7 +38,7 @@ FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 # Copy seller frontend
-COPY --from=seller-builder /app/build ./seller
+COPY --from=seller-builder /app/seller/build ./seller
 # Copy claw website
 COPY --from=claw-builder /app/claw/dist ./claw
 # Copy root marketing website

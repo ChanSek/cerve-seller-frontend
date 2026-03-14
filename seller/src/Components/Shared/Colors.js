@@ -1,0 +1,13 @@
+export const ONDC_COLORS = {
+  ACCENTCOLOR: "#6c5ce7",
+  BACKGROUNDCOLOR: "#0a0a0f",
+  PRIMARYCOLOR: "#e0e0e0",
+  SECONDARYCOLOR: "#00d2ff",
+  ERROR: "#FF5959",
+  SUCCESS: "#2EB086",
+  WHITE: "#ffffff",
+  WARNING: "#F9C132",
+  CARDCOLOR: "#12121a",
+  ELEVATEDCOLOR: "#1a1a2e",
+  MUTEDCOLOR: "#8888aa",
+};

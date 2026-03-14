@@ -1,0 +1,13 @@
+/* Google Fonts are loaded via <link> in public/index.html for better performance */
+
+.poppins {
+  font-family: "Poppins", sans-serif;
+}
+
+.inter {
+  font-family: "Inter", sans-serif;
+}
+
+.App {
+  text-align: center;
+}
