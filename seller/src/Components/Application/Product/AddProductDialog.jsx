@@ -29,7 +29,6 @@ import RenderInput from "../../../utils/RenderInput";
 import {allProductFieldDetails, categorySpecificFields, variantProductFieldDetails} from "./gen-product-fields";
 import {validateProductForm} from "./validateProductForm";
 import cogoToast from "cogo-toast";
-import './AddProductDialog.css';
 import {validateVariantForm} from "./ValidateVariants";
 import {generateSKU} from "../../Shared/SkuGenerator";
 import {v4 as uuidv4} from 'uuid';
@@ -724,7 +723,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
     };
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle className="dialog-title">
+            <DialogTitle sx={{ m: 0, p: 2, display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid", borderColor: "divider" }}>
                 <Typography variant="h6" component="div" sx={{ color: 'primary.main' }}>
                     {isEditMode ? "Edit Product" : "Add New Product"}
                 </Typography>
@@ -970,7 +969,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                         </Tabs>
 
                         <TabPanel value={activeTab} index={0}>
-                            <Box className="details-section">
+                            <Box sx={{ border: "1px solid #e0e0e0", borderRadius: "2px", p: 3, mb: 3, bgcolor: "#fdfdfd", boxShadow: "0 4px 10px rgba(0,0,0,0.08)", transition: "box-shadow 0.3s ease-in-out", "&:hover": { boxShadow: "0 6px 15px rgba(0,0,0,0.12)" } }}>
                                 <Grid container spacing={2}>
                                     {(showAllFields
                                         ? fields.filter(f => !hasVariants || !variationFields.includes(f.id))
@@ -999,7 +998,7 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                         </TabPanel>
                         {category !== "RET10" && <TabPanel value={activeTab} index={1}>
                             {filteredAttributes.length === 0 && enableVitalInfo ? (
-                                <Box className="variant-empty">
+                                <Box sx={{ textAlign: "center", p: 4, border: "2px dashed #ccc", borderRadius: 4, bgcolor: "#f5f5f5" }}>
                                     <Typography variant="h6">No attributes found</Typography>
                                 </Box>
                             ) : (
@@ -1017,11 +1016,11 @@ const AddProductDialog = ({ storeId, category, open, onClose, refreshProducts, c
                         </TabPanel>}
                         <TabPanel value={activeTab} index={category !== "RET10" ? 2 : 1}>
                             {variants.length === 0 && hasVariants ? (
-                                <Box className="variant-empty">
+                                <Box sx={{ textAlign: "center", p: 4, border: "2px dashed #ccc", borderRadius: 4, bgcolor: "#f5f5f5" }}>
                                     <Typography variant="h6">No variants found. Add a new variant.</Typography>
                                 </Box>
                             ) : !hasVariants ? (
-                                <Box className="variant-empty">
+                                <Box sx={{ textAlign: "center", p: 4, border: "2px dashed #ccc", borderRadius: 4, bgcolor: "#f5f5f5" }}>
                                     <Typography variant="h6">Please enable product variations to add variants.</Typography>
                                 </Box>
                             ) : (

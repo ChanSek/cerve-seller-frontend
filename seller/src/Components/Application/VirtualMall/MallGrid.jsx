@@ -17,8 +17,6 @@ import {
 import { AddCircleOutline, Edit, Close } from "@mui/icons-material";
 import { useParams } from "react-router-dom";
 import { getCall } from "../../../Api/axios";
-import useStyles from "./style";
-import clsx from "clsx";
 import StoreDetails from "./StoreDetails";
 
 const categoryLabelMap = {
@@ -63,8 +61,6 @@ const MallGrid = ({ handleClick }) => {
   const [storeName, setStoreName] = useState("");
   const [selectedStoreId, setSelectedStoreId] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const classes = useStyles();
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -99,11 +95,12 @@ const MallGrid = ({ handleClick }) => {
   };
 
   return (
-    <Container maxWidth="lg" className={classes.pageContainer}>
+    <Container maxWidth="lg" sx={{ p: "30px 20px" }}>
       {/* Header Section */}
       <Box
-        className={classes.headerWrapper}
         sx={{
+          textAlign: "center",
+          mb: 4,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -113,8 +110,12 @@ const MallGrid = ({ handleClick }) => {
           {storeName && (
             <Typography
               variant="h4"
-              className={classes.subHeader}
-              sx={{ color: (theme) => theme.palette.primary.main }}
+              sx={{
+                fontWeight: 400,
+                fontSize: "2.0rem",
+                color: "#8888aa",
+                "& span": { color: "#6c5ce7", fontWeight: 600 },
+              }}
             >
               {storeName}
             </Typography>
@@ -152,8 +153,22 @@ const MallGrid = ({ handleClick }) => {
 
               return (
                 <Grid item xs={12} sm={6} md={4} key={storeId}>
-                  <Card className={clsx(classes.cardBase)}>
-                    <Box className={classes.imageContainer}>
+                  <Card sx={{
+                    borderRadius: 4,
+                    p: "24px 16px",
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    height: "100%",
+                    justifyContent: "space-between",
+                    textAlign: "center",
+                    overflow: "hidden",
+                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+                    "&:hover": { boxShadow: "0 10px 24px rgba(0, 0, 0, 0.12)" },
+                  }}>
+                    <Box sx={{ display: "flex", justifyContent: "center", mb: 1, minHeight: "60px" }}>
                       <img
                         src={logo}
                         alt="Store Logo"
@@ -204,10 +219,19 @@ const MallGrid = ({ handleClick }) => {
                     <Button
                       variant="contained"
                       startIcon={<Edit />}
-                      className={clsx(
-                        classes.buttonBase,
-                        classes.updateButton
-                      )}
+                      sx={{
+                        background: "#6c5ce7",
+                        color: "#fff",
+                        fontWeight: 500,
+                        p: "8px 20px",
+                        borderRadius: 2,
+                        mt: 1.5,
+                        transition: "box-shadow 0.3s ease",
+                        "&:hover": {
+                          background: "#5a4bd6",
+                          boxShadow: "0 6px 16px rgba(108, 92, 231, 0.4)",
+                        },
+                      }}
                       onClick={() =>
                         (handleClick || handleCardClick)(
                           categoryName,

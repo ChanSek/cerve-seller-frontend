@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useMemo, useState } from "react";
 import cogoToast from "cogo-toast";
 import axios from "axios";
 import ScriptTag from "react-script-tag";
-import "./PlacePickerMap.css";
 import {getCall} from "../../Api/axios";
 
 export default function MapPointer(props) {
@@ -86,7 +85,7 @@ export default function MapPointer(props) {
         src={`https://apis.mapmyindia.com/advancedmaps/api/${apiKey}/map_sdk_plugins`}
         onLoad={() => setScript2Loaded(true)}
       />
-      {script1Loaded && script2Loaded && <div id="map" ref={ref} />}
+      {script1Loaded && script2Loaded && <div id="map" ref={ref} style={{ width: '100%', height: '100%', margin: 0, padding: 0, zIndex: 99 }} />}
     </div>
   );
 }

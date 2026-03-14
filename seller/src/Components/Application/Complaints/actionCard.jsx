@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import CrossIcon from "../../Shared/svg/cross-icon";
 import Button from "../../Shared/Button";
-import styles from "../../../Styles/actionCard.module.scss"
 import { postCall } from "../../../Api/axios";
 import CustomRadioButton from "./CustomRadioButton";
 import cogoToast from "cogo-toast";
 import ErrorMessage from "../../Shared/ErrorMessage";
 import { ONDC_COLORS } from "../../Shared/Colors";
-import { TextField } from "@mui/material";
+import { TextField, Box, Typography } from "@mui/material";
 import styled from "@emotion/styled";
+import { actionCardStyles } from "../../../Styles/actionCardStyles";
 
 const CssTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
@@ -156,10 +156,10 @@ export default function CustomerActionCard({
   }
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.popup_card}>
-        <div className={`${styles.card_header} display: flex`} style={{justifyContent: 'space-between'}}>
-          <p className={styles.card_header_title}>Take Action</p>
+    <Box sx={actionCardStyles.overlay}>
+      <Box sx={actionCardStyles.popupCard}>
+        <Box sx={{ ...actionCardStyles.cardHeader, display: 'flex', justifyContent: 'space-between' }}>
+          <Typography sx={actionCardStyles.cardHeaderTitle}>Take Action</Typography>
           <div className="ms-auto">
             <CrossIcon
               width="20"
@@ -169,10 +169,10 @@ export default function CustomerActionCard({
               onClick={onClose}
             />
           </div>
-        </div>
+        </Box>
 
-        <div className={`${styles.card_header}`}>
-          <div className="display: flex">
+        <Box sx={actionCardStyles.cardHeader}>
+          <Box sx={{ display: "flex" }}>
             <CustomRadioButton
               disabled={loading}
               checked={selectedCancelType === ACTION_TYPES.noAction}
@@ -186,7 +186,7 @@ export default function CustomerActionCard({
               }}
             >
               <div className="px-3">
-                <p className={styles.address_name_and_phone}>
+                <p style={{ fontSize: "16px", fontWeight: 500, textAlign: "left", color: "#e0e0e0", margin: 0 }}>
                   No Action
                 </p>
               </div>
@@ -205,7 +205,7 @@ export default function CustomerActionCard({
               }}
             >
               <div className="px-3">
-                <p className={styles.address_name_and_phone}>
+                <p style={{ fontSize: "16px", fontWeight: 500, textAlign: "left", color: "#e0e0e0", margin: 0 }}>
                   Cancel
                 </p>
               </div>
@@ -224,7 +224,7 @@ export default function CustomerActionCard({
               }}
             >
               <div className="px-3">
-                <p className={styles.address_name_and_phone}>Replace</p>
+                <p style={{ fontSize: "16px", fontWeight: 500, textAlign: "left", color: "#e0e0e0", margin: 0 }}>Replace</p>
               </div>
             </CustomRadioButton>
             <CustomRadioButton
@@ -240,13 +240,13 @@ export default function CustomerActionCard({
               }}
             >
               <div className="px-3">
-                <p className={styles.address_name_and_phone}>
+                <p style={{ fontSize: "16px", fontWeight: 500, textAlign: "left", color: "#e0e0e0", margin: 0 }}>
                   Refund
                 </p>
               </div>
             </CustomRadioButton>
 
-          </div>
+          </Box>
           <CustomRadioButton
             disabled={loading}
             checked={selectedCancelType === ACTION_TYPES.cascadeIssue}
@@ -260,17 +260,17 @@ export default function CustomerActionCard({
             }}
           >
             <div className="px-3">
-              <p className={styles.address_name_and_phone}>
+              <p style={{ fontSize: "16px", fontWeight: 500, textAlign: "left", color: "#e0e0e0", margin: 0 }}>
                 Cascade
               </p>
             </div>
           </CustomRadioButton>
 
-        </div>
+        </Box>
 
 
 
-        <div className={styles.card_body}>
+        <Box sx={actionCardStyles.cardBody}>
 
           <div className="py-1 flex flex-col">
             <label className="text-sm py-2 ml-1 font-medium text-left text-seller-text inline-block">
@@ -338,11 +338,9 @@ export default function CustomerActionCard({
             </div>
           }
 
-        </div>
+        </Box>
 
-        <div
-          className={`${styles.card_footer}`}
-        >
+        <Box sx={actionCardStyles.cardFooter}>
           <Button
             type="button"
             disabled={loading}
@@ -358,8 +356,8 @@ export default function CustomerActionCard({
             className="!ml-5"
             onClick={() =>  onSubmit()}
           />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }

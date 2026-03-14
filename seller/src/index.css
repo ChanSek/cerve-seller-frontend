@@ -29,19 +29,19 @@ code {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 5px #1a1a2e;
+  box-shadow: inset 0 0 5px theme('colors.seller.elevated');
   border-radius: 10px;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #6c5ce7;
+  background: theme('colors.seller.accent');
   border-radius: 10px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #00d2ff;
+  background: theme('colors.seller.cyan');
 }
 
 .MuiOutlinedInput-root {

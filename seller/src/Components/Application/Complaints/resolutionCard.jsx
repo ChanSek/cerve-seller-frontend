@@ -3,11 +3,11 @@ import Button from "../../Shared/Button";
 import CustomRadioButton from "./CustomRadioButton";
 import { postCall } from "../../../Api/axios";
 import cogoToast from "cogo-toast";
-import { TextField } from "@mui/material";
+import { TextField, Box, Typography } from "@mui/material";
 import styled from "@emotion/styled";
 import ErrorMessage from "../../Shared/ErrorMessage";
 import CrossIcon from "../../Shared/svg/cross-icon";
-import styles from "../../../Styles/actionCard.module.scss";
+import { actionCardStyles } from "../../../Styles/actionCardStyles";
 
 // ----------------------
 // Styled MUI TextField
@@ -488,12 +488,12 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.popup_card}>
+    <Box sx={actionCardStyles.overlay}>
+      <Box sx={actionCardStyles.popupCard}>
         {/* Modal Header */}
-        <div
-          className={styles.card_header}
-          style={{
+        <Box
+          sx={{
+            ...actionCardStyles.cardHeader,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -506,10 +506,10 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
             style={{ cursor: "pointer" }}
             onClick={onClose}
           />
-        </div>
+        </Box>
 
         {/* Modal Body */}
-        <div className={styles.card_body}>
+        <Box sx={actionCardStyles.cardBody}>
           {resolutions.map((res, index) => (
             <ResolutionEntry
               key={res.id}
@@ -526,10 +526,10 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
             onClick={handleAddResolution}
             disabled={loading}
           />
-        </div>
+        </Box>
 
         {/* Modal Footer */}
-        <div className={styles.card_footer}>
+        <Box sx={actionCardStyles.cardFooter}>
           <Button type="button" title="Cancel" onClick={onClose} disabled={loading} />
           <Button
             type="button"
@@ -538,9 +538,9 @@ function MultiResolutionModal({ supportActionDetails, user, onSuccess, onClose }
             onClick={handleFinalSubmit}
             disabled={loading}
           />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

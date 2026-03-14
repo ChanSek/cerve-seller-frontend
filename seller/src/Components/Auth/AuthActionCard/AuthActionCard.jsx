@@ -1,5 +1,4 @@
 import React from "react";
-// import styles from "../../../styles/auth/auth.module.scss";
 import logo from "../../../Assets/Images/logo.png";
 
 export default function AuthActionCard(props) {

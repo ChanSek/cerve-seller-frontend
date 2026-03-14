@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import { DeleteOutlined } from "@mui/icons-material";
 import RenderInput from "../../../utils/RenderInput";
-import './AddProductDialog.css';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
@@ -44,7 +43,7 @@ const VariantSection = ({
     });
 
     return (
-        <Box className="details-section">
+        <Box sx={{ border: "1px solid #e0e0e0", borderRadius: "2px", p: 3, mb: 3, bgcolor: "#fdfdfd", boxShadow: "0 4px 10px rgba(0,0,0,0.08)", transition: "box-shadow 0.3s ease-in-out", "&:hover": { boxShadow: "0 6px 15px rgba(0,0,0,0.12)" } }}>
             <Typography variant="h6" sx={{ color: 'primary.dark', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 1 }}>
                 Variant {index + 1}
                 {shouldShowDeleteButton && (

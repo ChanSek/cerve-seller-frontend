@@ -1,20 +1,34 @@
 import React from "react";
-import styles from "../../../Styles/actionCard.module.scss";
+import { Box } from "@mui/material";
+import { radioButtonStyles } from "../../../Styles/actionCardStyles";
+
 export default function CustomRadioButton(props) {
   const { checked, oneditaddress, iseditable = false } = props;
   return (
-    <div className={`d-flex align-items-start ${styles.parent_radio}`}>
-      <button className={`${styles.radio_button_wrapper} p-2 my-1`} {...props}>
-        <div className={styles.box_basis}>
-          <div className={styles.radio_button_background}>
-            <div className={checked ? styles.active : styles.non_active}></div>
-          </div>
-        </div>
-        <div className={styles.name_basis}>{props.children}</div>
-      </button>
-      {iseditable && <div className={`p-2 my-1 ${styles.parent_edit_button}`}>
-        <button className={styles.edit_button} onClick={() => oneditaddress()}>edit</button>
-      </div>}
-    </div>
+    <Box sx={{ display: "flex", alignItems: "flex-start", ...radioButtonStyles.parentRadio }}>
+      <Box
+        component="button"
+        sx={{ ...radioButtonStyles.wrapper, p: 1, my: 0.5 }}
+        {...props}
+      >
+        <Box sx={radioButtonStyles.boxBasis}>
+          <Box sx={radioButtonStyles.background}>
+            <Box sx={checked ? radioButtonStyles.active : radioButtonStyles.nonActive} />
+          </Box>
+        </Box>
+        <Box sx={radioButtonStyles.nameBasis}>{props.children}</Box>
+      </Box>
+      {iseditable && (
+        <Box sx={{ p: 1, my: 0.5, ...radioButtonStyles.parentEditButton }}>
+          <Box
+            component="button"
+            sx={radioButtonStyles.editButton}
+            onClick={() => oneditaddress()}
+          >
+            edit
+          </Box>
+        </Box>
+      )}
+    </Box>
   );
 }

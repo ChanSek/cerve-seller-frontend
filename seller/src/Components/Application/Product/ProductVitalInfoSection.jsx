@@ -66,7 +66,7 @@ const VitalInfoSection = ({
     : updatedFields.filter(f => requiredFieldIds.has(f.id));
 
   return (
-    <Box className="details-section">
+    <Box sx={{ border: "1px solid #e0e0e0", borderRadius: "2px", p: 3, mb: 3, bgcolor: "#fdfdfd", boxShadow: "0 4px 10px rgba(0,0,0,0.08)", transition: "box-shadow 0.3s ease-in-out", "&:hover": { boxShadow: "0 6px 15px rgba(0,0,0,0.12)" } }}>
       <Grid container spacing={2}>
         {visibleFields.map(item => (
           <Grid item xs={12} sm={6} key={item.id}>

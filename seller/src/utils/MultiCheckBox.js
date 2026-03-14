@@ -1,26 +1,7 @@
 import React from 'react';
 import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
-import { makeStyles } from '@mui/styles';
-
-// Define custom styles for the checkboxes
-const useStyles = makeStyles({
-  checkbox: {
-    '& .MuiCheckbox-root': {
-      color: '#e0e0e0', // Default color
-    },
-    '& .Mui-checked': {
-      color: '#6c5ce7', // Color when checked
-    },
-  },
-  label: {
-    fontSize: '14px',
-    color: '#e0e0e0',
-  },
-});
 
 const MultiCheckbox = ({ options, state, onChange, id }) => {
-  const classes = useStyles();
-
   const handleChange = (e) => {
     const val = e.target.name;
     const currentValues = state[id] || [];
@@ -40,7 +21,10 @@ const MultiCheckbox = ({ options, state, onChange, id }) => {
             key={option.value}
             control={
               <Checkbox
-                className={classes.checkbox}
+                sx={{
+                  color: '#e0e0e0',
+                  '&.Mui-checked': { color: '#6c5ce7' },
+                }}
                 onChange={handleChange}
                 name={option.value}
                 size="small"
@@ -48,7 +32,7 @@ const MultiCheckbox = ({ options, state, onChange, id }) => {
               />
             }
             label={
-              <div className={classes.label}>
+              <div style={{ fontSize: '14px', color: '#e0e0e0' }}>
                 {option.label}
               </div>
             }

@@ -7,7 +7,8 @@ import { TextField } from "@mui/material";
 import styled from "@emotion/styled";
 import ErrorMessage from "../../Shared/ErrorMessage";
 import CrossIcon from "../../Shared/svg/cross-icon";
-import styles from "../../../Styles/actionCard.module.scss";
+import { Box } from "@mui/material";
+import { actionCardStyles } from "../../../Styles/actionCardStyles";
 
 const initialResolution = {
     id: Date.now(),
@@ -175,12 +176,12 @@ const MultiResolutionModal = ({ complaintId, open, onClose,refreshComplaints }) 
 
 
     return (
-        <div className={styles.overlay}>
-            <div className={styles.popup_card}>
+        <Box sx={actionCardStyles.overlay}>
+            <Box sx={actionCardStyles.popupCard}>
                 {/* Modal Header */}
-                <div
-                    className={styles.card_header}
-                    style={{
+                <Box
+                    sx={{
+                        ...actionCardStyles.cardHeader,
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
@@ -193,10 +194,10 @@ const MultiResolutionModal = ({ complaintId, open, onClose,refreshComplaints }) 
                         style={{ cursor: "pointer" }}
                         onClick={onClose}
                     />
-                </div>
+                </Box>
 
                 {/* Modal Body */}
-                <div className={styles.card_body}>
+                <Box sx={actionCardStyles.cardBody}>
                     {resolutions.map((res, index) => (
                         <ResolutionEntry
                             key={res.id}
@@ -214,10 +215,10 @@ const MultiResolutionModal = ({ complaintId, open, onClose,refreshComplaints }) 
                         onClick={handleAddResolution}
                         disabled={loading}
                     />
-                </div>
+                </Box>
 
                 {/* Modal Footer */}
-                <div className={styles.card_footer} style={{ display: "flex", justifyContent: "flex-end" }}>
+                <Box sx={{ ...actionCardStyles.cardFooter, display: "flex", justifyContent: "flex-end" }}>
                     <Button
                         type="button"
                         title="Cancel"
@@ -232,9 +233,9 @@ const MultiResolutionModal = ({ complaintId, open, onClose,refreshComplaints }) 
                         onClick={handleFinalSubmit}
                         disabled={loading}
                     />
-                </div>
-            </div>
-        </div>
+                </Box>
+            </Box>
+        </Box>
     );
 };
 
